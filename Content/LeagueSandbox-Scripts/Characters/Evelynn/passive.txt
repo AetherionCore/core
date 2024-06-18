@@ -1,0 +1,147 @@
+EvelynnPassive - ShadowWalkRevealedDebuff, ShadowWalk, EvelynnHateSpikeMarker (unknown)
+ShadowWalkRevealedDebuff - ShadowWalkRestealthFadeout
+ShadowWalk - EvelynnWarning, EvelynnStealthMarker, EvelynnStealthRing, ShadowWalkRevealedWarning, EvelynnStealth
+EvelynnWarning - ShadowWalkRevealedWarning
+EvelynnStealthMarker - EvelynnStealthMana
+EvelynnStealthRing - ShadowWalkRevealedWarning
+EvelynnStealth - ShadowWalkRevealedWarning
+
+ShadowWalkRevealedDebuff - evelyn_invis_exit_cas.troy
+ShadowWalkRestealthFadout - evelyn_invis_cas.troy
+EvelynnWarning - evelynn_redeye.troy, evelynn_yelloweye.troy
+ShadowWalkRevealedWarning - evelynn-yikes.troy
+EvelynnStealthMana - evelynnmana.troy
+EvelynnStealthRing - evelynn_ring_green.troy
+
+
+Evelynn Passive Parts:
+Buffs:
+Camo
+Mana Regen
+Ghost Walking
+
+Debuffs: 
+Disabled Passive
+
+Mechnical:
+Stealth Trigger
+DeStealth Trigger
+Detection Radius
+Detection Warnings
+Animation Change
+
+
+
+Passive Shadow Walk
+Self-targeted buff
+Buffs:
+camo - out-combat 
+mana-regen - 2% every second
+ghosted - ignore unit collision
+
+Debuffs:
+Disable Shadow-walk - in-combat/use ability 6/5/4/3s level before re-enter
+
+Components:
+Detection Radius - 700-units display ring
+Detection warning - yellow/red eye
+Stealth Smoke puff
+
+
+
+
+
+
+
+
+
+
+
+        // Class to represent a co-ordinate
+        // point
+        public class Point
+        {
+            public float x, y;
+
+            public Point()
+            {
+                x = y = 0;
+            }
+
+            public Point(float a, float b)
+            {
+                x = a;
+                y = b;
+            }
+        };
+
+        // Function to print pair of points at
+        // distance 'l' and having a slope 'm'
+        // from the source
+        static Point printPoints(Point source, float l, float m)
+        {
+
+            // m is the slope of line, and the
+            // required Point lies distance l
+            // away from the source Point
+            Point a = new Point();
+            Point b = new Point();
+
+            // Slope is 0
+            if (m == 0)
+            {
+                a.x = source.x + l;
+                a.y = source.y;
+
+                b.x = source.x - l;
+                b.y = source.y;
+            }
+
+            // If slope is infinite
+            else if (Double.IsInfinity(m))
+            {
+                a.x = source.x;
+                a.y = source.y + l;
+
+                b.x = source.x;
+                b.y = source.y - l;
+            }
+            else
+            {
+                float dx = (float)(l / Math.Sqrt(
+                                   1 + (m * m)));
+                float dy = m * dx;
+                a.x = source.x + dx;
+                a.y = source.y + dy;
+                b.x = source.x - dx;
+                b.y = source.y - dy;
+            }
+
+            // Print the first Point
+            Console.WriteLine(a.x + ", " + a.y);
+
+            // Print the second Point
+            Console.WriteLine(b.x + ", " + b.y);
+
+            return new Point(b.x, b.y);
+        }
+
+
+
+
+spell.CreateSpellSector(new SectorParameters
+            {
+                BindObject = owner,
+                Length = 1000f,
+                Width = 100f,
+                PolygonVertices = new Vector2[]
+               {
+                    // Basic square, however the values will be scaled by Length/Width, which will make it a rectangle
+                    new Vector2(-1, 0),
+                    new Vector2(-1, 1),
+                    new Vector2(1, 1),
+                    new Vector2(1, 0)
+               },
+                SingleTick = true,
+                Type = SectorType.Polygon
+            });
