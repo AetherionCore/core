@@ -77,12 +77,10 @@ namespace Spells
         bool cd = false;
         public void OnUpdate(float diff)
         {
-            //ONCE AGAIN i am going to do spell logic in a separate spell
-            // what a bummer
             var dmg = 6 + _owner.Stats.Level;
             var ap = _owner.Stats.AbilityPower.Total * 0.1f;
             //LogDebug(Buffs.Trample.trample.ToString());
-            if (Trample.trample == true)
+            //if (Trample.trample == true)
             {
                 if (cd == false)
                 {
