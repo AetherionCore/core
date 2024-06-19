@@ -8,6 +8,7 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 
 namespace Spells
 {
@@ -82,9 +83,99 @@ namespace Spells
             var totalDamage = 50 + 125 * spell.CastInfo.SpellLevel + Ap;
             target.TakeDamage(spell.CastInfo.Owner, totalDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
         }
+
+        public void OnSpellChannel(Spell spell)
+        {
+        }
+
+        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
+        {
+        }
+
+        public void OnSpellPostChannel(Spell spell)
+        {
+        }
+
+        public void OnUpdate(float diff)
+        {
+        }
     }
 
-    public class InfernalGuardianGuide : BasePetController
+    public class InfernalGuardianGuide : ISpellScript
     {
+        public Pet Tibbers;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        {
+            NotSingleTargetSpell = true,
+            DoesntBreakShields = true,
+            TriggersSpellCasts = false,
+            IsDamagingSpell = true,
+            SpellDamageRatio = 0.5f,
+            IsPetDurationBuff = true
+        };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+        }
+
+        public void OnDeactivate(ObjAIBase owner, Spell spell)
+        {
+        }
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+            if (Tibbers != null)
+            {
+                // likely AddBuff("PetCommandParticle") here (refer to preload for particles)
+                AddParticle(owner, null, "cursor_moveto", start);
+
+                //TODO: Instead of baking AI here, make a general Pet AI script and set it as the default AI for Pet class.
+                var unitsInRage = GetUnitsInRange(end, 100.0f, true);
+                unitsInRage.RemoveAll(x => x.Team == spell.CastInfo.Owner.Team);
+                if (unitsInRage.Count > 0)
+                {
+                    Tibbers.UpdateMoveOrder(OrderType.PetHardAttack);
+                    Tibbers.SetTargetUnit(unitsInRage[0]);
+                    for (int i = 0; i < unitsInRage.Count; i++)
+                    {
+                        spell.CastInfo.SetTarget(unitsInRage[i], i);
+                    }
+                }
+                else
+                {
+                    Tibbers.SetTargetUnit(null, true);
+                    Tibbers.UpdateMoveOrder(OrderType.PetHardMove);
+                    Tibbers.SetWaypoints(GetPath(Tibbers.Position, end));
+                }
+            }
+        }
+
+        public void OnSpellCast(Spell spell)
+        {
+        }
+
+        public void OnSpellPostCast(Spell spell)
+        {
+        }
+
+        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
+        {
+        }
+
+        public void OnSpellChannel(Spell spell)
+        {
+        }
+
+        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
+        {
+        }
+
+        public void OnSpellPostChannel(Spell spell)
+        {
+        }
+
+        public void OnUpdate(float diff)
+        {
+        }
     }
 }
