@@ -87,6 +87,13 @@ namespace LeagueSandbox.GameServer.API
             }
         }
 
+        public static Dispatcher<AttackableUnit, AttackableUnit> OnTakeDamageByAnother
+                = new Dispatcher<AttackableUnit, AttackableUnit>();
+        public static Dispatcher<AttackableUnit, AttackableUnit> OnHitUnitByAnother
+                = new Dispatcher<AttackableUnit, AttackableUnit>();
+        public static Dispatcher<AttackableUnit, AttackableUnit> OnLaunchMissileByAnother
+                = new Dispatcher<AttackableUnit, AttackableUnit>();
+
         // Unused
         public static Dispatcher<AttackableUnit, AttackableUnit> OnAddPAR
                 = new Dispatcher<AttackableUnit, AttackableUnit>();
