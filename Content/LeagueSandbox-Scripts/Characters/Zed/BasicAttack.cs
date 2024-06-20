@@ -8,22 +8,23 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
-using LeagueSandbox.GameServer.GameObjects;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
 
 namespace Spells
 {
-    public class ZedShadowDash : ISpellScript
+    public class ZedBasicAttack : ISpellScript
     {
+		AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            AutoFaceDirection = false,
             TriggersSpellCasts = true
             // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-            AddBuff("ZedWPassiveBuff", 1.0f, 1, spell, owner, owner, true);
         }
 
         public void OnDeactivate(ObjAIBase owner, Spell spell)
@@ -32,85 +33,21 @@ namespace Spells
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
+			Target = target;
+			//ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
+			float BBlood = target.Stats.HealthPoints.Total * 0.5f;
+			float XBlood = target.Stats.CurrentHealth;
+			if (BBlood >= XBlood && !Target.HasBuff("ZedPassiveToolTip") && Target.Team != owner.Team && !(Target is ObjBuilding || Target is BaseTurret))
+			{
+				OverrideAnimation(owner, "attack_passive", "Attack1");
+			}
+			else
+			{
+				OverrideAnimation(owner, "Attack1", "attack_passive");
+			}
         }
-
-        public void OnSpellCast(Spell spell)
+        public void OnLaunchAttack(Spell spell)
         {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-            var owner = spell.CastInfo.Owner as Champion;
-            var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
-            SpellCast(owner, 4, SpellSlotType.ExtraSlots, spellPos, spellPos, true, Vector2.Zero);
-            PlayAnimation(owner, "Spell2_Cast", timeScale: 0.6f);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
-    }
-
-    public class ZedShadowDashMissile : ISpellScript
-    {
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
-        {
-            // TODO
-        };
-
-        Buff HandlerBuff;
-        Minion Shadow;
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            HandlerBuff = AddBuff("ZedWHandler", 4.0f, 1, spell, owner, owner);
-            AddBuff("ZedW2", 4.0f, 1, spell, owner, owner);
-
-            if (Shadow != null)
-            {
-                var buff = Shadow.GetBuffWithName("ZedWShadowBuff");
-
-                if (buff != null)
-                {
-                    buff.DeactivateBuff();
-                }
-            }
-
-            var missile = spell.CreateSpellMissile(new MissileParameters
-            {
-                Type = MissileType.Circle,
-                OverrideEndPosition = end
-            });
-
-            ApiEventManager.OnSpellMissileEnd.AddListener(this, missile, OnMissileEnd, true);
-        }
-
-        public void OnMissileEnd(SpellMissile missile)
-        {
-            if (HandlerBuff != null)
-            {
-                Shadow = (HandlerBuff.BuffScript as Buffs.ZedWHandler).ShadowSpawn();
-            }
         }
 
         public void OnSpellCast(Spell spell)
@@ -137,12 +74,13 @@ namespace Spells
         {
         }
     }
-
-    public class ZedW2 : ISpellScript
+    public class ZedBasicAttack2 : ISpellScript
     {
+		AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true
+            // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
@@ -155,6 +93,92 @@ namespace Spells
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
+			Target = target;
+			//ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
+			float BBlood = target.Stats.HealthPoints.Total * 0.5f;
+			float XBlood = target.Stats.CurrentHealth;
+			if (BBlood >= XBlood && !Target.HasBuff("ZedPassiveToolTip") && Target.Team != owner.Team && !(Target is ObjBuilding || Target is BaseTurret))
+			{
+				OverrideAnimation(owner, "attack_passive", "Attack2");
+			}
+			else
+			{
+				OverrideAnimation(owner, "Attack2", "attack_passive");
+			}
+        }
+        public void OnLaunchAttack(Spell spell)
+        {
+			var owner = spell.CastInfo.Owner;
+        }
+
+        public void OnSpellCast(Spell spell)
+        {
+        }
+
+        public void OnSpellPostCast(Spell spell)
+        {
+        }
+
+        public void OnSpellChannel(Spell spell)
+        {
+        }
+
+        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
+        {
+        }
+
+        public void OnSpellPostChannel(Spell spell)
+        {
+        }
+
+        public void OnUpdate(float diff)
+        {
+        }
+    }
+	public class ZedCritAttack : ISpellScript
+    {
+		AttackableUnit Target;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        {
+            TriggersSpellCasts = true
+            // TODO
+        };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+        }
+
+        public void OnDeactivate(ObjAIBase owner, Spell spell)
+        {
+        }
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+			Target = target;
+			//ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
+			float BBlood = target.Stats.HealthPoints.Total * 0.5f;
+			float XBlood = target.Stats.CurrentHealth;
+			if (BBlood >= XBlood && !Target.HasBuff("ZedPassiveToolTip") && Target.Team != owner.Team && !(Target is ObjBuilding || Target is BaseTurret))
+			{
+				OverrideAnimation(owner, "attack_passive", "Crit");
+			}
+			else
+			{
+				OverrideAnimation(owner, "Crit", "attack_passive");
+			}
+        }
+        public void OnLaunchAttack(Spell spell)
+        {
+			var owner = spell.CastInfo.Owner;
+			float BBlood = Target.Stats.HealthPoints.Total * 0.5f;
+			float XBlood = Target.Stats.CurrentHealth;
+			if (BBlood >= XBlood && !Target.HasBuff("ZedPassiveToolTip") && Target.Team != owner.Team && !(Target is ObjBuilding || Target is BaseTurret))
+			{		
+				AddBuff("ZedPassiveToolTip", 10f, 1, spell, Target, owner);
+			}
+			else
+			{
+			}
         }
 
         public void OnSpellCast(Spell spell)
@@ -182,3 +206,4 @@ namespace Spells
         }
     }
 }
+
