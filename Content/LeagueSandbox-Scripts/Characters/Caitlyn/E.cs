@@ -79,7 +79,7 @@ namespace Spells
                 AddBuff("CaitlynEntrapmentMissile", slowDuration, 1, spell, target, owner);
 
                 var ap = owner.Stats.AbilityPower.Total * 0.8f;
-                var damage = 80 + (spell.CastInfo.SpellLevel - 1) * 50 + ap;
+                var damage = 80 + ((spell.CastInfo.SpellLevel - 1) * 50) + ap;
                 target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 
                 AddParticleTarget(owner, target, "caitlyn_entrapment_tar", target);
@@ -99,7 +99,7 @@ namespace Spells
                     AddBuff("CaitlynEntrapmentMissile", slowDuration, 1, spell, target, owner);
 
                     var ap = owner.Stats.AbilityPower.Total * 0.8f;
-                    var damage = 80 + (spell.CastInfo.SpellLevel - 1) * 50 + ap;
+                    var damage = 80 + ((spell.CastInfo.SpellLevel - 1) * 50) + ap;
                     target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 
                     AddParticleTarget(owner, target, "caitlyn_entrapment_tar", target);
@@ -118,7 +118,7 @@ namespace Spells
                     AddBuff("CaitlynEntrapmentMissile", slowDuration, 1, spell, target, owner);
 
                     var ap = owner.Stats.AbilityPower.Total * 0.8f;
-                    var damage = 80 + (spell.CastInfo.SpellLevel - 1) * 50 + ap;
+                    var damage = 80 + ((spell.CastInfo.SpellLevel - 1) * 50) + ap;
                     target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 
                     AddParticleTarget(owner, target, "caitlyn_entrapment_tar", target);
