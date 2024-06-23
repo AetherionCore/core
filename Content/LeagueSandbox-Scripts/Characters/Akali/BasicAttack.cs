@@ -8,8 +8,9 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using System.Numerics;
 
-namespacenamespace Spells
+namespace Spells
 {
     public class AkaliBasicAttack : ISpellScript
     {
