@@ -14,57 +14,30 @@ using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
-    internal class RivenFeint : ISpellScript
+    public class RivenFeint : ISpellScript
     {
+        Spell Feint;
+        ObjAIBase Riven;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
+            Feint = spell;
+            Riven = owner = spell.CastInfo.Owner as Champion;
+            Riven.CancelAutoAttack(false, false);
         }
 
         public void OnSpellPostCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-			PlayAnimation(owner, "Spell3" , 0.25f);
-			AddBuff("RivenFeint", 3f, 1,  spell, spell.CastInfo.Owner, spell.CastInfo.Owner);	
+            PlayAnimation(Riven, "Spell3", 0.25f);
+            AddBuff("RivenFeint", 3f, 1, spell, Riven, Riven);
             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
-
-            FaceDirection(spellPos, owner, true);
-            var trueCoords = GetPointFromUnit(owner, spell.SpellData.CastRangeDisplayOverride);
-
-            ForceMovement(owner, null, trueCoords, 1450, 0, 0, 0, movementOrdersFacing: ForceMovementOrdersFacing.KEEP_CURRENT_FACING);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            FaceDirection(spellPos, Riven, true);
+            var trueCoords = GetPointFromUnit(Riven, spell.SpellData.CastRangeDisplayOverride);
+            ForceMovement(Riven, null, trueCoords, 1450, 0, 0, 0, movementOrdersFacing: ForceMovementOrdersFacing.KEEP_CURRENT_FACING);
         }
     }
 }

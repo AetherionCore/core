@@ -14,30 +14,26 @@ using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
-    internal class RivenMartyr : ISpellScript
+    public class RivenMartyr : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        float Damage;
+        Spell Martyr;
+        ObjAIBase Riven;
+        Buff TriCleaveBuff;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-
-            NotSingleTargetSpell = true,
-            IsDamagingSpell = true,
-            TriggersSpellCasts = true
-
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Martyr = spell;
+            Riven = owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            spell.CreateSpellSector(new SectorParameters
+            Martyr.CreateSpellSector(new SectorParameters
             {
                 Length = 260f,
                 SingleTick = true,
@@ -45,53 +41,44 @@ namespace Spells
                 OverrideFlags = SpellDataFlags.AffectEnemies | SpellDataFlags.AffectNeutral | SpellDataFlags.AffectMinions | SpellDataFlags.AffectHeroes
             });
         }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-			var owner = spell.CastInfo.Owner;
-			if (owner.HasBuff("RivenFengShuiEngine"))
+            if (Riven.HasBuff("RivenFengShuiEngine"))
             {
-				AddParticleTarget(owner, owner, "exile_W_weapon_cas.troy", owner, bone: "weapon");
-				AddParticleTarget(owner, owner, "Riven_Base_W_Ult_Cas.troy", owner);
-				AddParticle(owner, null, "Riven_Base_W_Ult_Cas_Ground.troy.troy", owner.Position);
-			    AddParticleTarget(owner, owner, "exile_W_weapon_cas.troy", owner, bone: "weapon");
-			}
-			else
-			{
-                AddParticleTarget(owner, owner, "Riven_Base_W_Cast.troy", owner);
-			    AddParticleTarget(owner, owner, "exile_W_weapon_cas.troy", owner, bone: "weapon");
-			}
+                AddParticleTarget(Riven, Riven, "exile_W_weapon_cas.troy", Riven, bone: "weapon");
+                AddParticle(Riven, null, "Riven_Base_W_Ult_Cas.troy", Riven.Position);
+                AddParticle(Riven, null, "Riven_Base_W_Ult_Cas_Ground.troy.troy", Riven.Position);
+                AddParticleTarget(Riven, Riven, "exile_W_weapon_cas.troy", Riven, bone: "weapon");
+            }
+            else
+            {
+                AddParticle(Riven, null, "Riven_Base_W_Cast.troy", Riven.Position);
+                AddParticle(Riven, null, "exile_W_cast_02.troy", Riven.Position);
+                AddParticleTarget(Riven, Riven, "exile_W_weapon_cas.troy", Riven, bone: "weapon");
+            }
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-            var AP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.25f;
-            var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-            float damage = 5f + spell.CastInfo.SpellLevel * 35f + AP + AD;
-            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-            AddParticleTarget(owner, target, "exile_W_tar_02.troy", target, 1f);
-            
-        }
+            switch (Riven.SkinID)
+            {
+                case 3:
+                    break;
 
+                case 4:
+                    break;
+                case 5:
+                    break;
 
-        public void OnSpellChannel(Spell spell)
-        {
-        }
+                default:
+                    break;
+            }
+            var AP = Riven.Stats.AbilityPower.Total * 0.25f;
+            var AD = Riven.Stats.AttackDamage.Total * 0.6f;
+            Damage = 5f + (spell.CastInfo.SpellLevel * 35f) + AP + AD;
+            target.TakeDamage(Riven, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+            AddParticleTarget(Riven, target, "exile_W_tar_02.troy", target, 1f);
+            AddBuff("Stun", 0.75f, 1, spell, target, Riven);
 
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

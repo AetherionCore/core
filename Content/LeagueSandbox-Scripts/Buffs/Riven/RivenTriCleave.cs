@@ -16,39 +16,35 @@ namespace Buffs
 {
     internal class RivenTriCleave : IBuffGameScript
     {
+        float TrueCooldown;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.DAMAGE,
+            BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.STACKS_AND_RENEWS,
             MaxStacks = 3
         };
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             buff.SetStatusEffect(StatusFlags.Ghosted, true);
-            LogDebug("activate");
             if (unit.HasBuff("RivenTriCleave"))
             {
-                var getbuff = unit.GetBuffWithName("RivenTriCleave");
-                LogDebug(getbuff.StackCount.ToString());
-                if (getbuff.StackCount < 3)
+                LogDebug(buff.StackCount.ToString());
+                if (buff.StackCount < 3)
                 {
                     ownerSpell.SetCooldown(0.5f, true);
                 }
+                else
+                {
+                    buff.DeactivateBuff();
+                }
             }
         }
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            ApiEventManager.OnLaunchAttack.RemoveListener(this);
+            TrueCooldown = 13 * (1 + unit.Stats.CooldownReduction.Total);
+            ownerSpell.SetCooldown(TrueCooldown, true);
             buff.SetStatusEffect(StatusFlags.Ghosted, false);
-            LogDebug("deactivate");
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }
