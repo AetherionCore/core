@@ -1,0 +1,44 @@
+﻿using System.Numerics;
+using GameServerCore.Enums;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using LeagueSandbox.GameServer.Scripting.CSharp;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.API;
+using Buffs;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+
+namespace CharScripts
+{     
+    public class CharScriptChoGath : ICharScript
+    {
+        Spell Spell;
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            Spell = spell;
+            {
+                ApiEventManager.OnKillUnit.AddListener(this,owner , OnKillUnit, false);
+            }
+        }
+        public void OnKillUnit(DeathData deathData)
+        {
+            var owner = Spell.CastInfo.Owner;
+            float heal = 17 + 3 * Spell.CastInfo.SpellLevel;
+            float mana = 3.25f + 0.25f* Spell.CastInfo.SpellLevel;
+            owner.Stats.CurrentHealth += heal;
+            owner.Stats.CurrentMana += mana;
+            AddParticleTarget(owner, owner, "Global_Heal.troy", owner, 1f);
+            AddParticleTarget(owner, owner, "globalhit_mana.troy", owner, 1f);
+        }
+        public void OnDeactivate(ObjAIBase owner, Spell spell)
+        {
+            ApiEventManager.OnHitUnit.RemoveListener(this);
+        }
+        public void OnUpdate(float diff)
+        {
+        }
+    }
+}
