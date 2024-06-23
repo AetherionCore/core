@@ -28,8 +28,6 @@ namespace Buffs
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             var test = buff.SourceUnit;
-            AddParticle(unit, null, "global_ss_teleport_blue.troy", unit.Position, lifetime: 4.0f);
-            AddParticle(test, null, "global_ss_teleport_target_blue.troy", test.Position, lifetime: 4.0f);
             if (test is Minion)
             {
                 test.SetStatus(StatusFlags.CanMove, false);
@@ -44,10 +42,6 @@ namespace Buffs
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             var test = buff.SourceUnit;
-            TeleportTo(unit as ObjAIBase, SummonerTeleport.endpos.X, SummonerTeleport.endpos.Y);
-            AddParticle(unit, null, "global_ss_teleport_flash_blue.troy", unit.Position, lifetime: 4.0f);
-            AddParticle(unit, null, "global_ss_teleport_sparkleslinger.troy", unit.Position, lifetime: 4.0f);
-            AddParticle(unit, null, "global_ss_teleport_arrive_blue.troy", unit.Position, lifetime: 4.0f);
             if (test is Minion)
             {
                 test.SetStatus(StatusFlags.CanMove, true);
