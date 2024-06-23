@@ -20,15 +20,12 @@ namespace Spells
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-
             AddBuff("Hunterscall", 5.0f, 1, spell, owner, owner);
 
-
-            foreach (var allytarget in GetUnitsInRange(owner.Position, 1100, true)
-                   .Where(x => x.Team != CustomConvert.GetEnemyTeam(owner.Team)))
+            foreach (var allyTarget in GetUnitsInRange(owner.Position, 1100, true)
+                     .Where(x => x.Team != CustomConvert.GetEnemyTeam(owner.Team) && x is ObjAIBase && x != owner))
             {
-                if (target is ObjAIBase && owner != allytarget)
-                    AddBuff("WarwickWAura", 5.0f, 1, spell, allytarget, owner);
+                AddBuff("WarwickWAura", 5.0f, 1, spell, allyTarget, owner);
             }
         }
     }
