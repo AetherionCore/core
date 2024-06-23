@@ -16,47 +16,26 @@ namespace Spells
 {
     public class IreliaHitenStyle : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        ObjAIBase Irelia;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Irelia = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnLevelUpSpell.AddListener(this, spell, OnLevelUp, true);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
+        public void OnLevelUp(Spell spell)
         {
+            AddBuff("IreliaHitenStyle", 250000f, 1, spell, Irelia, Irelia);
         }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-			PlayAnimation(owner, "Spell2");
-            AddBuff("IreliaHitenStyleCharged", 6.0f, 1, spell, owner, owner);
-        }
-
         public void OnSpellCast(Spell spell)
         {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Irelia.CancelAutoAttack(true);
+            AddBuff("IreliaHitenStyleCharged", 6.0f, 1, spell, Irelia, Irelia);
+            if (Irelia.HasBuff("IreliaHitenStyle")) { Irelia.RemoveBuffsWithName("IreliaHitenStyle"); }
         }
     }
 }
