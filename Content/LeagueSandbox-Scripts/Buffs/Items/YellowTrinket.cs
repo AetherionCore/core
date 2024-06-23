@@ -5,7 +5,8 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.Scripting.CSharp;
-
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
@@ -23,9 +24,11 @@ namespace Buffs
         Spell spell;
         float timeSinceLastTick = 0f;
         float counter;
+        Region revealStealthed;
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
+            revealStealthed = AddUnitPerceptionBubble(unit, 1000.0f, 25000f, unit.Team, true);
             Unit = unit;
             spell = ownerSpell;
             Unit.Stats.ManaRegeneration.PercentBonus = -1;
@@ -50,6 +53,11 @@ namespace Buffs
                 }
             }*/
 
+        }
+
+        public void OnDeactivate(DeathData death)
+        {
+            revealStealthed.SetToRemove();
         }
     }
 }
