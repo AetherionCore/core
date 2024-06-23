@@ -12,36 +12,29 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
-    public class ZedRHandler : IBuffGameScript
+    internal class ZedUlt : IBuffGameScript
     {
+        private Spell Ult;
+        private ObjAIBase Zed;
+        private readonly AttackableUnit Target = Spells.ZedUlt.Target;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        Buff ThisBuff;
-        Particle p;
-        Particle p2;
-
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            if (unit is ObjAIBase owner)
-            {
-                owner.SetSpell("ZedR2", 3, true);
-            }
+            Ult = ownerSpell;
+            Zed = ownerSpell.CastInfo.Owner as Champion;
+            Zed.StopMovement();
+            AddParticleTarget(Zed, Zed, "Zed_Base_R_cas.troy", Zed, 10f);
+            SealSpellSlot(Zed, SpellSlotType.SpellSlots, 3, SpellbookType.SPELLBOOK_CHAMPION, true);
+            Minion Shadow = AddMinion(Zed, "ZedShadow", "ZedShadow", Zed.Position, Zed.Team, Zed.SkinID, true, false);
+            AddBuff("ZedRShadowBuff", 6.0f, 1, Ult, Shadow, Zed);
         }
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            RemoveParticle(p2);
-            (unit as ObjAIBase).SetSpell("ZedUlt", 3, true);
-        }
-
-        public void OnUpdate(float diff)
-        {
+            AddBuff("ZedUltDash", 6.0f, 1, Ult, Zed, Zed, false);
         }
     }
 }

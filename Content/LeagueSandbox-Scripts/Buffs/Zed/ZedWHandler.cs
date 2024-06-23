@@ -1,13 +1,14 @@
-﻿using System.Numerics;
-using GameServerCore.Enums;
+﻿using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
-using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
+using System.Numerics;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
@@ -59,7 +60,7 @@ namespace Buffs
         public void ShadowCast(Spell spell)
         {
             var slot = spell.CastInfo.SpellSlot;
-            if (slot != 0 || slot != 2 && Shadow != null)
+            if (slot != 0 || (slot != 2 && Shadow != null))
             {
                 return;
             }
@@ -70,15 +71,15 @@ namespace Buffs
             switch (slot)
             {
                 case 0:
-                {
-                    PlayAnimation(Shadow, "Spell1");
-                    return;
-                }
+                    {
+                        PlayAnimation(Shadow, "Spell1");
+                        return;
+                    }
                 case 2:
-                {
-                    PlayAnimation(Shadow, "Spell3");
-                    return;
-                }
+                    {
+                        PlayAnimation(Shadow, "Spell3");
+                        return;
+                    }
             }
         }
 

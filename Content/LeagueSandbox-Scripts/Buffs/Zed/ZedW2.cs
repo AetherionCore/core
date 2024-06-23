@@ -7,42 +7,36 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.Scripting.CSharp;
+using System.Numerics;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
     public class ZedW2 : IBuffGameScript
     {
+        ObjAIBase Zed;
+        ZedWHandler Handler;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        ZedWHandler Handler;
-
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            if (unit is ObjAIBase owner)
-            {
-                Handler = (owner.GetBuffWithName("ZedWHandler").BuffScript as ZedWHandler);
-                var w2Spell = SetSpell(owner, "ZedW2", SpellSlotType.SpellSlots, 1);
-                ApiEventManager.OnSpellCast.AddListener(this, w2Spell, Handler.ShadowSwap);
-            }
+            Zed = ownerSpell.CastInfo.Owner as Champion;
+            Zed.SetSpell("ZedW2", 1, true, true);
+            Handler = Zed.GetBuffWithName("ZedWHandler").BuffScript as ZedWHandler;
+            ApiEventManager.OnSpellCast.AddListener(this, Zed.Spells[1], Handler.ShadowSwap);
         }
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             if (!Handler.QueueSwap)
             {
-                unit.RemoveBuffsWithName("ZedWHandler");
+                Zed.RemoveBuffsWithName("ZedWHandler");
             }
-
-            if (unit is ObjAIBase ai)
-            {
-                SetSpell(ai, "ZedShadowDash", SpellSlotType.SpellSlots, 1);
-            }
+            Zed.SetSpell("ZedShadowDash", 1, true, true);
         }
     }
 }

@@ -12,42 +12,23 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
-    public class ZedUltDashCloneMaker : IBuffGameScript
+    internal class ZedRHandler : IBuffGameScript
     {
+        ObjAIBase Zed;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        AttackableUnit Unit;
-        Spell spell;
-        float timeSinceLastTick = 0f;
-        float counter;
-
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            Unit = unit;
-            spell = ownerSpell;
-            Unit.Stats.ManaRegeneration.PercentBonus = -30;
-            Unit.Stats.CurrentMana = 60f;
+            Zed = ownerSpell.CastInfo.Owner as Champion;
+            Zed.SetSpell("ZedR2", 3, true);
         }
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-        }
-
-        public void OnUpdate(float diff)
-        {
-            timeSinceLastTick += diff;
-
-            if (timeSinceLastTick >= 600.0f)
-            {
-                SetStatus(Unit, StatusFlags.NoRender, true);
-                Unit.TakeDamage(Unit, 10000f, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_INTERNALRAW, DamageResultType.RESULT_NORMAL);
-            }
+            Zed.SetSpell("ZedUlt", 3, true);
         }
     }
 }

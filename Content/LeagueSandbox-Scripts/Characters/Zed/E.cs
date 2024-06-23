@@ -11,174 +11,65 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
+using System.Collections.Generic;
 
 namespace Spells
 {
     public class ZedPBAOEDummy : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        private ObjAIBase Zed;
+        public List<AttackableUnit> UnitsHit = Spells.ZedPBAOE.UnitsHit;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
+            UnitsHit.Clear();
+            Zed = owner = spell.CastInfo.Owner as Champion;
         }
-
         public void OnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-			var ownerSkinID = owner.SkinID;
-			if (ownerSkinID == 0)
-            {
-                AddParticleTarget(owner, null, "Zed_E_cas.troy", owner);
-            }
-			
-			if (ownerSkinID == 1)
-            {
-                AddParticleTarget(owner, null, "Zed_Skin01_E_cas.troy", owner);
-            }
-			if (ownerSkinID == 2)
-            {
-                AddParticleTarget(owner, null, "Zed_E_cas.troy", owner);
-            }
-            PlayAnimation(owner, "Spell3", 0.5f);        
-            spell.CreateSpellSector(new SectorParameters
-            {
-                Length = 250f,
-                SingleTick = true,
-                Type = SectorType.Area
-            });
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
-        {
-            var owner = spell.CastInfo.Owner;
-            if (owner != target)
-            {
-                var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-                var damage = 40 + spell.CastInfo.SpellLevel * 30 + AD;
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-                AddParticleTarget(owner, null, "Zed_E_tar.troy", target);
-
-                owner.GetSpell("ZedShadowDash").LowerCooldown(2);
-                if (target.HasBuff("ZedSlow"))
-                {
-                    AddBuff("ZedSlow", 1.5f, 1, spell, target, owner);
-                }
-            }
-        }
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            PlayAnimation(Zed, "Spell3", 0.5f);
+            AddParticleTarget(Zed, null, "Zed_Base_E_cas.troy", Zed);
+            AddBuff("ZedPBAOEDummy", 0.5f, 1, spell, Zed, Zed, false);
+            SpellCast(Zed, 2, SpellSlotType.ExtraSlots, true, Zed, Vector2.Zero);
         }
     }
     public class ZedPBAOE : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        float Damage;
+        private Spell AOE;
+        private ObjAIBase Zed;
+        public static List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
-            // TODO
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
+            AOE = spell;
+            Zed = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnSpellHit.AddListener(this, AOE, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            var ownerSkinID = owner.SkinID;
-			if (ownerSkinID == 0)
-            {
-                AddParticleTarget(owner, null, "Zed_E_cas.troy", owner);
-            }
-			
-			if (ownerSkinID == 1)
-            {
-                AddParticleTarget(owner, null, "Zed_Skin01_E_cas.troy", owner);
-            }
-			if (ownerSkinID == 2)
-            {
-                AddParticleTarget(owner, null, "Zed_E_cas.troy", owner);
-            }
-            PlayAnimation(owner, "Spell3", 0.5f);        
-            spell.CreateSpellSector(new SectorParameters
-            {
-                Length = 250f,
-                SingleTick = true,
-                Type = SectorType.Area
-            });
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
+            AOE.CreateSpellSector(new SectorParameters { Length = 250f, SingleTick = true, Type = SectorType.Area });
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-            if (owner != target)
+            if (Zed != target && !UnitsHit.Contains(target))
             {
-                var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-                var damage = 40 + spell.CastInfo.SpellLevel * 30 + AD;
-
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-                AddParticleTarget(owner, null, "Zed_E_tar.troy", target);
-                if (!target.HasBuff("ZedSlow"))
-                {
-                    AddBuff("ZedSlow", 1.5f, 1, spell, target, owner);
-                }
+                UnitsHit.Add(target);
+                Zed.Spells[1].LowerCooldown(2);
+                AddBuff("ZedSlow", 1.5f, 1, spell, target, Zed);
+                AddParticleTarget(Zed, target, "Zed_Base_E_tar", target, 1f);
+                if (target.HasBuff("ZedSlow")) { AddBuff("ZedSlow", 1.5f, 1, spell, target, Zed); }
+                Damage = 30 + (30f * Zed.Spells[2].CastInfo.SpellLevel) + (Zed.Stats.AttackDamage.FlatBonus * 0.8f);
+                target.TakeDamage(Zed, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             }
-        }
-
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

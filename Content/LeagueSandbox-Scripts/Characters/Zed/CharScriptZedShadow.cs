@@ -11,25 +11,23 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace CharScripts
 {
-    public class CharScriptZed : ICharScript
+    public class CharScriptZedShadow : ICharScript
     {
-        ObjAIBase Zed;
+        ObjAIBase Shadow;
         AttackableUnit Target;
         public void OnActivate(ObjAIBase owner, Spell spell = null)
         {
-            Zed = owner as Champion;
-            ApiEventManager.OnLaunchAttack.AddListener(this, Zed, OnLaunchAttack, false);
+            Shadow = owner as Minion;
+            ApiEventManager.OnDeath.AddListener(this, Shadow, OnDeath, true);
         }
-        public void OnLaunchAttack(Spell spell)
+        public void OnDeath(DeathData data)
         {
-            Target = Zed.TargetUnit;
-            if (Target.Stats.HealthPoints.Total * 0.5f >= Target.Stats.CurrentHealth && !Target.HasBuff("ZedPassiveToolTip") && Target.Team != Zed.Team && !(Target is ObjBuilding || Target is BaseTurret))
-            {
-                AddBuff("ZedPassiveToolTip", 10f, 1, spell, Target, Zed);
-            }
+            SetStatus(Shadow, StatusFlags.NoRender, true);
+            AddParticleTarget(Shadow, Shadow, "Become_Transparent.troy", Shadow, 10, 10);
         }
     }
 }

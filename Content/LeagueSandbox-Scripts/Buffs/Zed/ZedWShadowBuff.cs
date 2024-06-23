@@ -12,7 +12,7 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
-    public class ZedRShadowBuff : IBuffGameScript
+    class ZedWShadowBuff : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
@@ -24,9 +24,6 @@ namespace Buffs
 
         Buff ThisBuff;
         Minion Shadow;
-        Particle p;
-        Particle p2;
-        Particle p3;
         Particle currentIndicator;
         int previousIndicatorState;
 
@@ -34,24 +31,29 @@ namespace Buffs
         {
             ThisBuff = buff;
             Shadow = unit as Minion;
-            var ownerSkinID = Shadow.Owner.SkinID;
-            string particles;
-            p = AddParticle(Shadow.Owner, null, "", Shadow.Position, buff.Duration);
-            p2 = AddParticle(Shadow.Owner, null, ".troy", Shadow.Position, buff.Duration);
-            AddParticleTarget(Shadow.Owner, Shadow, "zed_base_w_tar.troy", Shadow);
-            ApiEventManager.OnSpellCast.AddListener(this, Shadow.Owner.GetSpell("ZedR2"), R2OnSpellCast);
+            buff.SetStatusEffect(StatusFlags.Targetable, false);
+            buff.SetStatusEffect(StatusFlags.Ghosted, true);
+            AddParticleTarget(Shadow.Owner, Shadow, "zed_base_w_tar", Shadow);
             ApiEventManager.OnSpellCast.AddListener(this, Shadow.Owner.GetSpell("ZedShuriken"), QOnSpellCast);
             ApiEventManager.OnSpellPostCast.AddListener(this, Shadow.Owner.GetSpell("ZedShuriken"), QOnSpellPostCast);
             ApiEventManager.OnSpellCast.AddListener(this, Shadow.Owner.GetSpell("ZedPBAOEDummy"), EOnSpellCast);
-            currentIndicator = AddParticleTarget(Shadow.Owner, Shadow.Owner, "zed_shadowindicatorfar.troy", Shadow, buff.Duration, flags: FXFlags.TargetDirection);
+            currentIndicator = AddParticleTarget(Shadow.Owner, Shadow.Owner, "zed_shadowindicatorfar", Shadow, buff.Duration, flags: FXFlags.TargetDirection);
+            if (Shadow.Owner.HasBuff("ZedShuriken"))
+            {
+                QOnSpellCast(ownerSpell);
+            }
+            if (Shadow.Owner.HasBuff("ZedPBAOEDummy"))
+            {
+                EOnSpellCast(ownerSpell);
+            }
         }
         public void QOnSpellCast(Spell spell)
         {
             if (Shadow != null && !Shadow.IsDead)
             {
                 PlayAnimation(Shadow, "Spell1");
-                var targetPos = new Vector2(spell.CastInfo.TargetPositionEnd.X, spell.CastInfo.TargetPositionEnd.Z);
-                FaceDirection(targetPos, Shadow);
+                var targetPos = new Vector2(Shadow.Owner.GetSpell("ZedShuriken").CastInfo.TargetPositionEnd.X, Shadow.Owner.GetSpell("ZedShuriken").CastInfo.TargetPositionEnd.Z);
+                FaceDirection(targetPos, Shadow, true);
             }
         }
 
@@ -59,70 +61,41 @@ namespace Buffs
         {
             if (Shadow != null && !Shadow.IsDead)
             {
-                var owner = spell.CastInfo.Owner;
-                var targetPos = new Vector2(spell.CastInfo.TargetPositionEnd.X, spell.CastInfo.TargetPositionEnd.Z);
-
-                SpellCast(Shadow.Owner, 0, SpellSlotType.ExtraSlots, targetPos, Vector2.Zero, true, Shadow.Position);
+                var targetPos = GetPointFromUnit(Shadow, 950f);
+                FaceDirection(targetPos, Shadow, true);
+                SpellCast(Shadow.Owner, 1, SpellSlotType.ExtraSlots, targetPos, Vector2.Zero, true, Shadow.Position);
             }
         }
         public void EOnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-            var ownerSkinID = owner.SkinID;
             if (Shadow != null && !Shadow.IsDead)
             {
-                SpellCast(Shadow.Owner, 2, SpellSlotType.ExtraSlots, true, Shadow, Vector2.Zero);
                 PlayAnimation(Shadow, "Spell3", 0.5f);
-                if (ownerSkinID == 1)
-                {
-                    AddParticleTarget(spell.CastInfo.Owner, null, "Zed_Skin01_E_cas.troy", owner);
-                }
-                else
-                {
-                    AddParticleTarget(spell.CastInfo.Owner, null, "Zed_E_cas.troy", Shadow);
-                }
+                AddParticle(Shadow.Owner, null, "Zed_Base_E_cas.troy", Shadow.Position);
+                SpellCast(Shadow.Owner, 2, SpellSlotType.ExtraSlots, true, Shadow, Vector2.Zero);
             }
-        }
-        public void R2OnSpellCast(Spell spell)
-        {
-            var ownerPos = Shadow.Owner.Position;
-            if (Shadow != null && !Shadow.IsDead)
-            {
-                TeleportTo(Shadow.Owner, Shadow.Position.X, Shadow.Position.Y);
-                TeleportTo(Shadow, ownerPos.X, ownerPos.Y);
-                AddParticleTarget(Shadow.Owner, Shadow.Owner, "zed_base_cloneswap.troy", Shadow.Owner);
-                AddParticleTarget(Shadow.Owner, Shadow, "zed_base_cloneswap.troy", Shadow);
-                AddParticle(Shadow.Owner, null, "", Shadow.Position);
-                AddParticle(Shadow.Owner, null, "", Shadow.Position);
-            }
-            Shadow.Owner.RemoveBuffsWithName("ZedRHandler");
         }
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             if (Shadow != null && !Shadow.IsDead)
             {
-                AddParticle(Shadow.Owner, null, "", Shadow.Position);
                 if (currentIndicator != null)
                 {
                     currentIndicator.SetToRemove();
                 }
-                if (p != null)
-                {
-                    p.SetToRemove();
-                    p2.SetToRemove();
-                }
+
                 SetStatus(Shadow, StatusFlags.NoRender, true);
-                AddParticle(Shadow.Owner, null, "", Shadow.Position);
-                AddParticle(Shadow.Owner, null, "zed_base_clonedeath.troy", Shadow.Position);
-                Shadow.TakeDamage(Shadow, 10000f, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_INTERNALRAW, DamageResultType.RESULT_NORMAL);
+                AddParticle(Shadow.Owner, null, "zed_base_clonedeath", Shadow.Position);
+                Shadow.TakeDamage(Shadow.Owner, 10000f, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_INTERNALRAW, DamageResultType.RESULT_NORMAL);
             }
         }
+
         public int GetIndicatorState()
         {
             var dist = Vector2.Distance(Shadow.Owner.Position, Shadow.Position);
             var state = 0;
 
-            if (!Shadow.Owner.HasBuff("ZedR2"))
+            if (!Shadow.Owner.HasBuff("ZedW2"))
             {
                 return state;
             }
@@ -149,22 +122,23 @@ namespace Buffs
             {
                 case 0:
                     {
-                        return "zed_shadowindicatorfar.troy";
+                        return "zed_shadowindicatorfar";
                     }
                 case 1:
                     {
-                        return "zed_shadowindicatormed.troy";
+                        return "zed_shadowindicatormed";
                     }
                 case 2:
                     {
-                        return "zed_shadowindicatornearbloop.troy";
+                        return "zed_shadowindicatornearbloop";
                     }
                 default:
                     {
-                        return "zed_shadowindicatorfar.troy";
+                        return "zed_shadowindicatorfar";
                     }
             }
         }
+
         public void OnUpdate(float diff)
         {
             if (Shadow != null && !Shadow.IsDead)
