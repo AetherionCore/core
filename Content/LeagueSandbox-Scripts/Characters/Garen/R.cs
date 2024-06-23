@@ -1,33 +1,44 @@
 using GameServerCore.Enums;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.Scripting.CSharp;
+using System.Numerics;
 using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
 namespace Spells
 {
     public class GarenR : ISpellScript
     {
+        AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true
         };
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+            Target = target;
+        }
 
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-            var target = spell.CastInfo.Targets[0].Unit;
-            AddParticleTarget(owner, target, "Garen_Base_R_Tar_Impact", target);
-            AddParticleTarget(owner, target, "Garen_Base_R_Sword_Tar", target);
-            var missinghealth = target.Stats.HealthPoints.Total - target.Stats.CurrentHealth;
-            var damageperc = missinghealth * new[] { 0.28f, 0.33f, 0.40f }[spell.CastInfo.SpellLevel - 1];
-            var damage = spell.CastInfo.SpellLevel * 175 + damageperc;
-            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-            if (target.IsDead)
+            var percentMissingHP = new[] { 0.2857f, 0.3333f, 0.4f }[spell.CastInfo.SpellLevel - 1];
+            var damage = 175f * spell.CastInfo.SpellLevel + percentMissingHP * (Target.Stats.HealthPoints.Total - Target.Stats.CurrentHealth);
+
+            AddParticleTarget(owner, Target, "Garen_Base_R_Sword_Tar.troy", Target, lifetime: 1f);
+
+            Target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+
+            AddParticle(owner, Target, "Garen_Base_R_Tar_Impact.troy", Target.Position, 1f);
+            if (Target.IsDead)
             {
-                AddParticleTarget(owner, target, "Garen_Base_R_Champ_Kill", target);
-                AddParticleTarget(owner, target, "Garen_Base_R_Champ_Death", target);
+                AddParticleTarget(owner, Target, "Garen_Base_R_Champ_Kill.troy", Target, 1f);
+                AddParticleTarget(owner, Target, "Garen_Base_R_Champ_Death.troy", Target, 1f);
             }
+
         }
     }
 }
