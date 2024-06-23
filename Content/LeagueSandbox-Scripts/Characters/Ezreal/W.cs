@@ -7,6 +7,8 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
@@ -14,14 +16,14 @@ namespace Spells
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
 
         public void OnSpellCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-            AddParticleTarget(owner, owner,  "ezreal_bow_yellow", owner, bone: "L_HAND");
+            AddParticleTarget(owner, owner, "ezreal_bow_yellow", owner, bone: "L_HAND");
         }
 
         public void OnSpellPostCast(Spell spell)
@@ -31,13 +33,23 @@ namespace Spells
             var to = Vector2.Normalize(spellPos - current);
             var range = to * 1000;
             var trueCoords = current + range;
-            //spell.AddProjectile("EzrealEssenceFluxMissile", new Vector2(spell.CastInfo.SpellCastLaunchPosition.X, spell.CastInfo.SpellCastLaunchPosition.Z), trueCoords, trueCoords, overrideCastPosition: true);
         }
-
-        public void ApplyEffects(ObjAIBase owner, AttackableUnit target, Spell spell, SpellMissile missile)
+    }
+    public class EzrealEssenceFluxMissile : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
+            IsDamagingSpell = true,
+            MissileParameters = new MissileParameters { Type = MissileType.Circle }
+        };
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
+        }
+        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
+        {
+            var owner = spell.CastInfo.Owner;
             var champion = target as Champion;
-
             if (champion == null)
             {
                 return;
@@ -56,6 +68,8 @@ namespace Spells
 
                 target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, DamageResultType.RESULT_NORMAL);
             }
+            AddParticleTarget(owner, target, "Ezreal_essenceflux_tar", target);
+            missile.SetToRemove();
         }
     }
 }

@@ -52,18 +52,18 @@ namespace Spells
 
             if (owner.SkinID == 5)
             {
-                SpellCast(owner, 3, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
+                SpellCast(owner, 3, SpellSlotType.ExtraSlots, targetPos, targetPos, true, Vector2.Zero);
             }
             else
             {
-                SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
+                SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, true, Vector2.Zero);
             }
         }
 
         private void OnStatsUpdate(AttackableUnit _unit, float diff)
         {
             float bonusAd = _owner.Stats.AttackDamage.Total * _spell.SpellData.AttackDamageCoefficient;
-            if(_bonusAd != bonusAd)
+            if (_bonusAd != bonusAd)
             {
                 _bonusAd = bonusAd;
                 SetSpellToolTipVar(_owner, 2, bonusAd, SpellbookType.SPELLBOOK_CHAMPION, 0, SpellSlotType.SpellSlots);
@@ -71,7 +71,7 @@ namespace Spells
         }
     }
 
-    public class EzrealMysticShotPulseMissile: EzrealMysticShotMissile
+    public class EzrealMysticShotPulseMissile : EzrealMysticShotMissile
     {
     }
 
@@ -99,19 +99,13 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             var ad = owner.Stats.AttackDamage.Total * spell.SpellData.AttackDamageCoefficient;
             var ap = owner.Stats.AbilityPower.Total * spell.SpellData.MagicDamageCoefficient;
-            var damage = 15 + spell.CastInfo.SpellLevel * 20 + ad + ap;
-            
-            IEventSource source; // The hash of the current script name does not match the replays.
-            //                      But this is not a problem as long as the parent skill name hash matches.
-            //IEventSource source = new EventSource(spell.ScriptNameHash, HashString("EzrealMysticShot"));
-            if (owner.SkinID == 5)
-            {
-                source = new AbilityInfo(266740993, HashString("EzrealMysticShot"));
-            }
-            else
-            {
-                source = new AbilityInfo(3693728257, HashString("EzrealMysticShot"));
-            }
+            var damage = 15 + (spell.CastInfo.SpellLevel * 20) + ad + ap;
+
+            IEventSource source = owner.SkinID == 5
+                ? new AbilityInfo(266740993, HashString("EzrealMysticShot"))
+                : (IEventSource)new AbilityInfo(3693728257, HashString("EzrealMysticShot")); // The hash of the current script name does not match the replays.
+                                                                                            //                      But this is not a problem as long as the parent skill name hash matches.
+                                                                                            //IEventSource source = new EventSource(spell.ScriptNameHash, HashString("EzrealMysticShot"));
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false, source);
 
             for (byte i = 0; i < 4; i++)

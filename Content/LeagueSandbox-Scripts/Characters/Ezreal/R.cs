@@ -51,16 +51,16 @@ namespace Spells
                 var bonusAd = owner.Stats.AttackDamage.Total - owner.Stats.AttackDamage.BaseValue;
                 var ap = owner.Stats.AbilityPower.Total * 0.9f;
                 var damage = 200f + (150f * (spell.CastInfo.SpellLevel - 1)) + bonusAd + ap;
-                target.TakeDamage(owner, damage * (1f - (reduc - 1f) / 10f), DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                target.TakeDamage(owner, damage * (1f - ((reduc - 1f) / 10f)), DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             }
         }
 
         private void OnStatsUpdate(AttackableUnit _unit, float diff)
         {
             float bonusAd = _owner.Stats.AttackDamage.Total - _owner.Stats.AttackDamage.BaseValue;
-            if(_bonusAd != bonusAd)
+            if (_bonusAd != bonusAd)
             {
-                _bonusAd = bonusAd; 
+                _bonusAd = bonusAd;
                 SetSpellToolTipVar(_owner, 0, bonusAd, SpellbookType.SPELLBOOK_CHAMPION, 3, SpellSlotType.SpellSlots);
             }
         }

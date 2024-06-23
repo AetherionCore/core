@@ -19,7 +19,7 @@ namespace Spells
         private SpellSector _sector;
 
         private const float CAST_RANGE = 475;
-        
+
         private const string CAST_PARTICLE = "Ezreal_arcaneshift_cas";
         private const string CAST_FLASH_PARTICLE = "Ezreal_arcaneshift_flash";
 
@@ -68,24 +68,24 @@ namespace Spells
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            if (_owner == null || _sector == null) 
+            if (_owner == null || _sector == null)
                 return;
-            
+
             if (_sector.ObjectsHit.Count == 0)
                 return;
-            
+
             _sector.ExecuteTick();
-            
+
             foreach (var targetObj in _sector.ObjectsHit)
             {
                 var targetUnit = targetObj as AttackableUnit;
                 if (targetUnit == null)
                     continue;
-                    
+
                 var castPosition = new Vector2(_spell.CastInfo.TargetPosition.X, _spell.CastInfo.TargetPosition.Z);
                 SpellCast(_owner, 1, SpellSlotType.ExtraSlots, true, targetUnit, castPosition);
                 break;
-                
+
             }
             _sector.ObjectsHit.Clear();
         }
@@ -107,7 +107,7 @@ namespace Spells
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            target.TakeDamage(spell.CastInfo.Owner, 75f + ((spell.CastInfo.SpellLevel - 1) * 50f) + spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.75f,
+            target.TakeDamage(spell.CastInfo.Owner, 75f + ((spell.CastInfo.SpellLevel - 1) * 50f) + (spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.75f),
                 DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             missile.SetToRemove();
         }
