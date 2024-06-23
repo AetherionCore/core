@@ -28,7 +28,6 @@ namespace Spells
                    .Where(x => x.Team != CustomConvert.GetEnemyTeam(owner.Team)))
             {
                 if (target is ObjAIBase && owner != allytarget)
-
                     AddBuff("WarwickWAura", 5.0f, 1, spell, allytarget, owner);
             }
         }
