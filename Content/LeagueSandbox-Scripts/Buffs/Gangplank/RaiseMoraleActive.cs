@@ -10,11 +10,11 @@ using LeagueSandbox.GameServer.Scripting.CSharp;
 
 namespace Buffs
 {
-    internal class GangplankE : IBuffGameScript
+    internal class RaiseMorale : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.COMBAT_DEHANCER
+            BuffType = BuffType.COMBAT_ENCHANCER
         };
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
@@ -24,12 +24,11 @@ namespace Buffs
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             var owner = ownerSpell.CastInfo.Owner;
-            StatsModifier.AttackSpeed.PercentBonus = StatsModifier.AttackSpeed.PercentBonus + (10f + 20f * ownerSpell.CastInfo.SpellLevel) / 100f;
-            StatsModifier.MoveSpeed.PercentBonus = StatsModifier.MoveSpeed.PercentBonus + (10f + 5f * ownerSpell.CastInfo.SpellLevel) / 100f;
-            StatsModifier.AttackDamage.PercentBonus = StatsModifier.AttackDamage.PercentBonus + (10f + 10f * ownerSpell.CastInfo.SpellLevel) / 100f;
+            StatsModifier.AttackSpeed.PercentBonus = StatsModifier.AttackSpeed.PercentBonus + ((10f + (20f * ownerSpell.CastInfo.SpellLevel)) / 100f);
+            StatsModifier.MoveSpeed.PercentBonus = StatsModifier.MoveSpeed.PercentBonus + ((10f + (5f * ownerSpell.CastInfo.SpellLevel)) / 100f);
+            StatsModifier.AttackDamage.PercentBonus = StatsModifier.AttackDamage.PercentBonus + ((10f + (10f * ownerSpell.CastInfo.SpellLevel)) / 100f);
             unit.AddStatModifier(StatsModifier);
 
-            //_hudvisual = AddBuffHUDVisual("RaiseMorale", time, 1, unit);
 
             Particles.Add(AddParticleTarget(owner, null, "pirate_raiseMorale_cas", unit));
             Particles.Add(AddParticleTarget(owner, null, "pirate_raiseMorale_mis", unit));
@@ -38,7 +37,6 @@ namespace Buffs
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            //RemoveBuffHudVisual(_hudvisual);
             Particles.ForEach(particle => RemoveParticle(particle));
         }
     }
