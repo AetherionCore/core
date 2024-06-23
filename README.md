@@ -8,7 +8,7 @@ It is written in C# and provides a solid foundation for creating private servers
 # Requirements
 * Install Microsoft Visual Studio 2022 
 * Install latest .NET Framework and Core (VS Installer should let you do that, otherwise check [here](https://dotnet.microsoft.com/download/dotnet-framework) for Framework, and [here](https://dotnet.microsoft.com/download/dotnet-core) for Core)
-* Download the League of Legends client (4.20) [here]([https://dotnet.microsoft.com/download/dotnet-framework](https://www.mediafire.com/file/rm32t1nbbca6zph/League-of-Legends-4.20.rar/file))
+* Download the League of Legends client (4.20) [here](https://www.mediafire.com/file/rm32t1nbbca6zph/League-of-Legends-4.20.rar/file)
 
 # Installation
  1. Build the server
