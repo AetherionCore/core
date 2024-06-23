@@ -9,7 +9,6 @@ using System.Numerics;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects;
 
-
 namespace Spells
 {
     public class IreliaEquilibriumStrike : ISpellScript
