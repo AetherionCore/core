@@ -30,10 +30,6 @@ namespace Spells
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
 
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             spell.CreateSpellSector(new SectorParameters
@@ -50,10 +46,6 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             AddParticleTarget(owner, owner, "katarina_w_cas.troy", owner, bone: "C_BUFFBONE_GLB_CHEST_LOC");
             PlayAnimation(owner, "Spell2", 0.3f);
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
         }
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile swag, SpellSector sector)
@@ -73,22 +65,6 @@ namespace Spells
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
             AddParticleTarget(owner, target, "katarina_w_tar.troy", target, 1f);
             AddBuff("KatarinaWHaste", 1f, 1, spell, owner, owner);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

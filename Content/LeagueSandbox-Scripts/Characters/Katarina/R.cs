@@ -16,130 +16,57 @@ namespace Spells
 {
     public class KatarinaR : ISpellScript
     {
-
+        ObjAIBase Katarina;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             NotSingleTargetSpell = true,
             TriggersSpellCasts = true,
             ChannelDuration = 2.5f,
         };
-
-        private Vector2 basepos;
-        public SpellSector DamageSector;
-        ObjAIBase Owner;
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile swag, SpellSector sector)
-        {
-
-
-        }
-
-
         public void OnSpellChannel(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-            AddBuff("KatarinaR", 2.5f, 1, spell, owner, owner);
+            Katarina = spell.CastInfo.Owner as Champion;
+            AddBuff("KatarinaR", 2.5f, 1, spell, Katarina, Katarina);
         }
 
         public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
         {
-			var owner = spell.CastInfo.Owner;
-            owner.RemoveBuffsWithName("KatarinaR");
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Katarina.RemoveBuffsWithName("KatarinaR");
         }
     }
-
-
-
-
-
-
     public class KatarinaRMis : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        float Damage;
+        float MarkDamage;
+        private Spell RMis;
+        private ObjAIBase Katarina;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true,
-            IsDamagingSpell = true,
             MissileParameters = new MissileParameters
             {
                 Type = MissileType.Target
-            }
+            },
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-			ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
+            RMis = spell;
+            Katarina = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnSpellHit.AddListener(this, RMis, TargetExecute, false);
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-			var owner = spell.CastInfo.Owner;
-            var AP = owner.Stats.AbilityPower.Total * 0.25f;
-            var AD = owner.Stats.AttackDamage.FlatBonus * 0.375f;
-            float damage = 15f + ( 20f * spell.CastInfo.SpellLevel) + AP + AD;
-			target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-			AddParticleTarget(owner, target, "katarina_deathLotus_tar.troy", target);         	
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Damage = 15 + (20f * Katarina.Spells[3].CastInfo.SpellLevel) + (Katarina.Stats.AbilityPower.FlatBonus * 0.25f) + (Katarina.Stats.AttackDamage.FlatBonus * 0.375f);
+            target.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            MarkDamage = (15f * Katarina.Spells[0].CastInfo.SpellLevel) + (Katarina.Stats.AbilityPower.FlatBonus * 0.15f);
+            if (target.HasBuff("KatarinaQMark"))
+            {
+                target.TakeDamage(Katarina, MarkDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_PROC, false);
+                RemoveBuff(target, "KatarinaQMark");
+            }
+            target.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+            AddParticleTarget(Katarina, target, "katarina_deathLotus_tar.troy", target, 1f);
         }
     }
 }

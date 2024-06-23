@@ -9,11 +9,11 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
-    internal class KatarinaQMark : IBuffGameScript
+    class KatarinaQMark : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.HASTE,
+            BuffType = BuffType.COMBAT_DEHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING,
             MaxStacks = 1
         };
@@ -30,17 +30,5 @@ namespace Buffs
         {
             RemoveParticle(p);
         }
-
-        public void OnPreAttack(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
     }
 }
-
-
-
-

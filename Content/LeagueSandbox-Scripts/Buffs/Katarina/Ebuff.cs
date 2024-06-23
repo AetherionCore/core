@@ -9,7 +9,7 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 
 namespace Buffs
 {
-    internal class KatarinaEReduction : IBuffGameScript
+    class KatarinaEReduction : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
@@ -19,26 +19,16 @@ namespace Buffs
         };
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
+        
         Particle p;
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             p = AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "katarina_e_buf.troy", unit, buff.Duration);
         }
-
+        
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             RemoveParticle(p);
         }
-
-        public void OnPreAttack(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
     }
 }
-
-

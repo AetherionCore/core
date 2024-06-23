@@ -36,10 +36,5 @@ namespace Buffs
         {
             RemoveParticle(p);
         }
-
-        public void OnUpdate(float diff)
-        {
-        }
     }
 }
-
