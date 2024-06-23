@@ -10,33 +10,19 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
 namespace Buffs
 {
-    internal class AsheQ : IBuffGameScript
+    class FrostArrow : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.SLOW
+            BuffType = BuffType.SLOW,
+            BuffAddType = BuffAddType.RENEW_EXISTING
         };
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        public BuffAddType BuffAddType => BuffAddType.REPLACE_EXISTING;
-        public int MaxStacks => 1;
-        public bool IsHidden => false;
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            var spellLevel = ownerSpell.CastInfo.Owner.GetSpell("FrostShot").CastInfo.SpellLevel * 0.05;
-            StatsModifier.MoveSpeed.PercentBonus = (float)(StatsModifier.MoveSpeed.PercentBonus - 0.10f - spellLevel);
+            StatsModifier.MoveSpeed.PercentBonus -= 0.1f + (ownerSpell.CastInfo.Owner.Spells[0].CastInfo.SpellLevel * 0.05f);
             unit.AddStatModifier(StatsModifier);
-            AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "Ashe_Base_W_tar.troy", unit, 1f);
-            // ApplyAssistMarker
-        }
-
-        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

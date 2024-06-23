@@ -8,62 +8,52 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using System.Numerics;
-
+using System.Numerics;
+using GameServerCore.Enums;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using LeagueSandbox.GameServer.Scripting.CSharp;
+using LeagueSandbox.GameServer.API;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 
 namespace Spells
 {
     public class AsheSpiritOfTheHawk : ISpellScript
     {
+        Minion Eye;
+        Spell Arrow;
+        Vector2 Pos;
+        ObjAIBase Ashe;
+        SpellMissile Missile;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle,
-            },
             TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            // Registering the missile launch event listener with the correct parameters
-            //ApiEventManager.OnLaunchMissileByAnother.AddListener(this, owner, misEnd, false);
-        }
-
-        public void misEnd(Spell spell, SpellMissile mis)
-        {
-            mis.GetSpeed();
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
+            Arrow = spell;
+            Ashe = spell.CastInfo.Owner as Champion;
+            Pos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, OverrideEndPosition = Pos });
+            ApiEventManager.OnSpellMissileEnd.AddListener(this, Missile, OnMissileEnd, true);
         }
-
-        public void OnSpellChannel(Spell spell)
+        public void OnMissileEnd(SpellMissile missile)
         {
+            Eye = AddMinion(Ashe, "TestCube", "TestCube", missile.Position, Ashe.Team, Ashe.SkinID, true, false);
+            AddBuff("AsheSpiritOfTheHawkCast", 5f, 1, Arrow, Eye, Ashe, false);
         }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
+    }
+    public class AsheSpiritOfTheHawkCast : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
+        };
     }
 }

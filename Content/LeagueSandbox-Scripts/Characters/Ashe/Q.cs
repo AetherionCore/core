@@ -13,75 +13,33 @@ namespace Spells
 {
     public class FrostShot : ISpellScript
     {
+        ObjAIBase Ashe;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            CastingBreaksStealth = true,
-            DoesntBreakShields = true,
-            IsDamagingSpell = true,
-            NotSingleTargetSpell = true,
-            SpellToggleSlot = 4
+            IsDamagingSpell = true
         };
-
-        private Buff thisBuff;
-        ObjAIBase _owner;
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            _owner = owner;
-            //ApiEventManager.OnHitUnitByAnother.AddListener(this, owner, TargetExecute, false);
-        }
-
-        private void TargetExecute(AttackableUnit unit, bool crit)
-        {
-            if (!_owner.HasBuff(thisBuff))
-            {
-                return;
-            }
-            LogDebug("has buff");
-            AddBuff("AsheQ", 2.0f, 1, _owner.GetSpell("FrostShot"), unit, _owner);
-            _owner.Stats.CurrentMana -= 8;
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
 
         public void OnSpellCast(Spell spell)
         {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-            var owner = spell.CastInfo.Owner;
-
-            if (owner.HasBuff("FrostShot"))
+            Ashe = spell.CastInfo.Owner as Champion;
+            if (!Ashe.HasBuff("FrostShot"))
             {
-                owner.RemoveBuffsWithName("FrostShot");
+                AddBuff("FrostShot", 250000f, 1, spell, Ashe, Ashe, true);
+                spell.SetCooldown(0.5f, true);
             }
             else
             {
-                thisBuff = AddBuff("FrostShot", float.MaxValue, 1, spell, owner, owner, true);
+                RemoveBuff(Ashe, "FrostShot");
             }
         }
-
-        public void OnSpellChannel(Spell spell)
+    }
+    public class FrostArrow : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
+        };
     }
 }

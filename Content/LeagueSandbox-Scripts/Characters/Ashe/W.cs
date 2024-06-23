@@ -16,126 +16,56 @@ namespace Spells
 {
     public class Volley : ISpellScript
     {
+        ObjAIBase Ashe;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
 
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            //PlayAnimation(owner, "Spell1");
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner as Champion;
-
+            Ashe = spell.CastInfo.Owner as Champion;
             for (int arrowCount = 0; arrowCount < 8; arrowCount++)
             {
-                var targetPos = GetPointFromUnit(owner, 600f, (-24.32f + (arrowCount * 8.103f)));
-                SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, true, Vector2.Zero);
+                var targetPos = GetPointFromUnit(Ashe, 1200f, -24.32f + (arrowCount * 8.103f));
+                SpellCast(Ashe, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, true, Vector2.Zero);
             }
         }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
     }
-
     public class VolleyAttack : ISpellScript
     {
+        float Damage;
+        ObjAIBase Ashe;
+        SpellMissile Missile;
+        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            },
-            IsDamagingSpell = true,
-            TriggersSpellCasts = true
-
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Ashe = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, OverrideEndPosition = end });
         }
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-            var spellLevel = owner.GetSpell("Volley").CastInfo.SpellLevel;
-            var AD = owner.Stats.AttackDamage.Total;
-            var damage = 40f + 10f * (spellLevel - 1) + AD;
-
+            Damage = 30 + (10 * Ashe.Spells[1].CastInfo.SpellLevel) + Ashe.Stats.AttackDamage.FlatBonus;
             if (!UnitsHit.Contains(target))
             {
                 UnitsHit.Add(target);
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                AddBuff("AsheQ", 2f, 1, owner.GetSpell("FrostShot"), target, owner);
-
+                target.TakeDamage(Ashe, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                AddBuff("FrostArrow", 2f, 1, spell, target, Ashe);
+                AddParticleTarget(Ashe, target, "Ashe_Base_W_tar.troy", target, 1f);
                 missile.SetToRemove();
             }
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }
