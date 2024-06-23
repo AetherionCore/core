@@ -16,58 +16,48 @@ namespace Spells
 {
     public class TalonCutthroat : ISpellScript
     {
-        AttackableUnit Target;
+        string P1;
+        string P2;
+        string P3;
+        private Spell Cutthroat;
+        private ObjAIBase Talon;
+        private AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
 
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Target = target;
+            Cutthroat = spell;
+            Talon = owner = spell.CastInfo.Owner as Champion;
+            switch (Talon.SkinID)
+            {
+                case 5:
+                    P1 = "Talon_Skin05_E_Cas.troy";
+                    P2 = "Talon_Skin05_E_cas_trail.troy";
+                    P3 = "Talon_Skin05_E_cas_trail_long.troy";
+                    break;
+                default:
+                    P1 = "Talon_E_cast.troy";
+                    P2 = ".troy";
+                    P3 = ".troy";
+                    break;
+            }
+            AddParticle(Talon, null, P1, Talon.Position, lifetime: 10f, 1f);
+            AddParticle(Talon, null, P2, Talon.Position, lifetime: 1f);
+            AddParticle(Talon, null, P3, Talon.Position, lifetime: 1f);
+            if (Talon.HasBuff("TalonShadowAssaultBuff")) { Talon.RemoveBuffsWithName("TalonShadowAssaultBuff"); }
         }
-
         public void OnSpellCast(Spell spell)
         {
-			var owner = spell.CastInfo.Owner;
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-            var owner = spell.CastInfo.Owner;
-			var dist = System.Math.Abs(Vector2.Distance(Target.Position, owner.Position));
-			var distt = dist + 1;
-			var targetPos = GetPointFromUnit(owner,distt);
-            AddParticle(owner, null, "talon_E_cast.troy", owner.Position, lifetime: 10f);
-            TeleportTo(owner, targetPos.X, targetPos.Y);
-            AddBuff("TalonESlow", 0.25f, 1, spell, Target, owner);
-			AddBuff("TalonDamageAmp", 3f, 1, spell, Target, owner);
-            AddParticleTarget(owner, Target, "talon_E_tar.troy", Target, 10f);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            var targetPos = GetPointFromUnit(Talon, System.Math.Abs(Vector2.Distance(Target.Position, Talon.Position)) + 125);
+            TeleportTo(Talon, targetPos.X, targetPos.Y);
+            AddBuff("TalonESlow", 0.25f, 1, spell, Target, Talon);
+            AddBuff("TalonDamageAmp", 3f, 1, spell, Target, Talon);
+            AddParticleTarget(Talon, Target, "talon_E_tar.troy", Target, 10f);
         }
     }
 }

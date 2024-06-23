@@ -20,224 +20,112 @@ namespace Spells
 {
     public class TalonRake : ISpellScript
     {
+        private Spell Rake;
+        private ObjAIBase Talon;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Rake = spell;
+            Talon = owner = spell.CastInfo.Owner as Champion;
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            //PlayAnimation(owner, "Spell1");
+            if (Talon.HasBuff("TalonShadowAssaultBuff")) { Talon.RemoveBuffsWithName("TalonShadowAssaultBuff"); }
         }
-
         public void OnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner as Champion;  
-             for (int bladeCount = 0; bladeCount <= 2; bladeCount++)
-             {              
-                 var start = GetPointFromUnit(owner, 25f,  (-20f + (bladeCount * 20f)));
-				 var end = GetPointFromUnit(owner, 700f,  (-20f + (bladeCount * 20f)));
-				 SpellCast(owner, 1, SpellSlotType.ExtraSlots, end, Vector2.Zero, true, start);       
-             }
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            for (int bladeCount = 0; bladeCount <= 2; bladeCount++)
+            {
+                var End = GetPointFromUnit(Talon, 700f, -20f + (bladeCount * 20f));
+                SpellCast(Talon, 1, SpellSlotType.ExtraSlots, End, End, true, Vector2.Zero);
+            }
         }
     }
 
     public class TalonRakeMissileOne : ISpellScript
     {
+        float Damage;
+        private Spell Rake;
+        private ObjAIBase Talon;
+        private SpellMissile Missile;
+        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            },
             IsDamagingSpell = true,
             TriggersSpellCasts = true
-
-            // TODO
         };
-        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
-            var missile = spell.CreateSpellMissile(new MissileParameters
-            {
-                Type = MissileType.Circle,
-                OverrideEndPosition = end
-            });
-
-            ApiEventManager.OnSpellMissileEnd.AddListener(this, missile, OnMissileEnd, true);
+            Talon = owner = spell.CastInfo.Owner as Champion;
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, OverrideEndPosition = end });
+            if (Missile != null) { AddParticleTarget(Talon, Missile, "Talon_Skin29_B_T.troy", Missile, 25000f); }
+            ApiEventManager.OnSpellMissileEnd.AddListener(this, Missile, OnMissileEnd, true);
         }
 
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-            var spellLevel = owner.GetSpell("TalonRake").CastInfo.SpellLevel;
-            var ADratio = owner.Stats.AttackDamage.Total * 0.6f;
-            var damage = 30 + 25f*(spellLevel - 1) + ADratio;
-            var ELevel = owner.GetSpell("TalonCutthroat").CastInfo.SpellLevel;
-			var damageamp = 0.03f * (ELevel - 1);
-			if (target.HasBuff("TalonDamageAmp"))
-            {
-				damage = damage + damage * damageamp;
-            }
-            if (!UnitsHit.Contains(target))
+            Damage = 5 + (25f * Talon.Spells[1].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+            if (target.HasBuff("TalonDamageAmp")) { Damage = Damage + (Damage * 0.03f * Talon.Spells[2].CastInfo.SpellLevel); }
+            if (!UnitsHit.Contains(target) && target != Talon && target.Team != Talon.Team && !(target is ObjBuilding || target is BaseTurret))
             {
                 UnitsHit.Add(target);
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                AddBuff("TalonSlow", 2f, 1, spell, target, owner); //TODO: Find Proper Name
-                AddParticleTarget(owner, target, "talon_w_tar.troy", target, 1f);
+                target.TakeDamage(Talon, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                AddBuff("TalonSlow", 2f, 1, spell, target, Talon);
+                AddParticleTarget(Talon, target, "talon_w_tar.troy", target, 1f);
             }
         }
 
         public void OnMissileEnd(SpellMissile missile)
         {
-            var owner = missile.CastInfo.Owner;
-            SpellCast(owner, 2, SpellSlotType.ExtraSlots, true, owner, missile.Position);
-            //SpellCast(owner, 2, SpellSlotType.ExtraSlots, owner.Position, owner.Position, true, missile.Position);
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            SpellCast(Talon, 2, SpellSlotType.ExtraSlots, true, Talon, missile.Position);
         }
     }
     public class TalonRakeMissileTwo : ISpellScript
     {
+        float Damage;
+        private Spell Rake;
+        private ObjAIBase Talon;
+        private SpellMissile Missile;
+        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            },
             IsDamagingSpell = true,
             TriggersSpellCasts = true
-
-            // TODO
         };
-        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             UnitsHit.Clear();
+            Talon = owner = spell.CastInfo.Owner as Champion;
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle });
+            if (Missile != null) { AddParticleTarget(Talon, Missile, "Talon_Skin29_B_T.troy", Missile, 25000f); }
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            if (target == missile.CastInfo.Owner)
+            Damage = 5 + (25f * Talon.Spells[1].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.FlatBonus * 0.6f);
+            if (target.HasBuff("TalonDamageAmp")) { Damage = Damage + (Damage * 0.03f * Talon.Spells[2].CastInfo.SpellLevel); }
+            if (!UnitsHit.Contains(target) && target != Talon && target.Team != Talon.Team && !(target is ObjBuilding || target is BaseTurret))
             {
-				missile.SetToRemove();
-            }
-            var owner = spell.CastInfo.Owner;
-            var spellLevel = owner.GetSpell("TalonRake").CastInfo.SpellLevel;
-            var ADratio = owner.Stats.AttackDamage.Total * 0.6f;
-            var damage = 30 + 25f * (spellLevel - 1) + ADratio;
-			var ELevel = owner.GetSpell("TalonCutthroat").CastInfo.SpellLevel;
-			var damageamp = 0.03f * (ELevel - 1);
-			if (target.HasBuff("TalonDamageAmp"))
-            {
-				damage = damage + damage * damageamp;
-            }
-            if (!UnitsHit.Contains(target))
-            {
-				if (target.Team != owner.Team && !(target is ObjBuilding || target is BaseTurret))
-				{
                 UnitsHit.Add(target);
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                AddBuff("TalonSlow", 2f, 1, spell, target, owner); //TODO: Find Proper Name
-                AddParticleTarget(owner, target, "talon_w_tar.troy", target, 1f);
-				}
+                target.TakeDamage(Talon, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                AddBuff("TalonSlow", 2f, 1, spell, target, Talon);
+                AddParticleTarget(Talon, target, "talon_w_tar.troy", target, 1f);
             }
-        }
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            if (target == Talon) { missile.SetToRemove(); }
         }
     }
 }

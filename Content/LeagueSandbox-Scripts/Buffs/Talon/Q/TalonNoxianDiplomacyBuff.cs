@@ -14,65 +14,57 @@ namespace Buffs
 {
     internal class TalonNoxianDiplomacyBuff : IBuffGameScript
     {
+        Buff AttackBuff;
+        ObjAIBase Talon;
+        float TrueCooldown;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
 
-        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
-        Particle pbuff;
-        Particle pbuff2;
-        Buff thisBuff;
-        ObjAIBase owner;
+        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            thisBuff = buff;
-            if (unit is ObjAIBase ai)
-            {
-                var owner = ownerSpell.CastInfo.Owner as Champion;
-                StatsModifier.Range.FlatBonus = 50.0f;
-                unit.AddStatModifier(StatsModifier);
-                SealSpellSlot(owner, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, true);
-                ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
-                owner.SkipNextAutoAttack();
-                owner.CancelAutoAttack(false, true);
-            }
+            AttackBuff = buff;
+            Talon = ownerSpell.CastInfo.Owner as Champion;
+            Talon.SkipNextAutoAttack();
+            Talon.CancelAutoAttack(false, true);
+            StatsModifier.Range.FlatBonus = 50.0f;
+            Talon.AddStatModifier(StatsModifier);
+            ApiEventManager.OnPreAttack.AddListener(this, Talon, OnPreAttack, false);
+            ApiEventManager.OnLaunchAttack.AddListener(this, Talon, OnLaunchAttack, false);
+            SealSpellSlot(Talon, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, true);
         }
-
-        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
+        public void OnPreAttack(Spell spell)
         {
-            var owner = ownerSpell.CastInfo.Owner as Champion;
-            RemoveParticle(pbuff);
-            RemoveParticle(pbuff2);
-            RemoveBuff(thisBuff);
-            if (buff.TimeElapsed >= buff.Duration)
+            if (AttackBuff != null && AttackBuff.StackCount != 0 && !AttackBuff.Elapsed())
             {
-                ApiEventManager.OnLaunchAttack.RemoveListener(this);
-            }
-            if (unit is ObjAIBase ai)
-            {
-                SealSpellSlot(ai, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, false);
+                PlaySound("Play_vo_Talon_TalonNoxianDiplomacyAttack_OnCast", Talon);
             }
         }
 
         public void OnLaunchAttack(Spell spell)
         {
-
-            if (thisBuff != null && thisBuff.StackCount != 0 && !thisBuff.Elapsed())
+            if (AttackBuff != null && AttackBuff.StackCount != 0 && !AttackBuff.Elapsed())
             {
-                spell.CastInfo.Owner.RemoveBuff(thisBuff);
-                var owner = spell.CastInfo.Owner as Champion;
-                spell.CastInfo.Owner.SkipNextAutoAttack();
-                SpellCast(spell.CastInfo.Owner, 0, SpellSlotType.ExtraSlots, false, spell.CastInfo.Owner.TargetUnit, Vector2.Zero);
-                SealSpellSlot(owner, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, false);
-                thisBuff.DeactivateBuff();
+                Talon.SkipNextAutoAttack();
+                SpellCast(Talon, 0, SpellSlotType.ExtraSlots, false, Talon.TargetUnit, Vector2.Zero);
+                AttackBuff.DeactivateBuff();
             }
         }
-        public void OnUpdate(float diff)
+        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
+            if (buff.TimeElapsed >= buff.Duration)
+            {
+                ApiEventManager.OnPreAttack.RemoveListener(this);
+                ApiEventManager.OnLaunchAttack.RemoveListener(this);
+            }
+            SealSpellSlot(Talon, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, false);
+            TrueCooldown = (9 - Talon.Spells[0].CastInfo.SpellLevel) * (1 + Talon.Stats.CooldownReduction.Total);
+            Talon.Spells[0].SetCooldown(TrueCooldown, true);
         }
     }
 }

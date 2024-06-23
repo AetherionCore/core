@@ -17,97 +17,50 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
-            NotSingleTargetSpell = true
-            // TODO
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-		public void OnLevelUp (Spell spell)
-        {
-        }
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-			owner.CancelAutoAttack(false, false);
+            owner.CancelAutoAttack(true);
+            AddBuff("TalonNoxianDiplomacyBuff", 6.0f, 1, spell, owner, owner);
         }
-
-        public void OnSpellCast(Spell spell)
-        {
-			var owner = spell.CastInfo.Owner;
-			owner.CancelAutoAttack(true);
-			AddBuff("TalonNoxianDiplomacyBuff", 6.0f, 1, spell, owner, owner);
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            spell.SetCooldown(0, true);
         }
     }
     public class TalonNoxianDiplomacyAttack : ISpellScript
     {
-		AttackableUnit Target;
+        float QDamage;
+        ObjAIBase Talon;
+        AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-			TriggersSpellCasts = true,
-            NotSingleTargetSpell = true,
-			IsDamagingSpell = true,
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
-        {
-        }
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
+
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-			Target = target;
+            Target = target;
+            Talon = owner = spell.CastInfo.Owner as Champion;
         }
         public void OnSpellCast(Spell spell)
         {
-			
-        }
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-        public void OnUpdate(float diff)
-        {
+            AddParticleTarget(Talon, Target, "Talon_Base_Q_Bleed", Target, 10f, 1f);
+            if (Target is Champion) { AddBuff("TalonBleedDebuff", 6f, 1, spell, Target, Talon); }
+            QDamage = Target.HasBuff("TalonDamageAmp")
+                ? ((30 * Talon.Spells[0].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.Total * 0.3f)) * (1 + (0.03f * Talon.Spells[2].CastInfo.SpellLevel))
+                : (30 * Talon.Spells[0].CastInfo.SpellLevel) + (Talon.Stats.AttackDamage.Total * 0.3f);
+            if (Talon.IsNextAutoCrit)
+            {
+                Target.TakeDamage(Talon, QDamage * 2, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
+            }
+            else
+            {
+                Target.TakeDamage(Talon, QDamage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+            }
         }
     }
 }
-
-
