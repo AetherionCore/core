@@ -19,53 +19,17 @@ namespace Spells
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true,
-            NotSingleTargetSpell = true
-            // TODO
+            TriggersSpellCasts = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-			ApiEventManager.OnLevelUpSpell.AddListener(this, spell, OnLevelUp, true);
+            AddBuff("MalphiteCleave", 25000f, 1, spell, owner, owner, infiniteduration: true);
         }
-		public void OnLevelUp (Spell spell)
-        {
-			var owner = spell.CastInfo.Owner;
-            AddBuff("ObduracyA", 250000.0f, 1, spell, owner, owner);
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            AddBuff("ObduracyBuff", 6.0f, 1, spell, owner, owner);
-			AddBuff("ObduracyAttack", 6.5f, 1, spell, owner, owner);
-        }
-
         public void OnSpellCast(Spell spell)
         {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            var owner = spell.CastInfo.Owner;
+            AddParticleTarget(owner, owner, "Malphite_Enrage_glow.troy", owner, 5f);
+            AddBuff("ObduracyBuff", 5f, 1, spell, owner, owner);
         }
     }
-}	
+}
