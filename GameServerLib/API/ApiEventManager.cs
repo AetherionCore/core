@@ -36,6 +36,7 @@ using System.Collections.Generic;
 [OnKillUnit]
 [OnLaunchAttack]
 [OnLaunchMissile]
+[OnLaunchMissileByAnother]
 [OnLevelUp]
 [OnLevelUpSpell]
 [OnMiss]
@@ -59,7 +60,9 @@ using System.Collections.Generic;
 [OnSpellPostChannel] - finish channeling
 [OnSpellPreCast] - setup cast info before casting (always performed)
 [OnSpellHit] - "ApplyEffects" function in Spell.
+[OnSpellHitByAnother]
 [OnTakeDamage]
+[OnTakeDamageByAnother]
 [OnUpdateActions] - move order probably
 [OnUpdateAmmo]
 [OnUpdateStats]
@@ -81,6 +84,10 @@ namespace LeagueSandbox.GameServer.API
 
         public static void RemoveAllListenersForOwner(object owner)
         {
+            OnTakeDamageByAnother.RemoveListener(owner);
+            OnHitUnitByAnother.RemoveListener(owner);
+            OnLaunchMissile.RemoveListener(owner);
+
             foreach (var dispatcher in _dispatchers)
             {
                 dispatcher.RemoveListener(owner);
@@ -316,6 +323,45 @@ namespace LeagueSandbox.GameServer.API
                     }
                 }
                 _nestingLevel--;
+            }
+        }
+
+        public class EventOnLaunchMissileByAnother
+        {
+            private readonly List<Tuple<object, KeyValuePair<ObjAIBase, Spell>, Action<Spell, SpellMissile>, bool>> _listeners = new List<Tuple<object, KeyValuePair<ObjAIBase, Spell>, Action<Spell, SpellMissile>, bool>>();
+            public void AddListener(object owner, KeyValuePair<ObjAIBase, Spell> casterSpellPair, Action<Spell, SpellMissile> callback, bool singleInstance)
+            {
+                var listenerTuple = new Tuple<object, KeyValuePair<ObjAIBase, Spell>, Action<Spell, SpellMissile>, bool>(owner, casterSpellPair, callback, singleInstance);
+                _listeners.Add(listenerTuple);
+            }
+            public void RemoveListener(object owner, KeyValuePair<ObjAIBase, Spell> casterSpellPair)
+            {
+                _listeners.RemoveAll((listener) => listener.Item1 == owner && listener.Item2.Key == casterSpellPair.Key && listener.Item2.Value == casterSpellPair.Value);
+            }
+            public void RemoveListener(object owner)
+            {
+                _listeners.RemoveAll((listener) => listener.Item1 == owner);
+            }
+            public void Publish(KeyValuePair<ObjAIBase, Spell> casterSpellPair, SpellMissile missile)
+            {
+                var count = _listeners.Count;
+
+                if (count == 0)
+                {
+                    return;
+                }
+
+                for (int i = count - 1; i >= 0; i--)
+                {
+                    if (_listeners[i].Item2.Key == casterSpellPair.Key && _listeners[i].Item2.Value == casterSpellPair.Value)
+                    {
+                        _listeners[i].Item3(casterSpellPair.Value, missile);
+                        if (_listeners[i].Item4 == true)
+                        {
+                            _listeners.RemoveAt(i);
+                        }
+                    }
+                }
             }
         }
 
