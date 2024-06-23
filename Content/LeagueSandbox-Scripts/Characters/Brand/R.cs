@@ -61,11 +61,12 @@ namespace Spells
                 Type = MissileType.Target
             }
         };
+		
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-            LogDebug("Is this shit activated at least from missile?");
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+		
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
