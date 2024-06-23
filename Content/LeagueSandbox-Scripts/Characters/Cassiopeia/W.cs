@@ -23,25 +23,11 @@ namespace Spells
             IsDamagingSpell = true,
             NotSingleTargetSpell = true,
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
         public SpellSector DamageSector;
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
 
         public void OnSpellPostCast(Spell spell)
         {
@@ -64,27 +50,10 @@ namespace Spells
                 Lifetime = 7f
             });
         }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
             AddBuff("CassiopeiaPoisonTicker2", 2f, 1, spell, target, owner);
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

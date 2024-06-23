@@ -19,26 +19,11 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
             NotSingleTargetSpell = true
-            // TODO
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
@@ -54,7 +39,6 @@ namespace Spells
                 Type = SectorType.Cone
             });
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var hitFacing = false;
@@ -68,7 +52,7 @@ namespace Spells
             foreach (var champion in champs)
             {
                 if (champion.NetId == spell.CastInfo.Owner.NetId)
-                {
+                { 
                     AddParticleTarget(owner, target, "Cassiopeia_Base_R_tar.troy", target);
                     AddParticleTarget(owner, target, "CassDeadlyCadence_buf.troy", target, lifetime: 2f, bone: "C_BUFFBONE_GLB_HEAD_LOC");
                     AddParticleTarget(owner, target, "CassDeathDust.troy", target, lifetime: 2f, bone: "root");
@@ -78,29 +62,12 @@ namespace Spells
                     hitFacing = true;
                 }
             }
-
             if (hitFacing == false)
             {
                 AddParticleTarget(owner, target, "Cassiopeia_Base_R_tar.troy", target);
                 target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
                 AddBuff("CassiopeiaSlow", 2f, 1, spell, target, owner);
             }
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

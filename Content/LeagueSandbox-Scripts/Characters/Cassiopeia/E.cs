@@ -24,74 +24,35 @@ namespace Spells
                 Type = MissileType.Target
             }
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner as Champion;
             var APratio = owner.Stats.AbilityPower.Total;
             var damage = 30 + spell.CastInfo.SpellLevel * 25 + APratio;
-
-            if (target is Champion)
-            {
-                AddBuff("CassiopeiaDeadlyCadence", float.MaxValue, 1, owner.GetSpell("CassiopeiaNoxiousBlast"), owner, owner, true);
-            }
+            //todo  amplifying her Poison ,  poison damage against the target by 20%, stacking up to two times.
 
             AddParticleTarget(owner, target, "Cassiopeia_Base_E_TwinFang_tar.troy", target, 1f);
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             if (target.HasBuff("CassiopeiaPoisonTicker"))
             {
-                owner.Spells[2].SetCooldown(0.5f, true);
+                for (byte i = 0; i < 4; i++)
+                {
+                    owner.Spells[i].LowerCooldown(4);
+                }
                 //cassio ticker 3 buff
             }
             if (target.HasBuff("CassiopeiaPoisonTicker2"))
             {
-                owner.Spells[2].SetCooldown(0.5f, true);
+                for (byte i = 0; i < 4; i++)
+                {
+                    owner.Spells[i].LowerCooldown(4);
+                }
                 //cassio ticker 4 buff
             }
-
-            CreateTimer(0.3f, () => {
-                if (target.IsDead)
-                {
-                    owner.Stats.CurrentMana += 45;
-                }
-            });
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

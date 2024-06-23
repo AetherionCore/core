@@ -22,31 +22,12 @@ namespace Spells
             IsDamagingSpell = true,
             NotSingleTargetSpell = true,
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
-            _owner = owner;
-            _spell = spell;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
 
         public SpellSector DamageSector;
-
-        ObjAIBase _owner;
-        Spell _spell;
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            //AddBuff("CassiopeiaDeadlyCadence", float.MaxValue, 1, spell, owner, owner, true);
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
 
         public void OnSpellPostCast(Spell spell)
         {
@@ -70,56 +51,14 @@ namespace Spells
                 Lifetime = 0.5f
             });
         }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-
             AddBuff("CassiopeiaPoisonTicker", 4f, 1, spell, target, owner);
             if (target is Champion)
             {
                 AddBuff("CassiopeiaNoxiousBlastHaste", 3f, 1, spell, owner, owner);
-            }
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-            if (_owner.HasBuff("CassiopeiaDeadlyCadence"))
-            {
-                var sc = _owner.GetBuffWithName("CassiopeiaDeadlyCadence").StackCount;
-                if (sc >= 100)
-                {
-                    if (!_owner.HasBuff("Passive100"))
-                    {
-                        AddBuff("Passive100", 5.0f, 1, _spell, _owner, _owner, false);
-                    }
-                }
-                if (sc >= 250)
-                {
-                    if (!_owner.HasBuff("Passive250"))
-                    {
-                        AddBuff("Passive250", 5.0f, 1, _spell, _owner, _owner, false);
-                    }
-                }
-                if (sc >= 500)
-                {
-                    if (!_owner.HasBuff("Passive500"))
-                    {
-                        AddBuff("Passive500", 5.0f, 1, _spell, _owner, _owner, false);
-                    }
-                }
+                target.FaceDirection(owner.Direction, true);
             }
         }
     }

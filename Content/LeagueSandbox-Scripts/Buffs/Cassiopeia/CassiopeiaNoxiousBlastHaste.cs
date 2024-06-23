@@ -13,15 +13,13 @@ namespace Buffs
 {
     internal class CassiopeiaNoxiousBlastHaste : IBuffGameScript
     {
+
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.HASTE
+            BuffType = BuffType.HASTE,
+            BuffAddType = BuffAddType.STACKS_AND_OVERLAPS,
+            MaxStacks = 5
         };
-
-        public BuffAddType BuffAddType => BuffAddType.STACKS_AND_OVERLAPS;
-        public int MaxStacks => 5;
-        public bool IsHidden => false;
-
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
@@ -29,14 +27,6 @@ namespace Buffs
         {
             StatsModifier.MoveSpeed.PercentBonus += 20 / 100.0f;
             unit.AddStatModifier(StatsModifier);
-        }
-
-        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

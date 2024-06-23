@@ -10,23 +10,21 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 
 namespace Buffs
+
 {
     internal class CassiopeiaPoisonTicker2 : IBuffGameScript
     {
+
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.POISON
+            BuffType = BuffType.POISON,
+            BuffAddType = BuffAddType.REPLACE_EXISTING,
+            MaxStacks = 1
         };
-
-        public BuffAddType BuffAddType => BuffAddType.REPLACE_EXISTING;
-        public int MaxStacks => 1;
-        public bool IsHidden => false;
-
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         private ObjAIBase owner;
-        private ObjAIBase _spell;
         private AttackableUnit Unit;
         private Particle p;
         private float damage;
@@ -55,10 +53,6 @@ namespace Buffs
             if (timeSinceLastTick >= 1000f && !Unit.IsDead && Unit != null)
             {
                 Unit.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_PERIODIC, false);
-                if (Unit is Champion)
-                {
-                    AddBuff("CassiopeiaDeadlyCadence", float.MaxValue, 1, owner.GetSpell("CassiopeiaNoxiousBlast"), owner, owner, true);
-                }
                 timeSinceLastTick = 0;
             }
         }

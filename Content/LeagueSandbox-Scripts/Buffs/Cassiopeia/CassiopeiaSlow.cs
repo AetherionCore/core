@@ -15,29 +15,19 @@ namespace Buffs
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.SLOW
+            BuffType = BuffType.SLOW,
+            BuffAddType = BuffAddType.REPLACE_EXISTING,
+            MaxStacks = 1
         };
 
-        public BuffAddType BuffAddType => BuffAddType.REPLACE_EXISTING;
-        public int MaxStacks => 1;
-        public bool IsHidden => false;
-
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
+
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             StatsModifier.MoveSpeed.PercentBonus -= 0.6f;
             unit.AddStatModifier(StatsModifier);
 
             AddParticleTarget(ownerSpell.CastInfo.Owner, null, "Global_Slow.troy", unit, buff.Duration);
-        }
-
-        public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }
