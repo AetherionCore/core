@@ -9,21 +9,13 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
 namespace ItemSpells
 {
-    public class YellowTrinket : ISpellScript
+    public class TrinketTotemLvl1 : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        Minion ward;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             var Cursor = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
@@ -41,32 +33,11 @@ namespace ItemSpells
                 truecoords = Cursor;
             }
 
-            var ward = AddMinion(owner, "YellowTrinket", "YellowTrinket", truecoords);
+            ward = AddMinion(owner, "YellowTrinket", "YellowTrinket", truecoords, owner.Team, owner.SkinID, false, true);
+            ward.SetCollisionRadius(0.0f);
+            ward.SetStatus(StatusFlags.Ghosted, true);
+            AddParticle(owner, null, "Global_Trinket_Yellow.troy", truecoords);
             AddBuff("YellowTrinket", 65f, 1, spell, ward, ward);
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

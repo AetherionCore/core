@@ -11,47 +11,33 @@ namespace ItemSpells
 {
     public class SightWard : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        Minion ward;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true,
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
-            AddMinion(owner, "SightWard", "SightWard", spellPos);
-        }
+            var Cursor = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
+            var current = new Vector2(owner.Position.X, owner.Position.Y);
+            var distance = Cursor - current;
+            Vector2 truecoords;
+            if (distance.Length() > 500f)
+            {
+                distance = Vector2.Normalize(distance);
+                var range = distance * 500f;
+                truecoords = current + range;
+            }
+            else
+            {
+                truecoords = Cursor;
+            }
 
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            ward = AddMinion(owner, "SightWard", "SightWard", truecoords, owner.Team, owner.SkinID, false, true);
+            ward.SetCollisionRadius(0.0f);
+            ward.SetStatus(StatusFlags.Ghosted, true);
+            AddParticle(owner, null, "SightWard.troy", truecoords);
+            AddBuff("SightWard", 65f, 1, spell, ward, ward);
         }
     }
 }
