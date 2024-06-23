@@ -6,41 +6,56 @@ using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
-using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
     public class AkaliShadowDance : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        Spell Spell;
+        float Damage;
+        float Ampdamage;
+        ObjAIBase Akali;
+        AttackableUnit Target;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata() { TriggersSpellCasts = true };
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            TriggersSpellCasts = true
-            // TODO
-        };
-
-        public void OnSpellPostCast(Spell spell)
+            Spell = spell;
+            Target = target;
+            Akali = owner = spell.CastInfo.Owner as Champion;
+        }
+        public void OnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-            var target = spell.CastInfo.Targets[0].Unit;
-            var current = owner.Position;
-            var to = Vector2.Normalize(target.Position - current);
-            var range = to * 800;
-
-            var trueCoords = current + range;
-
-            //TODO: Dash to the correct location (in front of the enemy Champion) instead of far behind or inside them
-            ForceMovement(owner, target, "Spell4", 2200, 0, 0, 0, 20000);
-            //ForceMovement(spell.CastInfo.Owner, "Spell4", trueCoords, 2200, 0, 0, 0);
-            AddParticleTarget(owner, target, "akali_shadowDance_tar", target);
+            PlayAnimation(Akali, "Spell4", 0.5f);
+            SetStatus(Akali, StatusFlags.Ghosted, true);
+            AddParticleTarget(Akali, Akali, "akali_shadowDance_mis", Akali);
+            AddParticleTarget(Akali, Akali, "akali_shadowDance_return", Akali);
+            AddParticle(Akali, null, "akali_shadowDance_return_02", Akali.Position);
+            AddParticle(Akali, null, "akali_shadowDance_cas", Akali.Position);
+            ApiEventManager.OnMoveEnd.AddListener(this, Akali, OnMoveEnd, true);
+            ForceMovement(Akali, null, Target.Position, 2200f, 0, 0f, 0, movementOrdersType: ForceMovementOrdersType.CANCEL_ORDER);
         }
 
-        public void ApplyEffects(ObjAIBase owner, AttackableUnit target, Spell spell, SpellMissile missile)
+        public void OnMoveEnd(AttackableUnit unit)
         {
-            var bonusAd = owner.Stats.AttackDamage.Total - owner.Stats.AttackDamage.BaseValue;
-            var ap = owner.Stats.AbilityPower.Total * 0.9f;
-            var damage = 200 + spell.CastInfo.SpellLevel * 150 + bonusAd + ap;
-            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL,
-                DamageSource.DAMAGE_SOURCE_SPELL, false);
+            Akali.SetDashingState(false);
+            SetStatus(Akali, StatusFlags.Ghosted, false);
+            StopAnimation(Akali, "Spell4", true, true, true);
+            AddParticleTarget(Akali, Target, "akali_shadowDance_tar", Target);
+            Damage = 25 + (Spell.CastInfo.SpellLevel * 75) + (Akali.Stats.AbilityPower.Total * 0.5f);
+            Target.TakeDamage(Akali, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            Ampdamage = 20 + (25 * Akali.Spells[0].CastInfo.SpellLevel) + (Akali.Stats.AbilityPower.Total * 0.5f);
+            if (Target.HasBuff("AkaliMota"))
+            {
+                Target.TakeDamage(Akali, Ampdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                AddParticleTarget(Akali, Target, "akali_mark_impact_tar", Target, 10f);
+                RemoveBuff(Target, "AkaliMota");
+            }
+            if (Target.Team != Akali.Team && Target is Champion)
+            {
+                Akali.SetTargetUnit(Target, true);
+                Akali.UpdateMoveOrder(OrderType.AttackTo, true);
+            }
         }
     }
 }

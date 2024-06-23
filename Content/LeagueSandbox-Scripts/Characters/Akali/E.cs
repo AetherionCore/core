@@ -38,9 +38,9 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             var AP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.3f;
             var AD = spell.CastInfo.Owner.Stats.AttackDamage.Total * 0.6f;
-            var damage = 40 + spell.CastInfo.SpellLevel * 30 + AP + AD;
+            var damage = 40 + (spell.CastInfo.SpellLevel * 30) + AP + AD;
             var MarkAPratio = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.5f;
-            var MarkDamage = 45 + 25 * (owner.GetSpell("AkaliMota").CastInfo.SpellLevel - 1) + MarkAPratio;
+            var MarkDamage = 45 + (25 * (owner.GetSpell("AkaliMota").CastInfo.SpellLevel - 1)) + MarkAPratio;
 
             if (target.HasBuff("AkaliMota"))
             {
