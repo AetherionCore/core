@@ -23,7 +23,7 @@ namespace Buffs
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             float bonus = 10f + (10f * ownerSpell.CastInfo.Owner.Stats.Level);
-            
+
             StatsModifier.Armor.FlatBonus += bonus;
             StatsModifier.MagicResist.FlatBonus += bonus;
             unit.AddStatModifier(StatsModifier);

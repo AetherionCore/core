@@ -56,7 +56,7 @@ namespace Buffs
         {
             if (Pet != null && sector.Parameters.BindObject != null)
             {
-                var totalDamage = 35.0f + Pet.Owner.Stats.AbilityPower.Total * 0.20f;
+                var totalDamage = 35.0f + (Pet.Owner.Stats.AbilityPower.Total * 0.20f);
                 target.TakeDamage(Pet.Owner, totalDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
             }
         }

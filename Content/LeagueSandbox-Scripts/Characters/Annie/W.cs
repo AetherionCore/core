@@ -51,7 +51,7 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
 
             var ap = owner.Stats.AbilityPower.Total * 0.8f;
-            var damage = 70 + spell.CastInfo.SpellLevel * 45 + ap;
+            var damage = 70 + (spell.CastInfo.SpellLevel * 45) + ap;
 
             target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
         }

@@ -4,7 +4,7 @@ using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
-namespace Spells
+﻿namespace Spells
 {
     public class MoltenShield : ISpellScript
     {
