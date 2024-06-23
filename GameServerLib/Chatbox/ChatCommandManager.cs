@@ -28,7 +28,7 @@ namespace LeagueSandbox.GameServer.Chatbox
                     _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
                     break;
                 case DebugMsgType.INFO: // Tag: [INFO], Color: Green
-                    formattedText.Append("<font size=\"" + fontSize + "\" color =\"#00D90E\"><b>[LS INFO]</b><font color =\"#AFBF00\">: ");
+                    formattedText.Append("<font size=\"" + fontSize + "\" color =\"#00D90E\"><b>[SERVER INFO]</b><font color =\"#AFBF00\">: ");
                     formattedText.Append(message);
                     _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
                     break;
