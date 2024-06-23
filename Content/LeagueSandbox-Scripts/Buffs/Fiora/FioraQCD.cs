@@ -8,45 +8,34 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
-﻿
+using System.Numerics;
+
 namespace Buffs
 {
-    internal class FioraQCD : IBuffGameScript
+    class FioraQCD : IBuffGameScript
     {
+        Buff QCDBuff;
+        ObjAIBase Fiora;
+        float TrueCooldown;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
+            BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        private Buff ThisBuff;
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            ThisBuff = buff;
-            if (unit is ObjAIBase owner)
-            {
-                owner.SetSpell("FioraQ", 0, true);
-                ApiEventManager.OnSpellPostCast.AddListener(this, owner.GetSpell("FioraQ"), Q2OnSpellCast);
-            }
+            QCDBuff = buff;
+            Fiora = ownerSpell.CastInfo.Owner as Champion;
+            Fiora.SetSpell("FioraQ", 0, true);
+            ApiEventManager.OnSpellPostCast.AddListener(this, Fiora.Spells[0], Q2OnSpellCast);
         }
-        public void Q2OnSpellCast(Spell spell)
-        {
-            ThisBuff.DeactivateBuff();
-        }
-
+        public void Q2OnSpellCast(Spell spell) { QCDBuff.DeactivateBuff(); }
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            if (unit is ObjAIBase owner)
-            {
-                var t = 16 - 2 * (owner.GetSpell("FioraQ").CastInfo.SpellLevel - 1);
-                owner.Spells[0].SetCooldown(t);
-            }
-        }
-
-        public void OnUpdate(float diff)
-        {
+            TrueCooldown = (18 - (2 * Fiora.Spells[0].CastInfo.SpellLevel)) * (1 + Fiora.Stats.CooldownReduction.Total);
+            Fiora.Spells[0].SetCooldown(TrueCooldown);
         }
     }
 }

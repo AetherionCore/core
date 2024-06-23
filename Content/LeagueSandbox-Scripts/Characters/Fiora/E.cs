@@ -13,52 +13,18 @@ namespace Spells
 {
     public class FioraFlurry : ISpellScript
     {
-        ObjAIBase owner;
-        AttackableUnit target;
+        Spell Flurry;
+        ObjAIBase Fiora;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            ApiEventManager.OnKill.AddListener(this, owner, OnKill, false);
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            AddBuff("FioraFlurry", 3.0f, 1, spell, owner, owner);
-        }
-        public void OnKill(DeathData deathData)
-        {
-            //owner.Spells[2].SetCooldown(0);   
-        }
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Flurry = spell;
+            Fiora = owner = spell.CastInfo.Owner as Champion;
+            AddBuff("FioraFlurry", 3.0f, 1, spell, Fiora, Fiora);
         }
     }
 }

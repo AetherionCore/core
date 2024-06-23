@@ -6,125 +6,85 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using System.Numerics;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
     public class FioraQ : ISpellScript
     {
-        AttackableUnit Target;
+        private ObjAIBase Fiora;
+        private Spell FioraDash;
+        private AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Target = target;
-            owner.CancelAutoAttack(false);
+            FioraDash = spell;
+            Fiora = owner = spell.CastInfo.Owner as Champion;
         }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-            if (!owner.HasBuff("FioraQCD"))
-            {
-                AddBuff("FioraQCD", 4, 1, spell, owner, owner);
-            }
-            SpellCast(owner, 0, SpellSlotType.ExtraSlots, false, owner.TargetUnit, Vector2.Zero);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Fiora.CancelAutoAttack(true);
+            if (!Fiora.HasBuff("FioraQCD")) { AddBuff("FioraQCD", 4, 1, spell, Fiora, Fiora); }
+            SpellCast(Fiora, 0, SpellSlotType.ExtraSlots, false, Target, Vector2.Zero);
         }
     }
+
     public class FioraQLunge : ISpellScript
     {
-        AttackableUnit Target;
+        float Dist;
+        float Damage;
+        Vector2 TargetPos;
+        private ObjAIBase Fiora;
+        private Spell FioraDash;
+        private AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true,
-            IsDamagingSpell = true
+            IsDamagingSpell = true,
+            TriggersSpellCasts = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             Target = target;
-            owner.CancelAutoAttack(false);
+            FioraDash = spell;
+            Fiora = owner = spell.CastInfo.Owner as Champion;
+            Fiora.SetTargetUnit(null, true);
+            SetStatus(Fiora, StatusFlags.Ghosted, true);
+            Fiora.CancelAutoAttack(true);
         }
-
         public void OnSpellCast(Spell spell)
         {
+            ApiEventManager.OnMoveEnd.AddListener(this, Fiora, OnMoveEnd, true);
+            ApiEventManager.OnMoveSuccess.AddListener(this, Fiora, OnMoveSuccess, true);
+            Dist = System.Math.Abs(Vector2.Distance(Target.Position, Fiora.Position)) - 125;
+            TargetPos = GetPointFromUnit(Fiora, Dist);
+            PlayAnimation(Fiora, "Spell1");
+            FaceDirection(TargetPos, Fiora, true);
+            AddParticleTarget(Fiora, Fiora, "Fiora_Dance_windup.troy", Fiora);
+            AddParticleTarget(Fiora, Fiora, "FioraQLunge_dashtrail.troy", Fiora);
+            ForceMovement(Fiora, null, TargetPos, 2200, 0, 0, 0, movementOrdersType: ForceMovementOrdersType.CANCEL_ORDER);
         }
-
-        public void OnSpellPostCast(Spell spell)
+        public void OnMoveSuccess(AttackableUnit unit)
         {
-            var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AttackDamage.Total * 1.2f;
-            var damage = 40 + 25 * (owner.GetSpell("FioraQ").CastInfo.SpellLevel - 1) + ad;
-            var dist = System.Math.Abs(Vector2.Distance(Target.Position, owner.Position));
-            var distt = dist - 1;
-            var targetPos = GetPointFromUnit(owner, distt);
-            var time = dist / 2200f;
-            PlayAnimation(owner, "Spell1", time);
-            AddBuff("Ghosted", time, 1, spell, owner, owner);
-            CreateTimer((float)time, () =>
+            Fiora.SetDashingState(false);
+            Damage = 15 + (25f * Fiora.Spells[0].CastInfo.SpellLevel) + (Fiora.Stats.AttackDamage.FlatBonus * 1.2f);
+            Target.TakeDamage(Fiora, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            AddParticleTarget(Fiora, Target, "FioraQLunge_tar", Target);
+            if (Fiora.Team != Target.Team && Target is Champion)
             {
-                Target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-                AddParticleTarget(owner, Target, "FioraQLunge_tar.troy", Target, 10f);
-            });
-            FaceDirection(targetPos, owner, true);
-            ForceMovement(owner, null, targetPos, 2200, 0, 0, 0);
-            AddParticleTarget(owner, owner, "FioraQLunge_dashtrail.troy", owner, time);
-            AddParticleTarget(owner, owner, "Fiora_Dance_windup.troy", owner, time);
+                Fiora.SetTargetUnit(Target, true);
+                Fiora.UpdateMoveOrder(OrderType.AttackTo, true);
+            }
         }
-
-        public void OnSpellChannel(Spell spell)
+        public void OnMoveEnd(AttackableUnit owner)
         {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Fiora.SetDashingState(false);
+            SetStatus(Fiora, StatusFlags.Ghosted, false);
+            StopAnimation(Fiora, "spell1", true, true, true);
         }
     }
 }

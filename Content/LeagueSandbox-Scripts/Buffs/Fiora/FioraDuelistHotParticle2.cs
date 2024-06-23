@@ -8,42 +8,33 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
-    internal class FioraFlurryDummy : IBuffGameScript
+    internal class FioraDuelistHotParticle2 : IBuffGameScript
     {
+        Particle Heal;
+        ObjAIBase Fiora;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.COMBAT_ENCHANCER
+            BuffType = BuffType.COMBAT_ENCHANCER,
+            BuffAddType = BuffAddType.REPLACE_EXISTING
         };
-
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
-
-        Buff thisBuff;
-        Particle highlander;
-        string particle;
-
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            thisBuff = buff;
-            if (unit is ObjAIBase owner)
-            {
-                StatsModifier.AttackSpeed.PercentBonus = StatsModifier.MoveSpeed.PercentBonus += 15f / 100f;
-                unit.AddStatModifier(StatsModifier);
-            }
+            Fiora = ownerSpell.CastInfo.Owner as Champion;
+            ApiEventManager.OnHitUnit.AddListener(this, Fiora, OnHitUnit, false);
+            Heal = AddParticleTarget(Fiora, Fiora, "fiora_heal_buf", Fiora, 25000f, 1);
+        }
+        public void OnHitUnit(DamageData damageData)
+        {
+            Fiora.Stats.CurrentHealth += 7 + Fiora.Stats.Level;
         }
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            RemoveParticle(highlander);
-        }
-
-        private void OnAutoAttack(AttackableUnit target, bool isCrit)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            RemoveParticle(Heal);
         }
     }
 }
