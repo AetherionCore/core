@@ -23,7 +23,9 @@ namespace Spells
         public void OnDeactivate(ObjAIBase owner, Spell spell)
         {
         }
+		
         static internal Vector2 endpos;
+		
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
             endpos = end;
