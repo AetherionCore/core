@@ -4,6 +4,8 @@ using LeaguePackets.Game.Events;
 using GameServerCore.NetInfo;
 using System.Linq;
 using LeagueSandbox.GameServer.Players;
+using System.Text;
+using System.Numerics;
 
 namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 {
@@ -30,7 +32,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 return true;
             }
             else
-            {    
+            {
                 TryStart();
             }
             return true;
@@ -47,7 +49,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             var players = _playerManager.GetPlayers(false);
 
             bool isPossibleToStart;
-            if(_shouldStartAsSoonAsPossible)
+            if (_shouldStartAsSoonAsPossible)
             {
                 isPossibleToStart = players.Any(p => !p.IsDisconnected);
             }
@@ -56,14 +58,14 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 isPossibleToStart = players.All(p => !p.IsDisconnected);
             }
 
-            if(!isPossibleToStart)
+            if (!isPossibleToStart)
             {
                 return;
             }
 
             foreach (var player in players)
             {
-                if(!player.IsDisconnected)
+                if (!player.IsDisconnected)
                 {
                     StartFor(player);
                 }
@@ -77,7 +79,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             {
                 _game.PacketNotifier.NotifyPausePacket(player, (int)_game.PauseTimeLeft, true);
             }
-            
+
             _game.PacketNotifier.NotifyGameStart(player.ClientId);
 
             if (_game.IsRunning)
@@ -95,16 +97,21 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 );
             }
 
-            // TODO: send this in one place only
+
+            NotifySystemMessagesServerMOTD();
+
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "Welcome to League Sandbox!", "This is a WIP project.",
+                "[SERVER INFO] Welcome to LeagueServer", "https://github.com/brian8544/LeagueServer",
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
+            /*
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "Server Build Date", ServerContext.BuildDateString,
+                "[DEBUG INFO] Server Build Date", ServerContext.BuildDateString,
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
+            
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "Your Champion:", player.Champion.Model,
+                "[DEBUG INFO] Your Champion:", player.Champion.Model,
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
+            */
 
             SyncTime(player.ClientId);
         }
@@ -115,6 +122,18 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             var gameTime = _game.GameTime;
             _game.PacketNotifier.NotifySynchSimTimeS2C(userId, gameTime);
             _game.PacketNotifier.NotifySyncMissionStartTimeS2C(userId, gameTime);
+        }
+
+        void NotifySystemMessagesServerMOTD()
+        {
+            var formattedText = new StringBuilder();
+            var fontSize = 20;
+
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Welcome to LeagueServer</font>\n");
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Found a bug? Visit: <font color =\"#1E90FF\">https://github.com/brian8544/LeagueServer</font></font>\n");
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Server Build Date: " + ServerContext.BuildDateString + "</font>");
+
+            _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
         }
     }
 }
