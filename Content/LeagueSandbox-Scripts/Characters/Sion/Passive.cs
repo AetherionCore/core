@@ -1,22 +1,23 @@
-using LeagueSandbox.GameServer.Scripting.CSharp;
-using GameServerCore.Scripting.CSharp;
+
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+using LeagueSandbox.GameServer.Scripting.CSharp;
+using System.Numerics;
+using GameServerCore.Scripting.CSharp;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using GameServerCore.Enums;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using LeagueSandbox.GameServer.API;
 
-namespace Spells
+namespace CharScripts
 {
-    public class SionPassiveSpeed : ISpellScript
+    public class CharScriptSion : ICharScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        public void OnActivate(ObjAIBase owner, Spell spell)
         {
-            TriggersSpellCasts = true
-            // TODO
-        };
-
-        public void OnSpellCast(Spell spell)
-        {
-            AddBuff("SionPassiveSpeed", 1.5f, 1, spell, spell.CastInfo.Owner, spell.CastInfo.Owner);
+            AddBuff("Size", 3.0f, 1, spell, owner, owner, true);
         }
     }
 }
-
