@@ -9,132 +9,53 @@ using System.Numerics;
 using LeagueSandbox.GameServer.API;
 
 namespace Spells
-
 {
     public class AmumuBasicAttack : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        ObjAIBase daowner;
-        Spell daspell;
-		AttackableUnit Target;
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-			Target = target;
-            daspell = spell;
-            ApiEventManager.OnLaunchAttack.AddListener(this, daowner, OnLaunchAttack, false);
+            ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, true);
         }
-
         public void OnLaunchAttack(Spell spell)
         {
-
-            AddBuff("CursedTouch", 4f, 1, daspell, Target, spell.CastInfo.Owner);
-        }
-
-        private void SpellCast(ObjAIBase owner, int v1, SpellSlotType extraSlots, bool v2, AttackableUnit target, Vector2 position)
-        {
-        }
-
-        private void AddParticleTarget(ObjAIBase owner, AttackableUnit target1, string v, AttackableUnit target2, string bone)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            spell.CastInfo.Owner.SetAutoAttackSpell("AmumuBasicAttack", false);
         }
     }
-	public class AmumuBasicAttack2 : ISpellScript
+    public class AmumuBasicAttack2 : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-        ObjAIBase daowner;
-        Spell daspell;
-		AttackableUnit Target;
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-			Target = target;
-            daspell = spell;
-            ApiEventManager.OnLaunchAttack.AddListener(this, daowner, OnLaunchAttack, false);
+            ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, true);
         }
-
         public void OnLaunchAttack(Spell spell)
         {
-
-            AddBuff("CursedTouch", 4f, 1, daspell, Target, spell.CastInfo.Owner);
+            spell.CastInfo.Owner.SetAutoAttackSpell("AmumuBasicAttack2", false);
         }
-
-        private void SpellCast(ObjAIBase owner, int v1, SpellSlotType extraSlots, bool v2, AttackableUnit target, Vector2 position)
+    }
+    public class AmumuCritAttack : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
+        };
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+            ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, true);
         }
-
-        private void AddParticleTarget(ObjAIBase owner, AttackableUnit target1, string v, AttackableUnit target2, string bone)
+        public void OnLaunchAttack(Spell spell)
         {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            spell.CastInfo.Owner.SetAutoAttackSpell("AmumuCritAttack", false);
         }
     }
 }

@@ -17,31 +17,17 @@ namespace Spells
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
             TriggersSpellCasts = true
-            // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-			var owner = spell.CastInfo.Owner;
-			var ownerSkinID = owner.SkinID;	
-            AddParticleTarget(owner, null, "CurseBandages_cas1.troy", owner);                                
+            var owner = spell.CastInfo.Owner;
+            var ownerSkinID = owner.SkinID;
+            AddParticleTarget(owner, null, "CurseBandages_cas1.troy", owner);
             spell.CreateSpellSector(new SectorParameters
             {
                 Length = 600f,
@@ -55,27 +41,12 @@ namespace Spells
             if (owner != target)
             {
                 var AP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.8f;
-                var damage = 150 + (spell.CastInfo.SpellLevel-1) * 100 + AP;
+                var damage = 150 + (spell.CastInfo.SpellLevel - 1) * 100 + AP;
                 target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-				AddBuff("Stun", 2f, 1, spell, target, owner);
+                AddBuff("CurseoftheSadMummyCastEffects", 2f, 1, spell, target, owner);
                 AddParticleTarget(owner, null, "CurseBandages.troy", target);
-
             }
-        }
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }
+
