@@ -257,13 +257,29 @@ namespace PacketDefinitions420
 
         public bool HandleDisconnect(Peer peer)
         {
-            if(peer == null)
+            if (peer == null)
             {
                 return true;
             }
 
-            int clientId = ((int)peer.UserData) - 1;
-            if(clientId < 0)
+            if (peer.UserData == null)
+            {
+                Debug.WriteLine("peer.UserData is null.");
+                return true;
+            }
+
+            int clientId;
+            try
+            {
+                clientId = (int)peer.UserData - 1;
+            }
+            catch (InvalidCastException e)
+            {
+                Debug.WriteLine($"Invalid cast: {e.Message}");
+                return true;
+            }
+
+            if (clientId < 0)
             {
                 // Didn't receive an ID by initiating a handshake.
                 return true;
@@ -274,6 +290,12 @@ namespace PacketDefinitions420
         public bool HandleDisconnect(int clientId)
         {
             var peerInfo = _game.PlayerManager.GetPeerInfo(clientId);
+            if (peerInfo == null)
+            {
+                Debug.WriteLine($"PeerInfo for clientId {clientId} is null.");
+                return true;
+            }
+
             if (peerInfo.IsDisconnected)
             {
                 Debug.WriteLine($"Prevented double disconnect of {peerInfo.PlayerId}");
@@ -281,9 +303,9 @@ namespace PacketDefinitions420
             }
 
             Debug.WriteLine($"Player {peerInfo.PlayerId} disconnected!");
-            
-            var annoucement = new OnLeave { OtherNetID = peerInfo.Champion.NetId };
-            _game.PacketNotifier.NotifyS2C_OnEventWorld(annoucement, peerInfo.Champion);
+
+            var announcement = new OnLeave { OtherNetID = peerInfo.Champion.NetId };
+            _game.PacketNotifier.NotifyS2C_OnEventWorld(announcement, peerInfo.Champion);
             peerInfo.IsDisconnected = true;
             peerInfo.IsStartedClient = false;
             _peers[clientId] = null;
