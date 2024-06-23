@@ -14,117 +14,64 @@ namespace Spells
 {
     public class BrandBlaze : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
-        {
-            TriggersSpellCasts = true
-            // TODO
-        };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            FaceDirection(end, owner);
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-            var endPos = GetPointFromUnit(spell.CastInfo.Owner, 925);
-            SpellCast(spell.CastInfo.Owner, 0, SpellSlotType.ExtraSlots, endPos, endPos, false, Vector2.Zero);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
-    }
-
-    public class BrandBlazeMissile : ISpellScript
-    {
-        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
+            IsDamagingSpell = true
+        };
+        public void OnSpellCast(Spell spell)
+        {
+            var owner = spell.CastInfo.Owner;
+        }
+        public void OnSpellPostCast(Spell spell)
+        {
+            var owner = spell.CastInfo.Owner as Champion;
+            var ownerSkinID = owner.SkinID;
+            var targetPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
+            var distance = Vector2.Distance(owner.Position, targetPos);
+            FaceDirection(targetPos, owner);
+            if (distance >= 1100.0)
+            {
+                targetPos = GetPointFromUnit(owner, 1100.0f);
+            }
+            if (ownerSkinID == 5)
+            {
+                SpellCast(owner, 3, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
+            }
+            else
+            {
+                SpellCast(owner, 0, SpellSlotType.ExtraSlots, targetPos, targetPos, false, Vector2.Zero);
+            }
+        }
+    }
+    public class BrandBlazeMissile : ISpellScript
+    {
+        ObjAIBase Owner;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        {
             MissileParameters = new MissileParameters
             {
                 Type = MissileType.Circle
-            }
-            // TODO
+            },
+            IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
-        public void OnSpellPostCast(Spell spell)
-        {
-        }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AbilityPower.Total * 0.65 + spell.CastInfo.Owner.GetSpell("BrandBlaze").CastInfo.SpellLevel * 40 + 40;
-            target.TakeDamage(owner, (float)ad, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-            missile.SetToRemove();
-
-            if (target.HasBuff("BrandWildfire"))
+            var APratio = owner.Stats.AbilityPower.Total * 0.65f;
+            var damage = 80 * (spell.CastInfo.SpellLevel - 0) + APratio;
+            if (target.HasBuff("BrandPassive"))
             {
                 AddBuff("Stun", 2f, 1, spell, target, owner);
-                AddBuff("BrandWildfire", 4f, 1, spell, target, owner);
             }
-            else
-            {
-                AddBuff("BrandWildfire", 4f, 1, spell, target, owner);
-            }
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+            AddParticleTarget(owner, target, "BrandBlaze_mis.troy", target, 1f, 1f);
+            AddBuff("BrandPassive", 4f, 1, spell, target, owner, false);
+            missile.SetToRemove();
         }
     }
 }
