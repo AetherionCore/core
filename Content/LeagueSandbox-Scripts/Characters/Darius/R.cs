@@ -5,68 +5,57 @@ using System.Numerics;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
-using static LeaguePackets.Game.Common.CastInfo;
+using static LeagueSandbox.GameServer.API.ApiFunctionManager;
+
 
 namespace Spells
 {
     public class DariusExecute : ISpellScript
     {
-        private AttackableUnit _target;
-
+        byte C;
+        float AD;
+        float Dist;
+        float Damage;
+        ObjAIBase Darius;
+        AttackableUnit Target;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true
         };
 
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            _target = target;
+            Target = target;
+            Darius = owner = spell.CastInfo.Owner as Champion;
+            //Darius.SetTargetUnit(null, true);
+            FaceDirection(Target.Position, Darius, true);
+            AD = Darius.Stats.AttackDamage.FlatBonus * 0.75f;
+            Dist = System.Math.Abs(Vector2.Distance(Target.Position, Darius.Position));
+            if (Dist > 125f)
+            {
+                //ForceMovement(Darius, null, GetPointFromUnit(Darius,Dist - 125), 1200, 0, 0, 0);
+            }
+            AddParticleTarget(Darius, Darius, "darius_R_cast_axe.troy", Darius, 10, 1, "weapon");
         }
-
-        public void OnSpellCast(Spell spell)
-        {
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-            var ad = owner.Stats.AttackDamage.FlatBonus * 1.5f;
-            //var stacks = target.GetBuffWithName("DariusHemoMarker");
-            var damage = 160 * spell.CastInfo.SpellLevel + ad;
-            /*
-            if (stacks != null)
+            Damage = Target.HasBuff("DariusHemo")
+                ? ((70 + (90 * spell.CastInfo.SpellLevel) + AD) * (Target.GetBuffWithName("DariusHemo").StackCount * 0.2f)) + (70 + (90 * spell.CastInfo.SpellLevel) + AD)
+                : 70 + (90 * spell.CastInfo.SpellLevel) + AD;
+            Target.TakeDamage(Darius, Damage, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            if (Target.IsDead)
             {
-                damage += (float)(stacks.StackCount * 0.2 * damage);
+                AddParticleTarget(Darius, Darius, "darius_Base_r_refresh_01", Darius, 2.5f);
+                CreateTimer((float)0.25, () =>
+                {
+                    AddBuff("DariusExecuteMulticast", 20.0f, 1, spell, Darius, Darius);
+                });
             }
-            */
-            //target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_SPELL, false);
-
-            //AddParticleTarget(owner, Target, "darius_Base_R_tar.troy", Target, 1f, 1f);
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            AddBuff("DariusHemo", 5.0f, 1, spell, Target, Darius);
+            AddParticleTarget(Darius, Target, "darius_Base_R_tar", Target);
+            AddParticleTarget(Darius, Target, "darius_Base_R_tar_02.troy", Target, 10f);
+            AddParticleTarget(Darius, Target, "darius_Base_R_tar_03.troy", Target, 10f);
         }
     }
 }

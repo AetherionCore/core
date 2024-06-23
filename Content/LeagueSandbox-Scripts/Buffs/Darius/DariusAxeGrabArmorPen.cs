@@ -13,8 +13,9 @@ using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
-    internal class DariusHemoMarker : IBuffGameScript
+    internal class DariusAxeGrabArmorPen : IBuffGameScript
     {
+        Particle Slow;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffAddType = BuffAddType.REPLACE_EXISTING
@@ -22,7 +23,7 @@ namespace Buffs
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            StatsModifier.MoveSpeed.PercentBonus = 0.05f;
+            StatsModifier.ArmorPenetration.PercentBonus = 0.05f * (unit as ObjAIBase).Spells[2].CastInfo.SpellLevel;
             unit.AddStatModifier(StatsModifier);
         }
     }

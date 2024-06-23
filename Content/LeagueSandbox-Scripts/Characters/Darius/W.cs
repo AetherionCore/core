@@ -14,76 +14,51 @@ namespace Spells
 {
     public class DariusNoxianTacticsONH : ISpellScript
     {
-        private ObjAIBase Owner;
-
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-            Owner = owner;
-            ApiEventManager.OnPreAttack.AddListener(this, owner, ChangeAnim, false);
-            //ApiEventManager.OnHitUnitByAnother.AddListener(this, owner, TargetExecute, false);
-        }
-
-        public void ChangeAnim(Spell spell)
-        {
-            if (Applied == 0)
-            {
-                spell.CastInfo.Owner.PlayAnimation("Spell2", 1.5f, flags: AnimationFlags.Override);
-                CreateTimer(0.5f, () => { spell.CastInfo.Owner.StopAnimation("Spell2", fade: true); });
-            }
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            Applied = 0;
+            owner.CancelAutoAttack(true);
+            AddBuff("DariusNoxianTacticsONH", 6.0f, 1, spell, owner, owner);
         }
-
-        internal static int Applied = 1;
-
-        public void OnSpellCast(Spell spell)
-        {
-            var owner = spell.CastInfo.Owner;
-            AddBuff("DariusNoxianTacticsActive", 4f, 1, spell, Owner, Owner, false);
-        }
-
-        public void TargetExecute(AttackableUnit unit, bool arg2)
-        {
-            var owner = Owner;
-            var ADratio = owner.Stats.AttackDamage.PercentBonus * 0.3f;
-            if (Applied != 1)
-            {
-                //unit.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-                Applied = 1;
-                //CreateTimer((float)6, () => { Applied = 1; });
-            }
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
+            spell.SetCooldown(0, true);
         }
-
-        public void OnSpellChannel(Spell spell)
+    }
+    public class DariusNoxianTacticsONHAttack : ISpellScript
+    {
+        float WDamage;
+        ObjAIBase Darius;
+        AttackableUnit Target;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
+        };
+
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+            Target = target;
+            Darius = owner = spell.CastInfo.Owner as Champion;
         }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
+        public void OnSpellCast(Spell spell)
         {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            WDamage = Darius.Spells[1].CastInfo.SpellLevel * Darius.Stats.AttackDamage.Total * 0.2f;
+            if (Darius.IsNextAutoCrit)
+            {
+                Target.TakeDamage(Darius, WDamage * 2, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
+            }
+            else
+            {
+                Target.TakeDamage(Darius, WDamage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            }
+            AddParticleTarget(Darius, Target, "darius_Base_W_tar.troy", Target, 3f);
+            AddBuff("DariusNoxianTacticsSlow", 3f, 1, spell, Target, Darius);
         }
     }
 }

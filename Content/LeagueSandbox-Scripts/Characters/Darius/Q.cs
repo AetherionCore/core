@@ -8,70 +8,63 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.AnimatedBuildings;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
+using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
+using LeagueSandbox.GameServer.API;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Runtime;
+using System.Numerics;
 
 namespace Spells
 {
     public class DariusCleave : ISpellScript
     {
+        float Damage;
+        private Spell AOE;
+        private ObjAIBase Darius;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true
-            // TODO
+            TriggersSpellCasts = true,
+            IsDamagingSpell = true
         };
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            AOE = spell;
+            Darius = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnSpellHit.AddListener(this, AOE, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
         public void OnSpellCast(Spell spell)
         {
+            PlayAnimation(Darius, "Spell1", 0.5f);
+            AOE.CreateSpellSector(new SectorParameters { Length = 400f, SingleTick = true, Type = SectorType.Area });
+            AddParticleTarget(Darius, Darius, "darius_Base_Q_aoe_cast.troy", Darius, bone: "C_BuffBone_Glb_Center_Loc");
+            AddParticleTarget(Darius, Darius, "darius_Base_Q_aoe_cast_mist.troy", Darius, bone: "C_BuffBone_Glb_Center_Loc");
         }
-
-        public void OnSpellPostCast(Spell spell)
+        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner as Champion;
-            var ad = spell.CastInfo.Owner.Stats.AttackDamage.FlatBonus * 0.5f;
-            var damage = 70 * spell.CastInfo.SpellLevel + ad;
-
-            PlayAnimation(owner, "Spell1", 0.5f);
-            AddParticle(owner, null, "darius_Base_Q_aoe_cast.troy", owner.Position, direction: owner.Direction);
-            AddParticle(owner, null, "darius_Base_Q_aoe_cast_mist", owner.Position, direction: owner.Direction);
-            AddParticle(owner, null, "darius_Base_Q_tar_inner.troy", owner.Position, direction: owner.Direction);
-
-            var units = GetUnitsInRange(owner.Position, 425f, true);
-            for (int i = 0; i < units.Count; i++)
+            AddParticleTarget(Darius, target, "darius_Base_Q_tar.troy", target, 1f);
+            AddParticleTarget(Darius, target, "darius_Base_Q_tar_inner.troy", target, 1f);
+            AddParticleTarget(Darius, target, "darius_Base_Q_impact_spray.troy", target, 1f);
+            Damage = 35 + (35f * Darius.Spells[0].CastInfo.SpellLevel) + (Darius.Stats.AttackDamage.FlatBonus * 0.7f);
+            if (target.Team != Darius.Team && !(target is ObjBuilding || target is BaseTurret))
             {
-                if (!(units[i].Team == owner.Team || units[i] is BaseTurret || units[i] is ObjBuilding || units[i] is Inhibitor))
+                if (Math.Abs(Vector2.Distance(target.Position, Darius.Position)) > 200)
                 {
-                    units[i].TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
-                    AddParticleTarget(owner, units[i], "darius_Base_Q_tar.troy", units[i], 1f);
-                    AddBuff("DariusHemoMarker", 5f, 1, spell, units[i], owner);
+                    target.TakeDamage(Darius, Damage * 1.5f, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                    AddBuff("DariusHemo", 5.0f, 1, spell, target, Darius);
+                    AddBuff("DariusHemo", 5.0f, 1, spell, target, Darius);
+                }
+                else
+                {
+                    target.TakeDamage(Darius, Damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+                    AddBuff("DariusHemo", 5.0f, 1, spell, target, Darius);
                 }
             }
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource source)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

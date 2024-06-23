@@ -4,34 +4,26 @@ using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
-using GameServerLib.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
 
 namespace CharScripts
 {
     public class CharScriptDarius : ICharScript
     {
-        Spell Spell;
+        ObjAIBase Darius;
         AttackableUnit Target;
-        ObjAIBase Owner;
-        public void OnActivate(ObjAIBase owner, Spell spell)
+        public void OnActivate(ObjAIBase owner, Spell spell = null)
         {
-            Spell = spell;
-            Owner = owner;
-            ApiEventManager.OnHitUnit.AddListener(this, owner, OnHitUnit, false);
+            Darius = owner as Champion;
+            ApiEventManager.OnLaunchAttack.AddListener(this, Darius, OnLaunchAttack, false);
         }
-
-        public void OnHitUnit(DamageData damageData)
+        public void OnLaunchAttack(Spell spell)
         {
-            Target = damageData.Target;
-            var owner = Owner;
-            AddBuff("DariusHemo", 5.100006f, 1, Spell, Target, owner);
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell = null)
-        {
-        }
-        public void OnUpdate(float diff)
-        {
+            Target = spell.CastInfo.Targets[0].Unit;
+            if (!(Target is ObjBuilding || Target is BaseTurret))
+            {
+                AddBuff("DariusHemo", 5.0f, 1, spell, Target, Darius);
+            }
         }
     }
 }
