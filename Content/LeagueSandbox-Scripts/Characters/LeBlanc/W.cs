@@ -11,184 +11,162 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
+using LeagueSandbox.GameServer.API;
 
 namespace Spells
 {
-    public class LeblancSlide: ISpellScript
+    public class LeblancSlide : ISpellScript
     {
-
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        float AP;
+        float Dist;
+        Minion POS;
+        bool IsCrit;
+        Particle Mis;
+        float Damage;
+        float BaseDamage;
+        float QOrbDamage;
+        float ROrbDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
             TriggersSpellCasts = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnMoveEnd.AddListener(this, Leblanc, OnMoveEnd, true);
+            ApiEventManager.OnMoveSuccess.AddListener(this, Leblanc, OnMoveSuccess, true);
+            Dist = Vector2.Distance(Leblanc.Position, start);
+            PlayAnimation(Leblanc, "Spell2");
+            FaceDirection(start, owner, true);
+            SetStatus(Leblanc, StatusFlags.Ghosted, true);
+            if (Dist > spell.SpellData.CastRangeDisplayOverride)
+            {
+                start = GetPointFromUnit(owner, spell.SpellData.CastRangeDisplayOverride);
+            }
+            ForceMovement(Leblanc, null, start, 1450, 0, 0, 0);
         }
-
         public void OnSpellCast(Spell spell)
         {
-			var owner = spell.CastInfo.Owner;
-            AddBuff("LeblancSlide", 4.0f, 1, spell, owner, owner);
-			AddBuff("LeblancSlideMove", 3.5f, 1, spell, owner, owner);
-			Minion Leblanc = AddMinion(owner, "TestCube", "TestCube", owner.Position, owner.Team, owner.SkinID, true, false);
-			AddBuff("LeblancSlideReturn", 4.0f, 1, spell, Leblanc, owner);			
+            AddBuff("LeblancSlide", 4.0f, 1, spell, Leblanc, Leblanc);
+            AddBuff("LeblancSlideMove", 4.0f, 1, spell, Leblanc, Leblanc);
+            AddParticle(Leblanc, null, "LeBlanc_Base_W_cas.troy", Leblanc.Position);
+            Mis = AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_W_mis.troy", Leblanc);
+            POS = AddMinion(Leblanc, "TestCube", "TestCube", Leblanc.Position, Leblanc.Team, Leblanc.SkinID, true, false);
+            AddBuff("LeblancSlideReturn", 4.0f, 1, spell, POS, Leblanc);
         }
-
-        public void OnSpellPostCast(Spell spell)
+        public void OnSpellPostCast(Spell spell) { spell.SetCooldown(0.5f, true); }
+        public void OnMoveEnd(AttackableUnit owner)
         {
-			spell.SetCooldown(0.5f, true);
-			var owner = spell.CastInfo.Owner;
-			//AddBuff("LeblancSlideAOE", 0.5f, 1, spell, owner, owner);
-			//if (!owner.HasBuff("LeblancSlideM") && owner.GetSpell("LeblancMimic").CastInfo.SpellLevel >= 1 )
-			if (!owner.HasBuff("LeblancSlideM")&&owner.HasBuff("LeblancMimic"))
-             {
-             owner.SetSpell("LeblancSlideM", 3, true);
-			 }
-			var Cursor = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
-            var current = new Vector2(owner.Position.X, owner.Position.Y);
-            var distance = Cursor - current;
-            Vector2 truecoords;
-            if (distance.Length() > 600f)
+            SetStatus(Leblanc, StatusFlags.Ghosted, false);
+            StopAnimation(Leblanc, "Spell2", true, true, true);
+            RemoveParticle(Mis);
+        }
+        public void OnMoveSuccess(AttackableUnit owner)
+        {
+            AP = Leblanc.Stats.AbilityPower.Total * 0.65f;
+            BaseDamage = 45 + (40 * Leblanc.Spells[1].CastInfo.SpellLevel) + AP;
+            QOrbDamage = 30 + (25 * Leblanc.Spells[0].CastInfo.SpellLevel) + AP;
+            ROrbDamage = (150f * Leblanc.Spells[3].CastInfo.SpellLevel) + AP;
+            AddParticle(Leblanc, null, "LeBlanc_Base_W_aoe_impact_02.troy", Leblanc.Position);
+            var AOE = GetUnitsInRange(Leblanc.Position, 260f, true);
+            for (int i = 0; i < AOE.Count; i++)
             {
-                distance = Vector2.Normalize(distance);
-                var range = distance * 600f;
-                truecoords = current + range;
-            }
-            else
-            {
-                truecoords = Cursor;
-            }
-			var dist = System.Math.Abs(Vector2.Distance(truecoords, owner.Position));
-            var time = dist / 1450f;
-			//PlayAnimation(owner, "Spell2",time);
-			owner.Stats.SetActionState(ActionState.CAN_MOVE, false);	 
-			AddParticleTarget(owner, owner, "LeBlanc_Base_W_mis.troy", owner, 0.5f);
-			AddParticle(owner, null, "LeBlanc_Base_W_cas.troy", owner.Position,time);
-			FaceDirection(truecoords, spell.CastInfo.Owner, true);
-            ForceMovement(owner, null, truecoords, 1450, 0, 0, 0);
-            PlayAnimation(owner, "Spell2",time);
-			//var time1 = dist + 0.2f;
-			CreateTimer((float) time , () =>
-            {
-            if (spell.CastInfo.Owner is Champion c)
-            {
-				//c.GetSpell(1).LowerCooldown(20);
-				StopAnimation(owner, "Spell2");
-			    AddParticle(c, null, "LeBlanc_Base_W_aoe_impact_02.troy", c.Position);
-
-                var units = GetUnitsInRange(c.Position, 260f, true);
-                for (int i = 0; i < units.Count; i++)
+                if (AOE[i].Team != Leblanc.Team && !(AOE[i] is ObjBuilding || AOE[i] is BaseTurret))
                 {
-                    if (units[i].Team != c.Team && !(units[i] is ObjBuilding || units[i] is BaseTurret))
-                    {
-						var AP = c.Stats.AbilityPower.Total * 0.65f;
-						var QLevel = c.GetSpell("LeblancChaosOrb").CastInfo.SpellLevel;
-						var WLevel = c.GetSpell("LeblancSlide").CastInfo.SpellLevel;
-						var RLevel = c.GetSpell("LeblancSoulShackle").CastInfo.SpellLevel;
-                        var damage = 85 + (40 * (WLevel - 1)) + AP;
-						var Qdamage = 55 + 25f*(QLevel - 1) + AP;
-			            var QMarkdamage = Qdamage + damage;
-						var RQdamage = 100 + 100f*(QLevel - 1) + AP;
-			            var RQMarkdamage = Qdamage + damage;
-						if (units[i].HasBuff("LeblancChaosOrb"))
-                            {
-							units[i].TakeDamage(c, QMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, true);
-							AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar.troy", units[i], 1f);
-				            AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar_02.troy", units[i], 1f);
-					        units[i].RemoveBuffsWithName("LeblancChaosOrb");
-                            }
-						if (units[i].HasBuff("LeblancChaosOrbM"))
-                            {
-							units[i].TakeDamage(c, RQMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, true);
-							AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar.troy", units[i], 1f);
-				            AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar_02.troy", units[i], 1f);
-					        units[i].RemoveBuffsWithName("LeblancChaosOrbM");
-                            }
-						else
-							{
-                            units[i].TakeDamage(c, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-						    AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar.troy", units[i], 1f);
-				            AddParticleTarget(c, units[i], "LeBlanc_Base_W_tar_02.troy", units[i], 1f);
-						    }
-                    }
-                }             
+                    AddParticleTarget(Leblanc, AOE[i], "LeBlanc_Base_W_tar.troy", AOE[i], 1f);
+                    AddParticleTarget(Leblanc, AOE[i], "LeBlanc_Base_W_tar_02.troy", AOE[i], 1f);
+                    if (AOE[i].HasBuff("LeblancChaosOrb")) { IsCrit = true; Damage = BaseDamage + QOrbDamage; AOE[i].RemoveBuffsWithName("LeblancChaosOrb"); }
+                    else if (AOE[i].HasBuff("LeblancChaosOrbM")) { IsCrit = true; Damage = BaseDamage + ROrbDamage; AOE[i].RemoveBuffsWithName("LeblancChaosOrbM"); }
+                    else { IsCrit = false; Damage = BaseDamage; }
+                    AOE[i].TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, IsCrit);
+                }
             }
-           });
         }
-		public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
-        { 
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
-
     }
-	public class LeblancSlideReturn: ISpellScript
+    public class LeblancSlideReturn : ISpellScript
     {
-
-       public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
             TriggersSpellCasts = true
         };
-
-        public void OnActivate(ObjAIBase owner, Spell spell)
+    }
+    public class LeblancSlideM : ISpellScript
+    {
+        float AP;
+        float Dist;
+        Minion POS;
+        bool IsCrit;
+        Particle Mis;
+        float Damage;
+        float BaseDamage;
+        float QOrbDamage;
+        float ROrbDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
+            TriggersSpellCasts = true
+        };
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
+            ApiEventManager.OnMoveEnd.AddListener(this, Leblanc, OnMoveEnd, true);
+            ApiEventManager.OnMoveSuccess.AddListener(this, Leblanc, OnMoveSuccess, true);
+            Dist = Vector2.Distance(Leblanc.Position, start);
+            PlayAnimation(Leblanc, "Spell2");
+            FaceDirection(start, owner, true);
+            SetStatus(Leblanc, StatusFlags.Ghosted, true);
+            if (Dist > spell.SpellData.CastRangeDisplayOverride)
+            {
+                start = GetPointFromUnit(owner, spell.SpellData.CastRangeDisplayOverride);
+            }
+            ForceMovement(Leblanc, null, start, 1450, 0, 0, 0);
         }
-
         public void OnSpellCast(Spell spell)
         {
+            AddBuff("LeblancSlideM", 4.0f, 1, spell, Leblanc, Leblanc);
+            AddBuff("LeblancSlideMoveM", 4.0f, 1, spell, Leblanc, Leblanc);
+            AddParticle(Leblanc, null, "LeBlanc_Base_RW_cas.troy", Leblanc.Position);
+            Mis = AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_RW_mis.troy", Leblanc);
+            POS = AddMinion(Leblanc, "TestCube", "TestCube", Leblanc.Position, Leblanc.Team, Leblanc.SkinID, true, false);
+            AddBuff("LeblancSlideReturnM", 4.0f, 1, spell, POS, Leblanc);
         }
-
-        public void OnSpellPostCast(Spell spell)
+        public void OnSpellPostCast(Spell spell) { spell.SetCooldown(0.5f, true); }
+        public void OnMoveEnd(AttackableUnit owner)
         {
+            SetStatus(Leblanc, StatusFlags.Ghosted, false);
+            StopAnimation(Leblanc, "Spell2", true, true, true);
+            RemoveParticle(Mis);
         }
-
-        public void OnSpellChannel(Spell spell)
+        public void OnMoveSuccess(AttackableUnit owner)
         {
+            AP = Leblanc.Stats.AbilityPower.Total * 0.65f;
+            BaseDamage = (150 * Leblanc.Spells[3].CastInfo.SpellLevel) + AP;
+            QOrbDamage = 30 + (25 * Leblanc.Spells[0].CastInfo.SpellLevel) + AP;
+            ROrbDamage = (150f * Leblanc.Spells[3].CastInfo.SpellLevel) + AP;
+            AddParticle(Leblanc, null, "LeBlanc_Base_RW_aoe_impact_02.troy", Leblanc.Position);
+            var AOE = GetUnitsInRange(Leblanc.Position, 260f, true);
+            for (int i = 0; i < AOE.Count; i++)
+            {
+                if (AOE[i].Team != Leblanc.Team && !(AOE[i] is ObjBuilding || AOE[i] is BaseTurret))
+                {
+                    AddParticleTarget(Leblanc, AOE[i], "LeBlanc_Base_RW_tar.troy", AOE[i], 1f);
+                    AddParticleTarget(Leblanc, AOE[i], "LeBlanc_Base_RW_tar_02.troy", AOE[i], 1f);
+                    if (AOE[i].HasBuff("LeblancChaosOrb")) { IsCrit = true; Damage = BaseDamage + QOrbDamage; AOE[i].RemoveBuffsWithName("LeblancChaosOrb"); }
+                    else if (AOE[i].HasBuff("LeblancChaosOrbM")) { IsCrit = true; Damage = BaseDamage + ROrbDamage; AOE[i].RemoveBuffsWithName("LeblancChaosOrbM"); }
+                    else { IsCrit = false; Damage = BaseDamage; }
+                    AOE[i].TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, IsCrit);
+                }
+            }
         }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
-        }
-
     }
-
+    public class LeblancSlideReturnM : ISpellScript
+    {
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
+        {
+            TriggersSpellCasts = true
+        };
+    }
 }

@@ -13,47 +13,36 @@ using System.Numerics;
 
 namespace Buffs
 {
-    internal class LeblancSlide : IBuffGameScript
+    internal class LeblancSlideM : IBuffGameScript
     {
+        Buff Slide;
+        ObjAIBase Leblanc;
+        AttackableUnit Unit;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
             BuffType = BuffType.COMBAT_ENCHANCER,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
 
-        public StatsModifier StatsModifier { get; private set; }
 
-        Buff ThisBuff;
-        Particle p;
-        Particle p2;
+        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            //buff.SetStatusEffect(StatusFlags.Targetable, false);
-            //buff.SetStatusEffect(StatusFlags.Ghosted, true);
-            ApiEventManager.OnSpellCast.AddListener(this, ownerSpell.CastInfo.Owner.GetSpell("LeblancSlideReturn"), W2OnSpellCast);
-            if (unit is ObjAIBase owner)
-            {
-
-                var r2Spell = owner.SetSpell("LeblancSlideReturn", 1, true);
-            }
+            Unit = unit;
+            Slide = buff;
+            Leblanc = ownerSpell.CastInfo.Owner as Champion;
+            Leblanc.SetSpell("LeblancSlideReturnM", 3, true);
+            ApiEventManager.OnSpellCast.AddListener(this, Leblanc.GetSpell("LeblancSlideReturnM"), W2OnSpellCast);
         }
-
         public void W2OnSpellCast(Spell spell)
         {
-            ThisBuff.DeactivateBuff();
+            Slide.DeactivateBuff();
         }
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            RemoveParticle(p2);
-            //buff.SetStatusEffect(StatusFlags.Ghosted, false);
-            //buff.SetStatusEffect(StatusFlags.Targetable, true);
-            (unit as ObjAIBase).SetSpell("LeblancSlide", 1, true);
-        }
-
-        public void OnUpdate(float diff)
-        {
+            Leblanc.SetSpell("LeblancSlideM", 3, true);
+            Leblanc.RemoveBuffsWithName("LeblancSlideMoveM");
         }
     }
 }

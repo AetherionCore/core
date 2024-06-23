@@ -16,91 +16,76 @@ namespace Spells
 {
     public class LeblancChaosOrb : ISpellScript
     {
+        bool IsCrit;
+        float Damage;
+        float BaseDamage;
+        float ROrbDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
         public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Target
-            },
             TriggersSpellCasts = true
-
-            // TODO
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
-        public void OnSpellCast(Spell spell)
-        {
-			var owner = spell.CastInfo.Owner;
-			//if (!owner.HasBuff("LeblancSlideM") && owner.GetSpell("LeblancMimic").CastInfo.SpellLevel >= 1 )
-             //{
-			if (!owner.HasBuff("LeblancSlideM")&&owner.HasBuff("LeblancMimic"))
-             {
-             owner.SetSpell("LeblancChaosOrbM", 3, true);
-             }			 
-        }
-
         public void OnSpellPostCast(Spell spell)
         {
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Target, });
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-			var QLevel = owner.GetSpell("LeblancChaosOrb").CastInfo.SpellLevel;
-            var RLevel = owner.GetSpell("LeblancSoulShackle").CastInfo.SpellLevel;
-            var AP = owner.Stats.AbilityPower.Total * 0.4f;
-			var MAXAP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.65f;
-			var damagemax=100 + 100f*(RLevel - 1)+ MAXAP;
-            var damage = 55 + 25f*(QLevel - 1) + AP;
-			var QMarkdamage = damage * 2f;
-			var RQMarkdamage = damage + damagemax;
-            if (target.HasBuff("LeblancChaosOrb"))
-            {
-				target.TakeDamage(owner, QMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
-				target.RemoveBuffsWithName("LeblancChaosOrb");
-				AddBuff("LeblancChaosOrb", 3.5f, 1, spell, target, owner);
-            }
-			else if (target.HasBuff("LeblancChaosOrbM"))
-            {
-				target.TakeDamage(owner, RQMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
-			    target.RemoveBuffsWithName("LeblancChaosOrbM");
-				AddBuff("LeblancChaosOrb", 3.5f, 1, spell, target, owner);
-            }
-			else
-			{
-            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-			}
-			AddParticleTarget(owner, target, "LeBlanc_Base_Q_tar", target);
-            AddBuff("LeblancChaosOrb", 3.5f, 1, spell, target, owner);
+            Missile = missile;
+            BaseDamage = 30f + (Leblanc.Spells[0].CastInfo.SpellLevel * 25f) + (Leblanc.Stats.AbilityPower.Total * 0.4f);
+            ROrbDamage = BaseDamage + (Leblanc.Spells[3].CastInfo.SpellLevel * 100f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            if (target.HasBuff("LeblancChaosOrb")) { IsCrit = true; Damage = BaseDamage * 2; target.RemoveBuffsWithName("LeblancChaosOrb"); }
+            else if (target.HasBuff("LeblancChaosOrbM")) { IsCrit = true; Damage = ROrbDamage; target.RemoveBuffsWithName("LeblancChaosOrbM"); }
+            else { IsCrit = false; Damage = BaseDamage; }
+            target.TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, IsCrit);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_Q_tar", target);
+            AddBuff("LeblancChaosOrb", 3.5f, 1, spell, target, Leblanc);
+            Missile.SetToRemove();
+        }
+    }
+    public class LeblancChaosOrbM : ISpellScript
+    {
+        bool Crit;
+        float Damage;
+        Spell RQSpell;
+        float QOrbDamage;
+        float BaseDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
+        AttackableUnit Target;
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        {
+            TriggersSpellCasts = true
+        };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            RQSpell = spell;
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
+        }
+        public void OnSpellPostCast(Spell spell)
+        {
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Target, });
+            ApiEventManager.OnSpellMissileHit.AddListener(this, Missile, TargetExecute, false);
+            QOrbDamage = 30 + (Leblanc.Spells[0].CastInfo.SpellLevel * 25f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            BaseDamage = (Leblanc.Spells[3].CastInfo.SpellLevel * 100f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+        }
+        public void TargetExecute(SpellMissile missile, AttackableUnit target)
+        {
+            if (target.HasBuff("LeblancChaosOrb")) { target.RemoveBuffsWithName("LeblancChaosOrb"); Crit = true; Damage = BaseDamage + QOrbDamage; }
+            else if (target.HasBuff("LeblancChaosOrbM")) { target.RemoveBuffsWithName("LeblancChaosOrbM"); Crit = true; Damage = BaseDamage * 2; }
+            else { Crit = false; Damage = BaseDamage; }
+            target.TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, Crit);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_RQ_tar", target);
+            AddBuff("LeblancChaosOrbM", 3.5f, 1, RQSpell, target, Leblanc);
             missile.SetToRemove();
-        }
-
-        public void OnSpellChannel(Spell spell)
-        {
-        }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
-        {
-        }
-
-        public void OnSpellPostChannel(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
         }
     }
 }

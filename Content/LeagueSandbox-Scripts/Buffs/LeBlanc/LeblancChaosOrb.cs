@@ -8,40 +8,42 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
+using LeagueSandbox.GameServer.API;
+using System.Numerics;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
     internal class LeblancChaosOrb : IBuffGameScript
     {
+        Buff Orb;
+        Particle P;
+        ObjAIBase Leblanc;
+        AttackableUnit Unit;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.COMBAT_DEHANCER,
+            BuffType = BuffType.DAMAGE,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
 
-        public StatsModifier StatsModifier { get; private set; }
 
-        Particle p;
-        Particle p2;
+        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            p = AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "LeBlanc_Base_W_aoe_impact", unit, buff.Duration);
-            p2 = AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "", unit, buff.Duration);
+            Unit = unit;
+            Orb = buff;
+            Leblanc = ownerSpell.CastInfo.Owner as Champion;
+            ApiEventManager.OnDeath.AddListener(this, Unit, OnDeath, true);
+            P = AddParticleTarget(Leblanc, Unit, "LeBlanc_Base_W_aoe_impact", Unit, buff.Duration, 1);
         }
-
+        public void OnDeath(DeathData deathData)
+        {
+            Orb.DeactivateBuff();
+        }
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            RemoveParticle(p);
-            RemoveParticle(p2);
-        }
-
-        public void OnPreAttack(Spell spell)
-        {
-        }
-
-        public void OnUpdate(float diff)
-        {
+            RemoveParticle(P);
         }
     }
 }

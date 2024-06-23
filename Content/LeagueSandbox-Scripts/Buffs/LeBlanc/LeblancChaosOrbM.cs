@@ -10,46 +10,40 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.API;
 using System.Numerics;
+using GameServerLib.GameObjects.AttackableUnits;
 
 namespace Buffs
 {
-    internal class LeblancSlideM : IBuffGameScript
+    internal class LeblancChaosOrbM : IBuffGameScript
     {
+        Buff Orb;
+        Particle P;
+        ObjAIBase Leblanc;
+        AttackableUnit Unit;
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
-            BuffType = BuffType.COMBAT_ENCHANCER,
+            BuffType = BuffType.DAMAGE,
             BuffAddType = BuffAddType.REPLACE_EXISTING
         };
 
-        public StatsModifier StatsModifier { get; private set; }
 
-        Buff ThisBuff;
-        Particle p;
-        Particle p2;
+        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            ApiEventManager.OnSpellCast.AddListener(this, ownerSpell.CastInfo.Owner.GetSpell("LeblancSlideReturnM"), W2OnSpellCast);
-            if (unit is ObjAIBase owner)
-            {
-
-                var r2Spell = owner.SetSpell("LeblancSlideReturnM", 3, true);
-            }
+            Unit = unit;
+            Orb = buff;
+            Leblanc = ownerSpell.CastInfo.Owner as Champion;
+            ApiEventManager.OnDeath.AddListener(this, Unit, OnDeath, true);
+            P = AddParticleTarget(Leblanc, Unit, "LeBlanc_Base_RW_aoe_impact", Unit, buff.Duration, 1);
         }
-
-        public void W2OnSpellCast(Spell spell)
+        public void OnDeath(DeathData deathData)
         {
-            ThisBuff.DeactivateBuff();
+            Orb.DeactivateBuff();
         }
-
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
-            RemoveParticle(p2);
-            (unit as ObjAIBase).SetSpell("LeblancSlideM", 3, true);
-        }
-
-        public void OnUpdate(float diff)
-        {
+            RemoveParticle(P);
         }
     }
 }

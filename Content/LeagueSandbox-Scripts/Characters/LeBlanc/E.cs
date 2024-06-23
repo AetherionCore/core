@@ -16,99 +16,92 @@ namespace Spells
 {
     public class LeblancSoulShackle : ISpellScript
     {
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        bool IsCrit;
+        float Damage;
+        float BaseDamage;
+        float QOrbDamage;
+        float ROrbDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
-            TriggersSpellCasts = true,
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            }
-            // TODO
+            TriggersSpellCasts = true
         };
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-        }
-
         public void OnSpellCast(Spell spell)
         {
-            var owner = spell.CastInfo.Owner;
-			//if (!owner.HasBuff("LeblancSlideM") && owner.GetSpell("LeblancMimic").CastInfo.SpellLevel >= 1 )
-            //{
-			if (!owner.HasBuff("LeblancSlideM")&&owner.HasBuff("LeblancMimic"))
-             {
-			owner.SetSpell("LeblancSoulShackleM", 3, true);
-             }			
-			AddParticleTarget(owner, owner, "LeBlanc_Base_E_cas", owner, bone:"L_HAND");
-			AddParticleTarget(owner, owner, "LeBlanc_Base_E_cas_02", owner, bone:"L_HAND");
+            AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_E_cas", Leblanc, bone: "L_HAND");
+            AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_E_cas_02", Leblanc, bone: "L_HAND");
         }
-
         public void OnSpellPostCast(Spell spell)
         {
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, });
         }
-
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
-            var owner = spell.CastInfo.Owner;
-            if (missile is SpellCircleMissile skillshot)
-            {            
-			var spellLevel = owner.GetSpell("LeblancSoulShackle").CastInfo.SpellLevel;
-            var AP = owner.Stats.AbilityPower.Total * 0.5f;
-			var MAXAP = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.65f;
-		    var QLevel = owner.GetSpell("LeblancChaosOrb").CastInfo.SpellLevel;
-			var RQLevel = owner.GetSpell("LeblancSoulShackle").CastInfo.SpellLevel;
-            var damage = 40 + 25f*(spellLevel - 1) + AP;
-			var damagemax=55 + 25f*(QLevel - 1) + AP;
-			var QMarkdamage = damage + damagemax;
-			var damagemaxx=100 + 100f*(spellLevel - 1)+ MAXAP;
-			var RQMarkdamage = damage + damagemaxx;
-                if (target.HasBuff("LeblancChaosOrb"))
-                {							
-				    target.RemoveBuffsWithName("LeblancChaosOrb");
-					target.TakeDamage(owner, QMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
-                }
-			    else if (target.HasBuff("LeblancChaosOrbM"))
-                {
-					target.RemoveBuffsWithName("LeblancChaosOrbM");
-					target.TakeDamage(owner, RQMarkdamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, true);
-                }
-				else
-				{
-				    target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                }
-				AddParticleTarget(owner, target, "LeBlanc_Base_Q_tar", target);
-				AddParticleTarget(owner, owner, "LeBlanc_Base_E_chain", target, lifetime: 1.5f,1,"L_BUFFBONE_GLB_HAND_LOC","C_BuffBone_Glb_Center_Loc");
-			    //AddParticleTarget(owner, target, "LeBlanc_Base_E_indicator", target,10f,1,"C_BuffBone_Glb_Center_Loc");
-				AddParticleTarget(owner, target, "", target);
-				AddParticleTarget(owner, target, "LeBlanc_Base_E_tar_02", target);
-                AddBuff("LeblancSoulShackle", 1.5f, 1, spell, target, owner);
-				missile.SetToRemove();
-            }
+            Missile = missile;
+            Missile.SetToRemove();
+            AddBuff("LeblancSoulShackle", 1.5f, 1, spell, target, Leblanc);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_Q_tar", target);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_E_tar_02", target);
+            BaseDamage = 15f + (Leblanc.Spells[2].CastInfo.SpellLevel * 25f) + (Leblanc.Stats.AbilityPower.Total * 0.5f);
+            QOrbDamage = BaseDamage + 30 + (Leblanc.Spells[0].CastInfo.SpellLevel * 25f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            ROrbDamage = BaseDamage + (Leblanc.Spells[3].CastInfo.SpellLevel * 100f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            if (target.HasBuff("LeblancChaosOrb")) { IsCrit = true; Damage = QOrbDamage; target.RemoveBuffsWithName("LeblancChaosOrb"); }
+            else if (target.HasBuff("LeblancChaosOrbM")) { IsCrit = true; Damage = ROrbDamage; target.RemoveBuffsWithName("LeblancChaosOrbM"); }
+            else { IsCrit = false; Damage = BaseDamage; }
+            target.TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, IsCrit);
         }
-
-        public void OnSpellChannel(Spell spell)
+    }
+    public class LeblancSoulShackleM : ISpellScript
+    {
+        bool IsCrit;
+        float Damage;
+        Spell RESpell;
+        float BaseDamage;
+        float QOrbDamage;
+        float ROrbDamage;
+        ObjAIBase Leblanc;
+        SpellMissile Missile;
+        public SpellScriptMetadata ScriptMetadata => new SpellScriptMetadata()
         {
+            TriggersSpellCasts = true
+        };
+
+        public void OnActivate(ObjAIBase owner, Spell spell)
+        {
+            RESpell = spell;
+            Leblanc = owner = spell.CastInfo.Owner as Champion;
         }
-
-        public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
+        public void OnSpellCast(Spell spell)
         {
+            AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_RE_cas", Leblanc, bone: "L_HAND");
+            AddParticleTarget(Leblanc, Leblanc, "LeBlanc_Base_RE_cas_02", Leblanc, bone: "L_HAND");
         }
-
-        public void OnSpellPostChannel(Spell spell)
+        public void OnSpellPostCast(Spell spell)
         {
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, });
+            ApiEventManager.OnSpellMissileHit.AddListener(this, Missile, TargetExecute, false);
         }
-
-        public void OnUpdate(float diff)
+        public void TargetExecute(SpellMissile missile, AttackableUnit target)
         {
+            Missile = missile;
+            Missile.SetToRemove();
+            AddBuff("LeblancSoulShackleM", 1.5f, 1, RESpell, target, Leblanc);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_RQ_tar", target);
+            AddParticleTarget(Leblanc, target, "LeBlanc_Base_RE_tar_02", target);
+            BaseDamage = (Leblanc.Spells[3].CastInfo.SpellLevel * 100f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            QOrbDamage = BaseDamage + 30 + (Leblanc.Spells[0].CastInfo.SpellLevel * 25f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            ROrbDamage = BaseDamage + (Leblanc.Spells[3].CastInfo.SpellLevel * 100f) + (Leblanc.Stats.AbilityPower.Total * 0.65f);
+            if (target.HasBuff("LeblancChaosOrb")) { IsCrit = true; Damage = QOrbDamage; target.RemoveBuffsWithName("LeblancChaosOrb"); }
+            else if (target.HasBuff("LeblancChaosOrbM")) { IsCrit = true; Damage = ROrbDamage; target.RemoveBuffsWithName("LeblancChaosOrbM"); }
+            else { IsCrit = false; Damage = BaseDamage; }
+            target.TakeDamage(Leblanc, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, IsCrit);
         }
     }
 }

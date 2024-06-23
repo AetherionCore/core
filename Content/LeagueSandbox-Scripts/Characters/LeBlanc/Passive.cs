@@ -9,26 +9,15 @@ using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 
-namespace Buffs
+namespace CharScripts
 {
-    internal class CharScriptLeblanc : ICharScript
+    public class CharScriptLeblanc : ICharScript
     {
-        Spell Spell;
-        int counter;
-        public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
+        ObjAIBase Leblanc;
         public void OnActivate(ObjAIBase owner, Spell spell = null)
         {
-            Spell = spell;
-            AddBuff("LeblancPassive", 25000f, 1, Spell, Spell.CastInfo.Owner, Spell.CastInfo.Owner, true);
-        }
-        public void OnLevelUp(AttackableUnit owner)
-        {
-        }
-        public void OnDeactivate(ObjAIBase owner, Spell spell = null)
-        {
-        }
-        public void OnUpdate(float diff)
-        {
+            Leblanc = owner as Champion;
+            AddBuff("LeblancPassive", 25000f, 1, spell, Leblanc, Leblanc, true);
         }
     }
 }
