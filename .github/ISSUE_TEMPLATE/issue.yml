@@ -1,0 +1,67 @@
+name: Generic Issue
+description: Report an issue or a suggestion.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this form! Please make sure to complete all fields, including the Title above.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Describe the problem or issue here.
+        If this is a crash, please upload the crashlog (use https://gist.github.com/).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: |
+        Describe what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        1. Step 1 - include specific actions or conditions to reproduce the issue.
+        2. Step 2 - list any relevant in-game items, champions, or abilities.
+        3. Step 3 - provide any links to LoL-specific resources, if applicable.
+    validations:
+      required: true
+  - type: dropdown
+    id: server_version
+    attributes:
+      label: Server Version
+      options:
+        - 4.20
+    validations:
+      required: true
+  - type: textarea
+    id: commit
+    attributes:
+      label: Emulator Revision/Commit Hash
+      description: |
+        Copy the hash or commit ID from the emulator server logs. If unsure, please provide any available build information.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: |
+        Specify your operating system, i.e., Windows 10 x64, Ubuntu 20.04 x64, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: custom
+    attributes:
+      label: Custom Modifications
+      description: |
+        List any custom modifications you have applied, e.g., champion skins, item changes, etc.
+        Write "None" if you haven't applied any custom modifications.
+    validations:
+      required: true
