@@ -15,7 +15,6 @@ namespace LeagueSandbox.GameServer
     internal class Server : IDisposable
     {
         private string[] _blowfishKeys;
-        private string _serverVersion = "0.3.0";
         private static ILog _logger = LoggerProvider.GetLogger();
         private Game _game;
         private Config _config;
@@ -37,18 +36,33 @@ namespace LeagueSandbox.GameServer
             }
         }
 
+        private void ShowBanner()
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine(@" __       ____    ______  ____    __  __  ____        ____    ____    ____    __  __  ____    ____       ");
+            Console.WriteLine(@"/\ \     /\  _`\ /\  _  \/\  _`\ /\ \/\ \/\  _`\     /\  _`\ /\  _`\ /\  _`\ /\ \/\ \/\  _`\ /\  _`\     ");
+            Console.WriteLine(@"\ \ \    \ \ \L\_\ \ \L\ \ \ \L\_\ \ \ \ \ \ \L\_\   \ \,\L\_\ \ \L\_\ \ \L\ \ \ \ \ \ \ \L\_\ \ \L\ \   ");
+            Console.WriteLine(@" \ \ \  __\ \  _\L\ \  __ \ \ \L_L\ \ \ \ \ \  _\L    \/_\__ \\ \  _\L\ \ ,  /\ \ \ \ \ \  _\L\ \ ,  /   ");
+            Console.WriteLine(@"  \ \ \L\ \\ \ \L\ \ \ \/\ \ \ \/, \ \ \_\ \ \ \L\ \    /\ \L\ \ \ \L\ \ \ \\ \\ \ \_/ \ \ \L\ \ \ \\ \  ");
+            Console.WriteLine(@"   \ \____/ \ \____/\ \_\ \_\ \____/\ \_____\ \____/    \ `\____\ \____/\ \_\ \_\ `\___/\ \____/\ \_\ \_\");
+            Console.WriteLine(@"    \/___/   \/___/  \/_/\/_/\/___/  \/_____/\/___/      \/_____/\/___/  \/_/\/ /`\/__/  \/___/  \/_/\/ /");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
         /// <summary>
         /// Called upon the Program successfully initializing GameServerLauncher.
         /// </summary>
         public void Start()
         {
-            var build = $"League Sandbox Build {ServerContext.BuildDateString}";
+            var build = $"LeagueServer: {ServerContext.BuildDateString}";
             var packetServer = new PacketServer();
 
             Console.Title = build;
 
+            ShowBanner();
             _logger.Debug(build);
-            _logger.Debug($"LeagueServer {_serverVersion}");
             _logger.Info($"Game started on port: {_serverPort}");
 
             packetServer.InitServer(_serverPort, _blowfishKeys, _game, _game.RequestHandler, _game.ResponseHandler);
