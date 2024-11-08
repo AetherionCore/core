@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://discord.gg/Bz3znAM
+    about: Chat
+  - name: How to Compile
+    url: https://leaguesandbox.github.io/
+    about: Wiki
