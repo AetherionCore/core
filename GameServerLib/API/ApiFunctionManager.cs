@@ -272,6 +272,12 @@ namespace LeagueSandbox.GameServer.API
         /// <returns>New buff instance.</returns>
         public static Buff AddBuff(string buffName, float duration, byte stacks, Spell originspell, AttackableUnit onto, ObjAIBase from, bool infiniteduration = false, IEventSource parent = null)
         {
+            if (onto == null)
+            {
+                _logger.Warn($"Cannot add buff '{buffName}' with null target unit");
+                return null;
+            }
+
             Buff buff;
 
             try

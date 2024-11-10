@@ -83,7 +83,14 @@ namespace LeagueSandbox.GameServer.GameObjects
                 MaxStacks = Math.Min(BuffScript.BuffMetaData.MaxStacks, int.MaxValue);
             }
             OriginSpell = originSpell;
-            if (onto.HasBuff(Name) && BuffAddType == BuffAddType.STACKS_AND_OVERLAPS)
+
+            if (onto == null)
+            {
+                _logger.Warn($"Created buff {Name} with null target unit");
+            }
+
+            // Check if `onto` is not null
+            if (onto != null && onto.HasBuff(Name) && BuffAddType == BuffAddType.STACKS_AND_OVERLAPS)
             {
                 // Put parent buff data into children buffs
                 StackCount = onto.GetBuffWithName(Name).StackCount;
@@ -92,7 +99,7 @@ namespace LeagueSandbox.GameServer.GameObjects
             else
             {
                 StackCount = stacks;
-                Slot = onto.GetNewBuffSlot(this);
+                Slot = onto?.GetNewBuffSlot(this) ?? 0;  // Prevent null pointer exception when onto is null
             }
             SourceUnit = from;
             TimeElapsed = 0;
