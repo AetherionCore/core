@@ -1179,7 +1179,7 @@ namespace LeagueSandbox.GameServer.API
             //Check if there are edge cases for non-champions to apply assists
             if (target is not ObjAIBase objTarget || source is not ObjAIBase objSource)
             {
-                _logger.Warn("Can't ApplyAssistMarker! (Target or Source is null or not ObjAIBase!)");
+                _logger.Warn("Can't Apply AssistMarker! (Target or Source is null or not ObjAIBase!)");
                 return;
             }
 
