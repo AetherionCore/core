@@ -23,9 +23,6 @@ namespace LeagueSandbox.GameServerConsole
 
         private static void Main(string[] args)
         {
-            // Add colors to logger via the command line interface.
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(
                 (sender, args) => _logger.Fatal(null, (Exception)args.ExceptionObject)
             );
