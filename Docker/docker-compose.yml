@@ -1,0 +1,12 @@
+services:
+  gameserver:
+    container_name: leagueserver
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    ports:
+      - "5119:5119/udp"
+    volumes:
+      - "./data/Settings:/root/LeagueServer/GameServerConsole/bin/Release/net8.0/Settings"
