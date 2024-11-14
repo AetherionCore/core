@@ -5,6 +5,7 @@
 
 # Game settings files
 GameServerApp/Settings/
+Docker/data/Settings/
 
 # User-specific files
 *.suo
