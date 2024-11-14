@@ -3,7 +3,7 @@ services:
     container_name: leagueserver
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     environment:
       - DEBIAN_FRONTEND=noninteractive
     ports:
