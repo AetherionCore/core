@@ -1,4 +1,7 @@
 #  LeagueServer
+[![.NET 8.0](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml)
+[![Docker](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml)
+
 LeagueServer is an open-source framework designed for hosting multiplayer online battle arena (MOBA) games.
 
 Developed in C# and derived from LeagueSandbox, LeagueServer builds upon that project's codebase, steadily optimizing and improving gameplay mechanics and combat systems. Additionally, it incorporates open-source code from other projects, with all commits crediting the original authors.
