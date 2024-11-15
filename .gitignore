@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Whitelist folders
+!Archives/
+
 # Game settings files
 GameServerApp/Settings/
 Docker/data/Settings/
