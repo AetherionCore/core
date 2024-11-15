@@ -18,7 +18,7 @@ Developed in C# and derived from LeagueSandbox, LeagueServer builds upon that pr
  - `GameInfo.json` file is a configuration file that defines the settings and details of the game and players. It allows for customization of various game parameters, player attributes, and gameplay features.
 
 # Contributors, Testers
-We value everyone that contributes or has done so in the past, see the list of: [CONTRIBUTORS](CONTRIBUTORS). Are you missing on this list? Let me know.
+We value everyone that contributes or has done so in the past, see the list of: [CONTRIBUTORS](CONTRIBUTORS.md). Are you missing on this list? Let me know.
 
 # Community & Extra Information
 Project website along with more specifications can be found from: https://leaguesandbox.github.io/  
