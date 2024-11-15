@@ -10,7 +10,7 @@ RUN apt-get update && \
     git \
     dotnet-sdk-8.0
 
-RUN git clone --depth=1 https://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@github.com/brian8544/LeagueServer.git && \
+RUN git clone --depth=1 https://github.com/brian8544/LeagueServer.git && \
     cd LeagueServer && \
     dotnet build --configuration Release
 
