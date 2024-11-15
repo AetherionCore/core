@@ -11,7 +11,6 @@ Developed in C# and derived from LeagueSandbox, LeagueServer builds upon that pr
 # Requirements
 * Install Microsoft Visual Studio 2022 
 * Install .NET 8.0 [here](https://dotnet.microsoft.com/download/dotnet-core)
-* Download the League of Legends client (4.20) [here](https://www.mediafire.com/file/rm32t1nbbca6zph/League-of-Legends-4.20.rar/file)
 
 # Installation
  1. Build the server
