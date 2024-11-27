@@ -582,7 +582,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
                 c.AddAssistMarker(cAttacker, 10.0f, damageData);
             }
 
-            Stats.CurrentHealth = Math.Max(0.0f, Stats.CurrentHealth - postMitigationDamage);
+            Stats.CurrentHealth = Math.Max(0.0f, Stats.CurrentHealth - damageData.PostMitigationDamage);
 
             ApiEventManager.OnTakeDamage.Publish(damageData.Target, damageData);
 

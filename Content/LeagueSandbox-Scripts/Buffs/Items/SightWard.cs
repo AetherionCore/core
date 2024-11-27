@@ -6,6 +6,11 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.Scripting.CSharp;
+using LeagueSandbox.GameServer.API;
+using GameServerLib.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using System;
+using AIScripts;
 
 namespace Buffs
 {
@@ -22,7 +27,6 @@ namespace Buffs
         AttackableUnit Unit;
         Spell spell;
         float timeSinceLastTick = 0f;
-        float counter;
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
@@ -30,13 +34,15 @@ namespace Buffs
             spell = ownerSpell;
             Unit.Stats.ManaRegeneration.PercentBonus = -1;
             Unit.Stats.CurrentMana = 60f;
+
+            ApiEventManager.OnPreTakeDamage.AddListener(this, unit, OnPreTakeDamage, false);
         }
 
         public void OnUpdate(float diff)
         {
             timeSinceLastTick += diff;
 
-            if(timeSinceLastTick >= 60000.0f)
+            if (timeSinceLastTick >= 60000.0f)
             {
                 Unit.TakeDamage(spell.CastInfo.Owner, 10000f, DamageType.DAMAGE_TYPE_TRUE, DamageSource.DAMAGE_SOURCE_INTERNALRAW, DamageResultType.RESULT_NORMAL);
             }
@@ -49,7 +55,17 @@ namespace Buffs
                   Unit.Die(Unit);
                 }
             }*/
+        }
 
+        public void OnPreTakeDamage(DamageData damage)
+        {
+            var attacker = damage.Attacker;
+            var owner = damage.Target;
+
+            if (attacker is not BaseTurret && damage.DamageSource == DamageSource.DAMAGE_SOURCE_ATTACK && damage.Damage > 1f)
+            {
+                damage.PostMitigationDamage = 1f;
+            }
         }
     }
 }

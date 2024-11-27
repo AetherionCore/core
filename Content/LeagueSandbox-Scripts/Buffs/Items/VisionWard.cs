@@ -8,6 +8,7 @@ using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;                   
 using GameServerLib.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 
 namespace Buffs
 {
@@ -26,10 +27,23 @@ namespace Buffs
         {
             revealStealthed = AddUnitPerceptionBubble(unit, 1000.0f, 25000f, unit.Team, true);
             ApiEventManager.OnDeath.AddListener(this, unit, OnDeactivate);
+
+            ApiEventManager.OnPreTakeDamage.AddListener(this, unit, OnPreTakeDamage, false);
         }
         public void OnDeactivate(DeathData death)
         {
             revealStealthed.SetToRemove();
+        }
+
+        public void OnPreTakeDamage(DamageData damage)
+        {
+            var attacker = damage.Attacker;
+            var owner = damage.Target;
+
+            if (attacker is not BaseTurret && damage.DamageSource == DamageSource.DAMAGE_SOURCE_ATTACK && damage.Damage > 1f)
+            {
+                damage.PostMitigationDamage = 1f;
+            }
         }
     }
 }

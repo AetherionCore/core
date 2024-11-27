@@ -7,6 +7,8 @@ using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.Scripting.CSharp;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using GameServerLib.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.API;
 
 namespace Buffs
 {
@@ -33,6 +35,8 @@ namespace Buffs
             spell = ownerSpell;
             Unit.Stats.ManaRegeneration.PercentBonus = -1;
             Unit.Stats.CurrentMana = 60f;
+
+            ApiEventManager.OnPreTakeDamage.AddListener(this, unit, OnPreTakeDamage, false);
         }
 
         public void OnUpdate(float diff)
@@ -58,6 +62,17 @@ namespace Buffs
         public void OnDeactivate(DeathData death)
         {
             revealStealthed.SetToRemove();
+        }
+
+        public void OnPreTakeDamage(DamageData damage)
+        {
+            var attacker = damage.Attacker;
+            var owner = damage.Target;
+
+            if (attacker is not BaseTurret && damage.DamageSource == DamageSource.DAMAGE_SOURCE_ATTACK && damage.Damage > 1f)
+            {
+                damage.PostMitigationDamage = 1f;
+            }
         }
     }
 }
