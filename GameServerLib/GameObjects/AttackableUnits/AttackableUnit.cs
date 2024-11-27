@@ -612,7 +612,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
                 attackerStats.CurrentHealth = Math.Min
                 (
                     attackerStats.HealthPoints.Total,
-                    attackerStats.CurrentHealth + healRatio * postMitigationDamage
+                    attackerStats.CurrentHealth + healRatio * damageData.PostMitigationDamage
                 );
             }
         }
