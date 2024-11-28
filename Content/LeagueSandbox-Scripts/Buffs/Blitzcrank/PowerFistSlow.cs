@@ -37,7 +37,7 @@ namespace Buffs
 
             ForceMovement(unit, "", randPoint, 90.0f, 80.0f, 20.0f, 0.0f);
             buff.SetStatusEffect(StatusFlags.CanAttack | StatusFlags.CanCast | StatusFlags.CanMove, false);
-            // ApplyAssistMarker(ownerSpell.CastInfo.Owner, unit, 10.0f);
+            ApplyAssistMarker(ownerSpell.CastInfo.Owner, unit, 10.0f);
             hitParticle = AddParticleTarget(ownerSpell.CastInfo.Owner, unit, "Powerfist_tar.troy", unit, buff.Duration, targetBone: "head", teamOnly: unit.Team, flags: 0);
         }
 
