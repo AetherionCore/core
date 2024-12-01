@@ -30,6 +30,7 @@ namespace CharScripts
             {
                 Katarina.Spells[i].LowerCooldown(15);
             }
+            AddParticleTarget(Katarina, Katarina, "katarina_spell_refresh_indicator.troy", Katarina, 1f, 1f);
         }
         public void OnLaunchAttack(Spell spell)
         {
