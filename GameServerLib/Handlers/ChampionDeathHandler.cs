@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using LeagueSandbox.GameServer.Handlers;
 using GameServerLib.GameObjects.AttackableUnits;
+using LeagueSandbox.GameServer.API;
 
 namespace GameServerLib.Handlers;
 
@@ -112,6 +113,8 @@ internal static class ChampionDeathHandler
         UpdateKillerStats(killer);
         killed.KillSpree = 0;
         killed.DeathSpree++;
+
+        ApiEventManager.OnKill.Publish(data.Killer, data);
     }
 
     internal static void NotifyChampionKillEvent(DeathData data)
