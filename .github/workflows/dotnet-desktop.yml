@@ -17,7 +17,7 @@ jobs:
 
     env:
       SOLUTION_NAME: GameServer.sln
-      TEST_PROJECT_PATH: GameServerConsole/GameServerConsole.csproj
+      TEST_PROJECT_PATH: src/GameServerConsole/GameServerConsole.csproj
 
     steps:
     - name: Checkout repository
