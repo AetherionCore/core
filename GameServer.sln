@@ -3,28 +3,28 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerCore", "GameServerCore\GameServerCore.csproj", "{B6101888-A331-4981-B144-DEB5965F8C16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerCore", "src\GameServerCore\GameServerCore.csproj", "{B6101888-A331-4981-B144-DEB5965F8C16}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameMaths", "GameMaths\GameMaths.csproj", "{8DCE7086-EF5B-45F3-9B91-23E28199BA50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameMaths", "src\GameMaths\GameMaths.csproj", "{8DCE7086-EF5B-45F3-9B91-23E28199BA50}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueSandbox-Scripts", "Content\LeagueSandbox-Scripts\LeagueSandbox-Scripts.csproj", "{8637E2DB-2A64-4A4B-853C-F62C852B2F23}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueSandbox-Scripts", "src\Content\LeagueSandbox-Scripts\LeagueSandbox-Scripts.csproj", "{8637E2DB-2A64-4A4B-853C-F62C852B2F23}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6B86971B-1812-406E-ABD1-3B4B78565642} = {6B86971B-1812-406E-ABD1-3B4B78565642}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerLib", "GameServerLib\GameServerLib.csproj", "{81E1DCC1-6331-4C15-8A13-6758E7276D7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerLib", "src\GameServerLib\GameServerLib.csproj", "{81E1DCC1-6331-4C15-8A13-6758E7276D7E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6B86971B-1812-406E-ABD1-3B4B78565642} = {6B86971B-1812-406E-ABD1-3B4B78565642}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerConsole", "GameServerConsole\GameServerConsole.csproj", "{BC2DE5C1-75F1-4100-A436-B12D0E62C263}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameServerConsole", "src\GameServerConsole\GameServerConsole.csproj", "{BC2DE5C1-75F1-4100-A436-B12D0E62C263}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6B86971B-1812-406E-ABD1-3B4B78565642} = {6B86971B-1812-406E-ABD1-3B4B78565642}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeaguePackets", "LeaguePackets\LeaguePackets\LeaguePackets.csproj", "{6B86971B-1812-406E-ABD1-3B4B78565642}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeaguePackets", "src\LeaguePackets\LeaguePackets\LeaguePackets.csproj", "{6B86971B-1812-406E-ABD1-3B4B78565642}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuadTree", "QuadTree\QuadTree.csproj", "{72202436-F1B5-4326-8AB0-2DF9E70D481C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuadTree", "src\QuadTree\QuadTree.csproj", "{72202436-F1B5-4326-8AB0-2DF9E70D481C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
