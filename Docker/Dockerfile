@@ -10,10 +10,10 @@ RUN apt-get update && \
     git \
     dotnet-sdk-8.0
 
-RUN git clone --depth=1 https://github.com/brian8544/LeagueServer.git && \
-    cd LeagueServer && \
+RUN git clone --depth=1 https://github.com/AetherionCore/Core.git && \
+    cd Core && \
     dotnet build --configuration Release
 
-WORKDIR /root/LeagueServer/src/GameServerConsole/bin/Release/net8.0
+WORKDIR /root/Core/src/GameServerConsole/bin/Release/net8.0
 
 CMD ["./GameServerConsole"]

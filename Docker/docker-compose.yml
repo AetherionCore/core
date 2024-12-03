@@ -9,5 +9,5 @@ services:
     ports:
       - "5119:5119/udp"
     volumes:
-      - "./data/Settings:/root/LeagueServer/src/GameServerConsole/bin/Release/net8.0/Settings"
+      - "./data/Settings:/root/Core/src/GameServerConsole/bin/Release/net8.0/Settings"
     restart: unless-stopped
