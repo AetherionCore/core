@@ -2,26 +2,20 @@
 [![.NET 8.0](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml)
 [![Docker](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml)
 
-LeagueServer is an open-source framework designed for hosting multiplayer online battle arena (MOBA) games.
+LeagueServer is an open-source framework designed for hosting multiplayer online battle arena (MOBA) games. Based on mostly C#.
 
-Developed in C# and derived from LeagueSandbox, LeagueServer builds upon that project's codebase, steadily optimizing and improving gameplay mechanics and combat systems. Additionally, it incorporates open-source code from other projects, with all commits crediting the original authors.
+It is derived from LeagueSandbox, which originates from Hero/Intwars, and is based on the code of that project with changes over time to optimize, improve and cleanup the codebase at the same time as improving the in-game mechanics and functionality.
 
-**Note: This project is not production-ready and may contain unsafe code. Use it at your /own/ risk.**
+It is completely open source; community involvement is highly encouraged.
+
+If you wish to contribute ideas or code, please visit our site linked below or make pull requests to our [Github repository](https://github.com/brian8544/LeagueServer/pulls).
 
 # Requirements
-* Install Microsoft Visual Studio 2022 
-* Install .NET 8.0 [here](https://dotnet.microsoft.com/download/dotnet-core)
-
-# Installation
- 1. Build the server
- 2. Connect to the gameserver by launching `Start Game.bat` 
+* [Microsoft Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
+* [.NET 8.0](https://dotnet.microsoft.com/download/dotnet-core)
 
 # Customization
  - `GameInfo.json` file is a configuration file that defines the settings and details of the game and players. It allows for customization of various game parameters, player attributes, and gameplay features.
 
 # Contributors, Testers
 We value everyone that contributes or has done so in the past, see the list of: [CONTRIBUTORS](CONTRIBUTORS.md). Are you missing on this list? Let me know.
-
-# Community & Extra Information
-Project website along with more specifications can be found from: https://leaguesandbox.github.io/  
-Project chat on Discord: https://discord.gg/Bz3znAM
