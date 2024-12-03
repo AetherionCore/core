@@ -1,6 +1,6 @@
 #  LeagueServer
-[![.NET 8.0](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/dotnet-desktop.yml)
-[![Docker](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml/badge.svg)](https://github.com/brian8544/LeagueServer/actions/workflows/docker-image.yml)
+[![.NET 8.0](https://github.com/AetherionCore/Core/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/AetherionCore/Core/actions/workflows/dotnet-desktop.yml)
+[![Docker](https://github.com/AetherionCore/Core/actions/workflows/docker-image.yml/badge.svg)](https://github.com/AetherionCore/Core/actions/workflows/docker-image.yml)
 
 LeagueServer is an open-source framework designed for hosting multiplayer online battle arena (MOBA) games. Based on mostly C#.
 
@@ -8,7 +8,7 @@ It is derived from LeagueSandbox, which originates from Hero/Intwars, and is bas
 
 It is completely open source; community involvement is highly encouraged.
 
-If you wish to contribute ideas or code, please visit our site linked below or make pull requests to our [Github repository](https://github.com/brian8544/LeagueServer/pulls).
+If you wish to contribute ideas or code, please visit our site linked below or make pull requests to our [Github repository](https://github.com/AetherionCore/Core/pulls).
 
 # Requirements
 * [Microsoft Visual Studio 2022](https://visualstudio.microsoft.com/vs/)
