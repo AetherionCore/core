@@ -10,3 +10,4 @@ services:
       - "5119:5119/udp"
     volumes:
       - "./data/Settings:/root/LeagueServer/src/GameServerConsole/bin/Release/net8.0/Settings"
+    restart: unless-stopped
