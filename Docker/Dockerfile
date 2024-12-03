@@ -14,6 +14,6 @@ RUN git clone --depth=1 https://github.com/brian8544/LeagueServer.git && \
     cd LeagueServer && \
     dotnet build --configuration Release
 
-WORKDIR /root/LeagueServer/GameServerConsole/bin/Release/net8.0
+WORKDIR /root/LeagueServer/src/GameServerConsole/bin/Release/net8.0
 
 CMD ["./GameServerConsole"]
