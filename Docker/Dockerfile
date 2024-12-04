@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-WORKDIR /root
+WORKDIR /
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -10,10 +10,10 @@ RUN apt-get update && \
     git \
     dotnet-sdk-8.0
 
-RUN git clone --depth=1 https://github.com/AetherionCore/Core.git && \
-    cd Core && \
+RUN git clone --depth=1 https://github.com/AetherionCore/core.git && \
+    cd core && \
     dotnet build --configuration Release
 
-WORKDIR /root/Core/src/GameServerConsole/bin/Release/net8.0
+WORKDIR /core/src/GameServerConsole/bin/Release/net8.0
 
 CMD ["./GameServerConsole"]
