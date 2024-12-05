@@ -71,6 +71,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 }
             }
             _game.Start();
+            ServerMOTD();
         }
 
         private void StartFor(ClientInfo player)
@@ -97,11 +98,8 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 );
             }
 
-
-            NotifySystemMessagesServerMOTD();
-
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "[SERVER INFO] Welcome to LeagueServer", "https://github.com/AetherionCore/core",
+                "[SERVER INFO] Welcome to AetherionCore", "https://github.com/AetherionCore/core",
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
             /*
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
@@ -124,7 +122,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             _game.PacketNotifier.NotifySyncMissionStartTimeS2C(userId, gameTime);
         }
 
-        void NotifySystemMessagesServerMOTD()
+        void ServerMOTD()
         {
             var formattedText = new StringBuilder();
             var fontSize = 20;
