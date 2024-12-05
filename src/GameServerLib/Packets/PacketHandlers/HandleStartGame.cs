@@ -5,6 +5,7 @@ using GameServerCore.NetInfo;
 using System.Linq;
 using LeagueSandbox.GameServer.Players;
 using System.Text;
+using LeagueSandbox.GameServer;
 using System.Numerics;
 
 namespace LeagueSandbox.GameServer.Packets.PacketHandlers
@@ -71,7 +72,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 }
             }
             _game.Start();
-            ServerMOTD();
+            _game.PacketNotifier.NotifyS2C_SystemMessage(_game.Config.ServerMotd);
         }
 
         private void StartFor(ClientInfo player)
@@ -120,18 +121,6 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             var gameTime = _game.GameTime;
             _game.PacketNotifier.NotifySynchSimTimeS2C(userId, gameTime);
             _game.PacketNotifier.NotifySyncMissionStartTimeS2C(userId, gameTime);
-        }
-
-        void ServerMOTD()
-        {
-            var formattedText = new StringBuilder();
-            var fontSize = 20;
-
-            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Welcome to LeagueServer</font>\n");
-            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Found a bug? Visit: <font color =\"#1E90FF\">https://github.com/AetherionCore/core/issues</font></font>\n");
-            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Server Build Date: " + ServerContext.BuildDateString + "</font>");
-
-            _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
         }
     }
 }

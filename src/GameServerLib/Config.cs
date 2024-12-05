@@ -32,6 +32,7 @@ namespace LeagueSandbox.GameServer
         public bool ChatCheatsEnabled { get; private set; }
         public string ContentPath { get; private set; }
         public bool IsDamageTextGlobal { get; private set; }
+        public string ServerMotd { get; private set; }
 
         public float ForcedStart { get; private set; }
 
@@ -76,6 +77,8 @@ namespace LeagueSandbox.GameServer
 
             // Read global damage text setting
             IsDamageTextGlobal = (bool)gameInfo.SelectToken("IS_DAMAGE_TEXT_GLOBAL");
+			
+			ServerMotd = (string)gameInfo.SelectToken("SERVER_MOTD");
 
             // Read the game configuration
             var gameToken = data.SelectToken("game");
