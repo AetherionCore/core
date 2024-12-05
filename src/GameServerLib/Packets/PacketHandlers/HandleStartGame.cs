@@ -101,7 +101,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             NotifySystemMessagesServerMOTD();
 
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "[SERVER INFO] Welcome to LeagueServer", "https://github.com/brian8544/LeagueServer",
+                "[SERVER INFO] Welcome to LeagueServer", "https://github.com/AetherionCore/core",
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
             /*
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
@@ -130,7 +130,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             var fontSize = 20;
 
             formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Welcome to LeagueServer</font>\n");
-            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Found a bug? Visit: <font color =\"#1E90FF\">https://github.com/brian8544/LeagueServer</font></font>\n");
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Found a bug? Visit: <font color =\"#1E90FF\">https://github.com/AetherionCore/core/issues</font></font>\n");
             formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Server Build Date: " + ServerContext.BuildDateString + "</font>");
 
             _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
