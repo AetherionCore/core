@@ -40,6 +40,7 @@ namespace Spells
             if (affectedUnits.Count == 0)
             {
                 AddParticle(owner, null, "Karthus_Base_Q_Hit_Miss", spellPos);
+                AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
             }
             foreach (var unit in affectedUnits
             .Where(x => x.Team == CustomConvert.GetEnemyTeam(spell.CastInfo.Owner.Team)))
@@ -51,11 +52,13 @@ namespace Spells
                         damage *= 2;
                         AddParticle(owner, null, "Karthus_Base_Q_Hit_Single", spellPos);
                         unit.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, true);
+                        AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
                     }
                     if (affectedUnits.Count > 1)
                     {
                         AddParticle(owner, null, "Karthus_Base_Q_Hit_Many", spellPos);
                         unit.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+                        AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
                     }
                 }
             }
