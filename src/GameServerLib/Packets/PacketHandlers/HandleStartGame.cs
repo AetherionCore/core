@@ -99,18 +99,18 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 );
             }
 
-            _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
+            /*_game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
                 "[SERVER INFO] Welcome to AetherionCore", "https://github.com/AetherionCore/core",
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
-            /*
+
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
                 "[DEBUG INFO] Server Build Date", ServerContext.BuildDateString,
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
             
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
                 "[DEBUG INFO] Your Champion:", player.Champion.Model,
-                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
-            */
+                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());*/
+            
 
             SyncTime(player.ClientId);
         }
