@@ -18,7 +18,7 @@ namespace MapScripts.Map1
         {
             base.Init(mapObjects);
             SetGameFeatures(FeatureFlags.EnableManaCosts, false);
-            GlobalData.GlobalCharacterDataConstants.PercentCooldownModMinimum = -0.8f;
+            //GlobalData.GlobalCharacterDataConstants.PercentCooldownModMinimum = -0.8f;
         }
 
         public override void OnMatchStart()
@@ -28,6 +28,7 @@ namespace MapScripts.Map1
             {
                 //There are mentions to a "rewindcof" buff being loaded too, but it's functions are yet unknown
                 AddBuff("InternalTestBuff", float.MaxValue, 1, null, player, null, true);
+                player.Stats.CooldownReduction.PercentBaseBonus += 0.8f;
             }
         }
     }

@@ -15,6 +15,7 @@ using LeagueSandbox.GameServer.Scripting.CSharp;
 using log4net;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
 using LeagueSandbox.GameServer.Content;
+using LeagueSandbox.GameServer.Handlers;
 
 namespace LeagueSandbox.GameServer.API
 {
@@ -618,6 +619,19 @@ namespace LeagueSandbox.GameServer.API
             return returnList;
         }
 
+        public static List<AttackableUnit> GetUnitsInRangeUnOrdered(Vector2 targetPos, float range, bool isAlive)
+        {
+            var returnList = new List<AttackableUnit>();
+            foreach (var obj in _game.Map.CollisionHandler.GetNearestObjects(new System.Activities.Presentation.View.Circle(targetPos, range)))
+            {
+                if (obj is AttackableUnit u && (!isAlive || !u.IsDead))
+                {
+                    returnList.Add(u);
+                }
+            }
+            return returnList;
+        }
+
         /// <summary>
         /// Acquires the closest alive or dead AttackableUnit within the specified range of a target position.
         /// </summary>
@@ -643,16 +657,82 @@ namespace LeagueSandbox.GameServer.API
         public static AttackableUnit GetClosestUnitInRange(AttackableUnit target, float range, bool isAlive)
         {
             var units = GetUnitsInRange(target.Position, range, isAlive);
-            var orderedUnits = units.OrderBy(unit => Vector2.DistanceSquared(target.Position, unit.Position));
+            AttackableUnit closest = null;
+            AttackableUnit secondClosest = null;
+            float closestDistSq = float.MaxValue;
+            float secondClosestDistSq = float.MaxValue;
 
-            if (orderedUnits.First() == target && orderedUnits.Count() > 1)
+            foreach (var unit in units)
             {
-                return orderedUnits.ElementAt(1);
+                float distSq = CollisionHandler.DistanceSquared(target.Position, unit.Position);
+                if (unit == target)
+                {
+                    continue;
+                }
+
+                if (distSq < closestDistSq)
+                {
+                    secondClosest = closest;
+                    secondClosestDistSq = closestDistSq;
+                    closest = unit;
+                    closestDistSq = distSq;
+                }
+                else if (distSq < secondClosestDistSq)
+                {
+                    secondClosest = unit;
+                    secondClosestDistSq = distSq;
+                }
             }
 
-            return orderedUnits.First();
+            return closest ?? target; // Return target if no other units found
         }
 
+        /// <summary>
+        /// Same as above but for more than one
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="range"></param>
+        /// <param name="isAlive"></param>
+        /// <returns></returns>
+        public static List<AttackableUnit> GetClosestUnitsInRange(AttackableUnit target, float range, bool isAlive)
+        {
+            var units = GetUnitsInRange(target.Position, range, isAlive);
+            float closestDistSq = float.MaxValue;
+            const float EPSILON = 0.001f;
+
+            // First pass to find minimum distance
+            foreach (var unit in units)
+            {
+                if (unit == target)
+                {
+                    continue;
+                }
+
+                float distSq = CollisionHandler.DistanceSquared(target.Position, unit.Position);
+                if (distSq < closestDistSq)
+                {
+                    closestDistSq = distSq;
+                }
+            }
+
+            // Second pass to collect all units at that distance
+            var closestUnits = new List<AttackableUnit>(8);
+            foreach (var unit in units)
+            {
+                if (unit == target)
+                {
+                    continue;
+                }
+
+                float distSq = CollisionHandler.DistanceSquared(target.Position, unit.Position);
+                if (Math.Abs(distSq - closestDistSq) < EPSILON)
+                {
+                    closestUnits.Add(unit);
+                }
+            }
+
+            return closestUnits;
+        }
         /// <summary>
         /// Acquires all alive or dead Champions within the specified range of a target position.
         /// </summary>

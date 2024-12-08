@@ -28,6 +28,7 @@ namespace LeagueSandbox.GameServer
         public FeatureFlags GameFeatures { get; private set; }
         public const string VERSION_STRING = "Version 4.20.0.315 [PUBLIC]";
         public static readonly Version VERSION = new Version(4, 20, 0, 315);
+        internal string[] AssemblyNames { get; private set; } = [];
 
         public bool ChatCheatsEnabled { get; private set; }
         public string ContentPath { get; private set; }
@@ -95,6 +96,7 @@ namespace LeagueSandbox.GameServer
             }
 
             ForcedStart = (float)(data.SelectToken("forcedStart") ?? 0) * 1000;
+            AssemblyNames = gameInfo?.SelectToken("scriptAssemblies")?.Values<string>().ToArray() as string[] ?? [];
         }
 
         public void LoadContent(Game game)

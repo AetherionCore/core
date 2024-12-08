@@ -315,7 +315,7 @@ namespace LeagueSandbox.GameServer.Content
 
         public bool LoadScripts()
         {
-            var scriptLoadResult = _game.ScriptEngine.LoadSubDirectoryScripts(PackagePath);
+            var scriptLoadResult = Game.ScriptEngine.LoadSubDirectoryScripts(PackagePath);
             switch (scriptLoadResult)
             {
                 case CompilationStatus.Compiled:

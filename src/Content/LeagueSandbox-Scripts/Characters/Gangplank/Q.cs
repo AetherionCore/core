@@ -48,7 +48,8 @@ namespace Spells
 
                 if (target.IsDead)
                 {
-                    owner.Stats.Gold += goldIncome;
+                    if (owner is Champion champ)
+                        champ.AddGold(target, goldIncome);
                     var manaCost = new float[] { 50, 55, 60, 65, 70 }[spell.CastInfo.SpellLevel - 1];
                     var newMana = owner.Stats.CurrentMana + manaCost / 2;
                     var maxMana = owner.Stats.ManaPoints.Total;

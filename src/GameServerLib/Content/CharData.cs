@@ -17,6 +17,7 @@ namespace LeagueSandbox.GameServer.Content
 
     public class CharData
     {
+        public string Name { get; private set; }
         public float AcquisitionRange { get; private set; } = 475;
         public bool AllyCanUse { get; private set; } = false;
         public bool AlwaysVisible { get; private set; } = false;
@@ -91,7 +92,7 @@ namespace LeagueSandbox.GameServer.Content
         public CharData Load(ContentFile file)
         {
             string name = file.Name;
-
+            Name = name;
             AcquisitionRange = file.GetFloat("Data", "AcquisitionRange", AcquisitionRange);
             Armor = file.GetFloat("Data", "Armor", Armor);
             ArmorPerLevel = file.GetFloat("Data", "ArmorPerLevel", ArmorPerLevel);
