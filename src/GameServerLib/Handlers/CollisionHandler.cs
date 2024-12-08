@@ -5,6 +5,8 @@ using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace LeagueSandbox.GameServer.Handlers
 {
@@ -113,6 +115,15 @@ namespace LeagueSandbox.GameServer.Handlers
             }
 
             return nearest;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float DistanceSquared(Vector2 a, Vector2 b)
+        {
+            float dx = b.X - a.X;
+            float dy = b.Y - a.Y;
+            return dx * dx + dy * dy;
         }
 
         /// <summary>
