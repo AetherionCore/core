@@ -48,43 +48,42 @@ namespace Spells
     }
 }
 
-    public class SealFateMissile : ISpellScript
+public class SealFateMissile : ISpellScript
+{
+    public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
     {
-        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        MissileParameters = new MissileParameters
         {
-            MissileParameters = new MissileParameters
-            {
-                Type = MissileType.Circle
-            },
-            IsDamagingSpell = true,
-            TriggersSpellCasts = true
+            Type = MissileType.Circle
+        },
+        IsDamagingSpell = true,
+        TriggersSpellCasts = true
 
-            // TODO
-        };
-        public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
+        // TODO
+    };
+    public List<AttackableUnit> UnitsHit = new List<AttackableUnit>();
 
-        public void OnActivate(ObjAIBase owner, Spell spell)
+    public void OnActivate(ObjAIBase owner, Spell spell)
+    {
+        ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
+    }
+
+    public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+    {
+        UnitsHit.Clear();
+    }
+
+    public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
+    {
+        var owner = spell.CastInfo.Owner;
+        var spellLevel = owner.GetSpell("WildCards").CastInfo.SpellLevel;
+        var APratio = (owner.Stats.AttackDamage.Total - owner.Stats.AttackDamage.BaseValue) * 0.65f;
+        var damage = 10 + (50f * spellLevel) + APratio;
+        if (!UnitsHit.Contains(target))
         {
-            ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
-        }
-
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            UnitsHit.Clear();
-        }
-
-        public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
-        {
-            var owner = spell.CastInfo.Owner;
-            var spellLevel = owner.GetSpell("WildCards").CastInfo.SpellLevel;
-            var APratio = (owner.Stats.AttackDamage.Total - owner.Stats.AttackDamage.BaseValue) * 0.65f;
-            var damage = 10 + (50f * spellLevel) + APratio;
-            if (!UnitsHit.Contains(target))
-            {
-                UnitsHit.Add(target);
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                AddParticleTarget(owner, target, "Roulette_hit.troy", target, 1f);
-            }
+            UnitsHit.Add(target);
+            target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+            AddParticleTarget(owner, target, "Roulette_hit.troy", target, 1f);
         }
     }
 }
