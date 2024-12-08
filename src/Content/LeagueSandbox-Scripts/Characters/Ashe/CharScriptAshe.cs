@@ -12,7 +12,7 @@ namespace CharScripts
         float Damage;
         float QDamage;
         Spell Passive;
-        ObjAIBase Ashe;
+        Champion Ashe;
         float Ampdamage;
         public void OnActivate(ObjAIBase owner, Spell spell = null)
         {
@@ -35,6 +35,10 @@ namespace CharScripts
                 {
                     damageData.Target.TakeDamage(Ashe, QDamage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
                 }
+            }
+            if (Ashe.Spells[2]?.CastInfo?.SpellLevel >= 1 && (damageData.Target?.IsDead ?? false))
+            {
+                Ashe.AddGold(damageData.Target, 3);
             }
         }
     }
