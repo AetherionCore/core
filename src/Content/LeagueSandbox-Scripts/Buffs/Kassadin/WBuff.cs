@@ -58,7 +58,7 @@ namespace Buffs
             {
                 float ap = Unit.Stats.AbilityPower.Total * 0.6f;
                 float damage = 15 + 25 * Unit.GetSpell("NullLance").CastInfo.SpellLevel + ap;
-                float manaHeal = (Unit.Stats.ManaPoints.Total - Unit.Stats.CurrentMana) * 0.03f + 0.01f * Unit.GetSpell(1).CastInfo.SpellLevel;
+                float manaHeal = (Unit.Stats.ManaPoints.Total - Unit.Stats.CurrentMana) * 0.03f + 0.01f * Unit.GetSpell("NullLance").CastInfo.SpellLevel;
                 if (damageData.Target is Champion)
                 {
                     manaHeal *= 5;
