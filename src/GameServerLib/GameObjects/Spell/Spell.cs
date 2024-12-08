@@ -870,7 +870,7 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS
                 return;
             }
 
-            if (CastInfo.Targets[0].Unit != null)
+            if (CastInfo.Targets.Count > 0 && CastInfo.Targets[0].Unit != null)
             {
                 var spellTarget = CastInfo.Targets[0].Unit;
 
