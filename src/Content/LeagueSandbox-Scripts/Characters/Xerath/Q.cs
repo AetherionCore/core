@@ -23,7 +23,7 @@ namespace Spells
         public static AttackableUnit Target = null;
         Spell Spell;
         ObjAIBase Owner;
-        public ISpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
+        public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             ChannelDuration = 4f,
             TriggersSpellCasts = true,
@@ -48,6 +48,7 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             //spell.SetCooldown(0.5f, true);		      
         }
+
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
         }
