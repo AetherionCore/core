@@ -146,7 +146,7 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS
             {
                 nameSpace = "ItemSpells";
             }
-            Script = CSharpScriptEngine.CreateObjectStatic<ISpellScript>(nameSpace, SpellName) ?? new SpellScriptEmpty();
+            Script = Game.ScriptEngine.CreateObject<ISpellScript>(nameSpace, SpellName) ?? new SpellScriptEmpty();
 
             if (Script.ScriptMetadata.TriggersSpellCasts)
             {
@@ -875,9 +875,6 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS
                 var spellTarget = CastInfo.Targets[0].Unit;
 
                 if (spellTarget != null && (!spellTarget.IsVisibleByTeam(CastInfo.Owner.Team) || (!spellTarget.Status.HasFlag(StatusFlags.Targetable) && !spellTarget.CharData.IsUseable) || spellTarget.IsDead))
-
-
-
                 {
                     CastInfo.Owner.StopChanneling(ChannelingStopCondition.Cancel, ChannelingStopSource.LostTarget);
                     return;
@@ -1372,7 +1369,7 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS
 
         public void LowerCooldown(float lowerValue)
         {
-            SetCooldown(CurrentCooldown - lowerValue);
+            SetCooldown(CurrentCooldown - lowerValue, true);
         }
 
         public void ResetSpellCast()
