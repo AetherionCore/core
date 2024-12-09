@@ -367,7 +367,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 
         public bool CanLevelUpSpell(Spell s)
         {
-            return CharData.SpellsUpLevels[s.CastInfo.SpellSlot][s.CastInfo.SpellLevel] <= Stats.Level;
+            return CharData.SpellsUpLevels[s.CastInfo.OgSpellSlot != 255 ? s.CastInfo.OgSpellSlot : s.CastInfo.SpellSlot][s.CastInfo.SpellLevel] <= Stats.Level;
         }
 
         public virtual bool LevelUp(bool force = true)
@@ -861,6 +861,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                     toReturn.Script.OnActivate(this, toReturn);
                 }
 
+                toReturn.CastInfo.OgSpellSlot = slot;
                 Spells[slot] = toReturn;
                 Stats.SetSpellEnabled(slot, enabled);
             }

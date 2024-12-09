@@ -327,7 +327,7 @@ namespace PacketDefinitions420
             if (data.Length >= 8)
             {
                 // An unhandled exception of type 'System.NullReferenceException' occurred
-                int clientId = ((int)peer.UserData) - 1;
+                int clientId = ((int)peer?.UserData) - 1;
                 data = _blowfishes[clientId].Decrypt(data);
             }
 

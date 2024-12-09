@@ -1367,6 +1367,16 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         }
 
         /// <summary>
+        /// Gets a list of all buff names.
+        /// </summary>
+        /// <param name="buffName">Internal buff name to check.</param>
+        /// <returns>List of buff instances.</returns>
+        public string GetBuffNames()
+        {
+            return string.Join(",", BuffList.Select(b => b.Name));
+        }
+
+        /// <summary>
         /// Removes the given buff from this unit. Called automatically when buff timers have finished.
         /// Buffs with BuffAddType.STACKS_AND_OVERLAPS are removed incrementally, meaning one instance removed per RemoveBuff call.
         /// Other BuffAddTypes are removed entirely, regardless of stacks. DecrementStackCount can be used as an alternative.
