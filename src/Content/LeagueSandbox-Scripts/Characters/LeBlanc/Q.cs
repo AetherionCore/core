@@ -29,12 +29,15 @@ namespace Spells
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
+
             Leblanc = owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
         public void OnSpellPostCast(Spell spell)
         {
             Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Target, });
+            if (!Leblanc.HasBuff("LeblancSlideM"))
+                Leblanc.SetSpell("LeblancChaosOrbM", 3, true);
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {

@@ -56,7 +56,12 @@ namespace Spells
             POS = AddMinion(Leblanc, "TestCube", "TestCube", Leblanc.Position, Leblanc.Team, Leblanc.SkinID, true, false);
             AddBuff("LeblancSlideReturn", 4.0f, 1, spell, POS, Leblanc);
         }
-        public void OnSpellPostCast(Spell spell) { spell.SetCooldown(0.5f, true); }
+        public void OnSpellPostCast(Spell spell)
+        {
+            spell.SetCooldown(0.5f, true);
+            if (!Leblanc.HasBuff("LeblancSlideM"))
+                Leblanc.SetSpell("LeblancSlideM", 3, true);
+        }
         public void OnMoveEnd(AttackableUnit owner)
         {
             SetStatus(Leblanc, StatusFlags.Ghosted, false);
