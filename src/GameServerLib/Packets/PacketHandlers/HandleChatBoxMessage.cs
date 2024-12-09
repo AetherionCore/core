@@ -27,6 +27,11 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 
         public override bool HandlePacket(int userId, ChatMessageRequest req)
         {
+            if (!_game.Config.ChatCheatsEnabled)
+            {
+                return false;
+            }
+
             var split = req.Message.Split(' ');
             if (split.Length > 1)
             {

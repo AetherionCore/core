@@ -19,13 +19,6 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
         public override void Execute(int userId, bool hasReceivedArguments, string arguments = "")
         {
-            if (!Game.Config.ChatCheatsEnabled)
-            {
-                var msg = "[LS] Chat commands are disabled in this game.";
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, msg);
-                return;
-            }
-
             var commands = ChatCommandManager.GetCommandsStrings();
             var commandsString = "";
             var lastCommandString = "";
