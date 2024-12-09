@@ -29,6 +29,7 @@ namespace Buffs
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             Zed.SetSpell("ZedUlt", 3, true);
+            ownerSpell.SetCooldown(120f, true);
         }
     }
 }
