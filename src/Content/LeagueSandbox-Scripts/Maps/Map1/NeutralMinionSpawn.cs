@@ -111,7 +111,7 @@ namespace MapScripts.Map1
             });
 
             //Baron
-            var baron = CreateJungleCamp(new Vector3(4600.495f, 60.0f, 10250.462f), 12, TeamId.TEAM_UNKNOWN, "Baron", 900.0f * 1000);
+            var baron = CreateJungleCamp(new Vector3(4600.495f, 60.0f, 10250.462f), 12, TeamId.TEAM_UNKNOWN, "Baron", 30f * 1000);
             MonsterCamps.Add(baron, new List<Monster>
             {
                 CreateJungleMonster("Worm12.1.1", "Worm", new Vector2(4600.495f, 10250.462f), new Vector3(4329.43f, -71.0f, 9887.0f), baron, aiScript: "BasicJungleMonsterAI")

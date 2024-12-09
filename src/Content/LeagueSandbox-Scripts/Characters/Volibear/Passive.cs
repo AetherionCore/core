@@ -14,19 +14,9 @@ namespace CharScripts
     {
         ObjAIBase Owner;
         float timer = 0;
-
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             Owner = owner;
-
-            if (owner.HasBuff("VolibearQ"))
-            {
-                PlayAnimation(owner, "spell1_idle");
-            }
-            else
-            {
-                StopAnimation(owner, "spell1_idle");
-            }
         }
 
         public void OnUpdate(float diff)
@@ -37,11 +27,6 @@ namespace CharScripts
                 AddBuff("VolibearPassiveBuff", 6f, 1, null, Owner, Owner, false);
                 timer = 120000f;
             }
-        }
-
-        public void OnDeactivate(ObjAIBase owner, Spell spell)
-        {
-            ApiEventManager.OnHitUnit.RemoveListener(this);
         }
     }
 }

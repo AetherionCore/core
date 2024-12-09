@@ -13,7 +13,7 @@
         public override void Execute(int userId, bool hasReceivedArguments, string arguments = "")
         {
             var msg = $"The new command added by {ChatCommandManager.CommandStarterCharacter}help has been executed";
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, msg);
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, msg, userId );
             ChatCommandManager.RemoveCommand(Command);
         }
     }

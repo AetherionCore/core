@@ -1,5 +1,10 @@
 ﻿using LeagueSandbox.GameServer.Players;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
+using LeagueSandbox.GameServer.GameObjects;
+using LeagueSandbox.GameServer.API;
+using GameServerLib.GameObjects;
+using GameServerCore.Enums;
+using System.Numerics;
 
 namespace LeagueSandbox.GameServer.Chatbox.Commands
 {
@@ -19,14 +24,9 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
         public override void Execute(int userId, bool hasReceivedArguments, string arguments = "")
         {
             var sender = _playerManager.GetPeerInfo(userId);
-            var min = new Minion(
-                Game,
-                null,
-                sender.Champion.Position,
-                "Worm",
-                "Worm",
-                AIScript: "BasicJungleMonsterAI"
-                );
+            var baron = ApiMapFunctionManager.CreateJungleCamp(sender.Champion.GetPosition3D(), 12, TeamId.TEAM_UNKNOWN, "Baron", 900.0f * 1000);
+            var min = ApiMapFunctionManager.CreateJungleMonster("Worm", "Worm", sender.Champion.Position,
+                sender.Champion.Direction, baron, aiScript: "BasicJungleMonsterAI");
             Game.ObjectManager.AddObject(min);
         }
     }

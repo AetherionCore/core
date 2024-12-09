@@ -29,7 +29,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 _logger.Error(null, e);
             }
             _logger.Info($"{ChatCommandManager.CommandStarterCharacter}{Command} Jungle Spawned!");
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, "Jungle Spawned!");
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, "Jungle Spawned!", userId);
         }
     }
 }

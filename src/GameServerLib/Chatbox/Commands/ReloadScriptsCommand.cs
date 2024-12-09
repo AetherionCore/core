@@ -13,7 +13,7 @@
         public override void Execute(int userId, bool hasReceivedArguments, string arguments = "")
         {
             ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO,
-                Game.LoadScripts() ? "Scripts reloaded." : "Scripts failed to reload.");
+                Game.LoadScripts() ? "Scripts reloaded." : "Scripts failed to reload.", userId);
         }
     }
 }

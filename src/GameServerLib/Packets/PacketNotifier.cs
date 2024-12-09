@@ -3434,7 +3434,10 @@ namespace PacketDefinitions420
                 //TODO: Ivestigate the cases where SenderNetID is used
                 Message = message
             };
-            _packetHandlerManager.SendPacket(userId, dm.GetBytes(), Channel.CHL_S2C);
+            if (userId == 0)
+                _packetHandlerManager.BroadcastPacket(dm.GetBytes(), Channel.CHL_S2C);
+            else
+                _packetHandlerManager.SendPacket(userId, dm.GetBytes(), Channel.CHL_S2C);
         }
 
         /// <summary>
@@ -4343,6 +4346,26 @@ namespace PacketDefinitions420
                 SyncID = request.SyncID,
             };
             _packetHandlerManager.SendPacket(client.ClientId, answer.GetBytes(), Channel.CHL_S2C, PacketFlags.NONE);
+        }
+
+        /// <summary>
+        /// For Fading out Wards and shit
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="value"></param>
+        /// <param name="time"></param>
+        /// <param name="userId"></param>
+        public void NotifyS2C_SetFadeOut(GameObject o, float value, float time, int userId)
+        {
+            time /= 1000f;
+
+            var packet = new S2C_SetFadeOut()
+            {
+                SenderNetID = o.NetId,
+                FadeTime = time,
+                FadeTargetValue = value
+            };
+            _packetHandlerManager.SendPacket(userId, packet.GetBytes(), Channel.CHL_S2C);
         }
     }
 }

@@ -20,11 +20,11 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             var champ = _playerManager.GetPeerInfo(userId).Champion;
             if (!champ.IsDead)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Your champion is already alive.");
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Your champion is already alive.", userId);
                 return;
             }
 
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Your champion has revived!");
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Your champion has revived!", userId);
             champ.Respawn();
         }
     }

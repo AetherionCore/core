@@ -1,5 +1,6 @@
 ﻿using GameServerLib.GameObjects.AttackableUnits;
 using LeaguePackets.Game.Events;
+using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.Logging;
 using log4net;
@@ -190,6 +191,11 @@ namespace LeagueSandbox.GameServer.API
             }
 
             _game.PacketNotifier.NotifyOnEvent(pointThreshHold, turret);
+        }
+
+        public static void FadeOutObject(GameObject obj, int userid)
+        {
+            _game.PacketNotifier.NotifyS2C_SetFadeOut(obj, 0, 0.3f, userid);
         }
     }
 }

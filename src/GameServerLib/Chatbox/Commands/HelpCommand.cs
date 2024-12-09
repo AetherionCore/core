@@ -40,7 +40,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
                 if(commandsString.Length + lastCommandString.Length >= MESSAGE_MAX_SIZE)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, commandsString);
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, commandsString, userId);
                     commandsString = "";
                     isNewMessage = true;
                 }
@@ -52,10 +52,10 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (commandsString.Length != 0)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, commandsString);
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, commandsString, userId);
             }
 
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "There are " + commands.Count + " commands");
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "There are " + commands.Count + " commands", userId);
         }
     }
 }

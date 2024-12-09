@@ -2,6 +2,7 @@ using System;
 using GameServerCore.Enums;
 using GameServerCore.Scripting.CSharp;
 using GameServerLib.GameObjects.AttackableUnits;
+using LeaguePackets.Game;
 using LeagueSandbox.GameServer;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.GameObjects;
@@ -26,12 +27,7 @@ namespace Buffs
         Buff thisBuff;
         Particle particle;
 
-        private readonly Game _game;
         public ExaltedWithBaronNashor() {}
-        public ExaltedWithBaronNashor(Game game)
-        {
-            _game = game;
-        }
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
@@ -65,7 +61,7 @@ namespace Buffs
                     Reference:
                     https://leagueoflegends.fandom.com/wiki/Hand_of_Baron?oldid=2170918
                 */
-
+                var _game = unit.GetGame();
                 if (_game == null)
                 {
                     LogDebug("_game is not initialized in 'ExaltedWithBaronNashor.cs'.");

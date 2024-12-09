@@ -8,6 +8,7 @@ using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
+using System;
 
 namespace Spells
 {
@@ -22,7 +23,7 @@ namespace Spells
         public void OnSpellCast(Spell spell)
         {
             var owner = spell.CastInfo.Owner;
-             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
+            var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             AddParticleTarget(owner, owner, "Karthus_Base_Q_Hand_Glow", owner, bone: "R_Hand");
             AddParticle(owner, null, "Karthus_Base_Q_Point", spellPos);
             AddParticle(owner, null, "Karthus_Base_Q_Ring", spellPos);
@@ -34,32 +35,47 @@ namespace Spells
             var owner = spell.CastInfo.Owner;
             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             GameObject m = AddParticle(owner, null, "Karthus_Base_Q_Explosion", spellPos);
+
+            var enemyTeam = CustomConvert.GetEnemyTeam(spell.CastInfo.Owner.Team);
             var affectedUnits = GetUnitsInRange(m.Position, 150, true);
+            var affectedUnitsCount = 0;
+
+            for (int i = affectedUnits.Count - 1; i >= 0; i--)
+            {
+                var team = affectedUnits[i]?.Team;
+                if (team == owner.Team) affectedUnits.RemoveAt(i);
+                if (team == enemyTeam || team == TeamId.TEAM_NEUTRAL)
+                    affectedUnitsCount++;
+            }
+
             var ap = spell.CastInfo.Owner.Stats.AbilityPower.Total;
             var damage = 20f + spell.CastInfo.SpellLevel * 20f + ap * 0.3f;
-            if (affectedUnits.Count == 0)
+            if (affectedUnitsCount == 0)
             {
                 AddParticle(owner, null, "Karthus_Base_Q_Hit_Miss", spellPos);
-                AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
             }
-            foreach (var unit in affectedUnits
-            .Where(x => x.Team == CustomConvert.GetEnemyTeam(spell.CastInfo.Owner.Team)))
+            foreach (var unit in affectedUnits)
             {
+                if (unit.NetId == owner.NetId)
+                    continue;
+
                 if (unit is Champion || unit is Minion)
-                {                        
-                    if (affectedUnits.Count == 1)
+                {
+                    if (unit.Team == TeamId.TEAM_NEUTRAL)
+                        owner.SetVisibleByTeam(TeamId.TEAM_NEUTRAL, true);
+                    if (affectedUnitsCount == 1)
                     {
                         damage *= 2;
                         AddParticle(owner, null, "Karthus_Base_Q_Hit_Single", spellPos);
                         unit.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, true);
-                        AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
                     }
-                    if (affectedUnits.Count > 1)
+                    if (affectedUnitsCount > 1)
                     {
                         AddParticle(owner, null, "Karthus_Base_Q_Hit_Many", spellPos);
                         unit.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-                        AddParticle(owner, null, "Karthus_Base_Q_Tar.troy", spellPos);
                     }
+
+
                 }
             }
             m.SetToRemove();

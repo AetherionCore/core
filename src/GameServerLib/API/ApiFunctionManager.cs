@@ -232,7 +232,7 @@ namespace LeagueSandbox.GameServer.API
 
         /// <summary>
         /// Gets a point that is in the direction the specified unit is facing, given it is a specified distance away from the unit.
-        /// </summary>
+        /// </summary>  
         /// <param name="obj">Unit to base the point off of.</param>
         /// <param name="offsetAngle">Offset angle from the unit's facing angle (in degrees, clockwise). Must be > 0 to have an effect.</param>
         /// <returns>Vector2 point.</returns>
@@ -240,11 +240,28 @@ namespace LeagueSandbox.GameServer.API
         {
             Vector2 pos = obj.Position;
             Vector2 dir = new Vector2(obj.Direction.X, obj.Direction.Z);
+
+            // Ensure direction is normalized
+            if (dir != Vector2.Zero)
+            {
+                dir = Vector2.Normalize(dir);
+            }
+
             if (offsetAngle != 0)
             {
                 dir = GameServerCore.Extensions.Rotate(dir, offsetAngle);
             }
+
             return pos + (dir * distance);
+        }
+
+        public static Vector2 GetPositionBehind(GameObject target, GameObject source, float distance = 100f)
+        {
+            // Get direction vector from source to target
+            Vector2 directionToTarget = Vector2.Normalize(target.Position - source.Position);
+
+            // The opposite direction is the "behind" direction
+            return target.Position - (directionToTarget * distance);
         }
 
         /// <summary>
@@ -1270,6 +1287,25 @@ namespace LeagueSandbox.GameServer.API
             }
 
             objTarget.AddAssistMarker(objSource, duration);
+        }
+
+        /// <summary>
+        /// Used to reset spell cooldowns of items like Youmu's blade and Zhonyas etc
+        /// </summary>
+        /// <param name="owner">Owner object with an inventory</param>
+        /// <param name="itemSpellName">Item Sppell Name</param>
+        public static void ResetItemSpellCooldown(ObjAIBase owner, string itemSpellName)
+        {
+            // disabled for now
+            // TODO: make it useful somehow
+            return;
+            for (int i = 0; i < 5; ++i)
+            {
+                var spell = owner.Spells[(short)ConvertAPISlot(SpellbookType.SPELLBOOK_CHAMPION, SpellSlotType.InventorySlots, i)];
+                LogInfo($"Found Spell {spell?.SpellName} - {spell?.SpellName?.Contains(itemSpellName)} - {spell.GetCooldown()}");
+                if ((spell?.SpellName?.Contains(itemSpellName) ?? false))
+                    spell.SetCooldown(spell.GetCooldown(), true);
+            }
         }
     }
 }

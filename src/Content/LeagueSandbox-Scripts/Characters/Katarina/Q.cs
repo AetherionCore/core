@@ -30,7 +30,7 @@ namespace Spells
         {
             QMis = spell;
             Katarina = spell.CastInfo.Owner as Champion;
-            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Chained, MaximumHits=4 });
+            Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Target, CanHitSameTarget=false, CanHitSameTargetConsecutively=false });
             ApiEventManager.OnSpellMissileHit.AddListener(this, Missile, TargetExecute, false);
         }
         public void TargetExecute(SpellMissile missile, AttackableUnit target)
@@ -41,28 +41,20 @@ namespace Spells
             Damage = 45f + (QMis.CastInfo.SpellLevel * 35f) + (Katarina.Stats.AbilityPower.Total * 0.5f);
             target.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
             //AddParticleTarget(owner, target, "katarina_bouncingBlades_tar.troy", target);
+            AddBuff("KatarinaQMark", 4f, 1, QMis, target, Katarina, false);
 
-            var xx = GetClosestUnitsInRange(target, 300, true);
-            var targetsHit = 0;
+            var xx = GetClosestUnitsInRange(target, 375, true);
             foreach (var unit in xx)
             {
                 if (unit.NetId != Katarina.NetId && !unit.IsDead && unit.Team != Katarina.Team
-                    && unit is not BaseTurret && unit.NetId != target.NetId 
-                    && !unit.HasBuff("KatarinaQMark"))
+                    && unit is not BaseTurret && unit.NetId != target.NetId)
                 {
                     LogInfo($"Hitting Second Target {unit.CharData.Name} - {unit.NetId}");
                     SpellCast(Katarina, 2, SpellSlotType.ExtraSlots, false, unit, target.Position);
                     break;
-                    Damage = Damage * 0.9f;
-                    unit.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
-                    AddBuff("KatarinaQMark", 4f, 1, QMis, unit, Katarina, false);
-                    targetsHit++;
                 }
-                if (targetsHit >= 4)
-                    break;
             }
 
-            AddBuff("KatarinaQMark", 4f, 1, QMis, target, Katarina, false);
         }
 
     }
@@ -80,7 +72,7 @@ namespace Spells
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
             NotSingleTargetSpell = false,
-            PersistsThroughDeath = true,
+            PersistsThroughDeath = false,
             SpellDamageRatio = 1.0f,
         };
 
@@ -101,6 +93,9 @@ namespace Spells
         public void TargetExecute(SpellMissile missile, AttackableUnit target)
         {
             AddBuff("KatarinaQMark", 4f, 1, QMis, target, Katarina, false);
+            Damage = 45f + (QMis.CastInfo.SpellLevel * 35f) + (Katarina.Stats.AbilityPower.Total * 0.5f);
+            target.TakeDamage(Katarina, Damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
+            SpellCast(Katarina, 2, SpellSlotType.ExtraSlots, false, missile.TargetUnit, missile.TargetUnit.Position);
         }
     }
 }

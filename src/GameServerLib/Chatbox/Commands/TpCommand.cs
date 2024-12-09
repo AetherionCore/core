@@ -23,8 +23,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length < 3 || split.Length > 4)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
                 return;
             }
 
@@ -37,8 +37,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 }
                 else
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, "An object with the netID: " + targetNetID + " was not found.");
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, "An object with the netID: " + targetNetID + " was not found.", userId);
+                    ShowSyntax(userId);
                 }
             }
             else if (float.TryParse(split[1], out x) && float.TryParse(split[2], out y))

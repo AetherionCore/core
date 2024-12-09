@@ -235,7 +235,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             }
             catch (Exception e)
             {
-                _logger.Error(null, e);
+                _logger.Error($"Couldn't find AI Script {aiScript} for {CharData.Name}", e);
             }
         }
 

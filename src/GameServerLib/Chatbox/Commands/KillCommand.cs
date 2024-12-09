@@ -24,8 +24,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length < 2)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else if (split[1] == "minions")
             {
@@ -49,8 +49,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             }
             else
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
         }
     }

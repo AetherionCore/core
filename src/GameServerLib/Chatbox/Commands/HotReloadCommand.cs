@@ -19,20 +19,20 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length < 2 || !byte.TryParse(split[1], out byte input) || input > 1)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else
             {
                 if (input == 1)
                 {
                     Game.EnableHotReload(true);
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Scripts hot reload enabled.");
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Scripts hot reload enabled.", userId);
                 }
                 else
                 {
                     Game.EnableHotReload(false);
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Scripts hot reload disabled.");
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Scripts hot reload disabled.", userId);
                 }
 
             }

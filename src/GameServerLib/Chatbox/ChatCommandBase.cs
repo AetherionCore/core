@@ -20,10 +20,10 @@ namespace LeagueSandbox.GameServer.Chatbox
 
         public abstract void Execute(int userId, bool hasReceivedArguments, string arguments = "");
 
-        public void ShowSyntax()
+        public void ShowSyntax(int userId)
         {
             var msg = $"{ChatCommandManager.CommandStarterCharacter}{Syntax}";
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAX, msg);
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAX, msg, userId);
         }
 
         public virtual void Update(float diff)

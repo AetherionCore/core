@@ -20,8 +20,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length != 2 || !bool.TryParse(split[1], out var userInput))
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else
             {

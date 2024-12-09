@@ -34,7 +34,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             }
             var coords3D = champion.GetPosition3D();
             var msg = $"At Coords - X: {coords3D.X} Y: {coords3D.Z} Height: {coords3D.Y} "+dirMsg;
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, msg);
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, msg, userId);
         }
     }
 }
