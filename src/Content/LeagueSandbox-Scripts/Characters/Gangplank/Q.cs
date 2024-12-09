@@ -9,6 +9,7 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
 using LeagueSandbox.GameServer.API;
+using System.Numerics;
 
 namespace Spells
 {
@@ -19,14 +20,21 @@ namespace Spells
         SpellMissile Missile;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
+            CastingBreaksStealth = true,
+            DoesntBreakShields = false,
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
+            CastTime = .25f,
+            AutoFaceDirection = true,
+            NotSingleTargetSpell = false,
+            SpellDamageRatio = 1f
         };
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
             owner = spell.CastInfo.Owner as Champion;
             ApiEventManager.OnSpellHit.AddListener(this, spell, TargetExecute, false);
         }
+
         public void OnSpellPostCast(Spell spell)
         {
             Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Target });
@@ -35,15 +43,14 @@ namespace Spells
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
             owner = spell.CastInfo.Owner as Champion;
-            var isCrit = new Random().Next(0, 100) < owner.Stats.CriticalChance.Total;
-            var baseDamage = new[] { 20, 45, 70, 95, 120 }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total;
-            var damage = isCrit ? baseDamage * owner.Stats.CriticalDamage.Total / 100 : baseDamage;
+            var isCrit = new Random().Next(0, 100) < owner.Stats.CriticalChance.Total * 100f;
+            var baseDamage = new[] { 20, 45, 70 , 95, 120 }[spell.CastInfo.SpellLevel - 1] + owner.Stats.AttackDamage.Total;
+            var damage = isCrit ? baseDamage * owner.Stats.CriticalDamage.Total : baseDamage;
             var goldIncome = new[] { 4, 5, 6, 7, 8 }[spell.CastInfo.SpellLevel - 1];
             if (target != null && !target.IsDead)
             {
-                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK,
-                    false);
-                
+                target.TakeDamage(owner, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, isCrit);
+
                 AddBuff("Scurvy", 3f, 1, spell, target, owner, false);
 
                 if (target.IsDead)

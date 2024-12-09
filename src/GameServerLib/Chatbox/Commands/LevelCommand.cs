@@ -25,14 +25,14 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length < 2)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else if (byte.TryParse(split[1], out var lvl))
             {
                 if (lvl <= champ.Stats.Level || lvl > maxLevel)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.ERROR, $"The level must be higher than current and smaller or equal to what the gamemode allows({maxLevel})!");
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.ERROR, $"The level must be higher than current relative to what the gamemode allows({maxLevel})!", userId);
                     return;
                 }
 

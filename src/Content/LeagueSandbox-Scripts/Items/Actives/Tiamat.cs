@@ -25,36 +25,37 @@ namespace ItemSpells
         }
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {      
+        {
         }
 
         public void OnSpellCast(Spell spell)
         {
-			var owner = spell.CastInfo.Owner;
-			//AddParticleTarget(owner, null, "TiamatMelee_itm_hydra.troy", owner);
-			//AddParticleTarget(owner, null, "TiamatMelee_itm_hydra_active.troy", owner);
-			//AddParticleTarget(owner, null, "TiamatMelee_itm_active.troy", owner);
-			//AddParticleTarget(owner, null, "TiamatMelee_itm.troy", owner);
+            var owner = spell.CastInfo.Owner;
+            //AddParticleTarget(owner, null, "TiamatMelee_itm_hydra.troy", owner);
+            //AddParticleTarget(owner, null, "TiamatMelee_itm_hydra_active.troy", owner);
+            //AddParticleTarget(owner, null, "TiamatMelee_itm_active.troy", owner);
+            //AddParticleTarget(owner, null, "TiamatMelee_itm.troy", owner);
         }
 
         public void OnSpellPostCast(Spell spell)
         {
-			if (spell.CastInfo.Owner is Champion c)
+            if (spell.CastInfo.Owner is Champion c)
             {
-				//c.GetSpell(1).LowerCooldown(20);
-				var targetPos = GetPointFromUnit(c,125f);
-			    AddParticle(c, null, "TiamatMelee_itm_active.troy", targetPos);
+                //c.GetSpell(1).LowerCooldown(20);
+                var targetPos = GetPointFromUnit(c, 125f);
+                AddParticle(c, null, "TiamatMelee_itm_active.troy", targetPos);
 
                 var units = GetUnitsInRange(targetPos, 350f, true);
                 for (int i = 0; i < units.Count; i++)
                 {
                     if (units[i].Team != c.Team && !(units[i] is ObjBuilding || units[i] is BaseTurret))
                     {
-					
-							var damage = c.Stats.AttackDamage.Total;
-                            units[i].TakeDamage(c, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);										
+                        var damage = c.Stats.AttackDamage.Total;
+                        units[i].TakeDamage(c, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
                     }
-                }             
+                }
+
+                ResetItemSpellCooldown(c, "Tiamat");
             }
         }
 

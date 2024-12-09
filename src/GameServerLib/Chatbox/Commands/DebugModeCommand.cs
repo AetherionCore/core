@@ -59,14 +59,14 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if(split.Length < 2 || split.Length > 3 || (idx = Array.IndexOf(_modes, split[1])) == -1)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else
             {
                 if(idx == (int)_debugMode)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, $"Already debugging {_modes[idx]}.");
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, $"Already debugging {_modes[idx]}.", userId);
                 }
                 else if(idx == 0)
                 {
@@ -75,7 +75,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
                     _debugMode = DebugMode.None;
 
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, stopdebugmsg);
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, stopdebugmsg, userId);
                     _game.PacketNotifier.NotifyRemoveUnitHighlight(userId, _userChampion);
 
                     if (_circleParticles.Count != 0)
@@ -106,7 +106,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
                     var startdebugmsg = $"Started debugging {_modes[idx]}. Your Debug Circle Radius: {_debugCircleScale} * {_userChampion.PathfindingRadius} = {circlesize}";
                     _logger.Debug(startdebugmsg);
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, startdebugmsg);
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.NORMAL, startdebugmsg, userId);
 
                     if(_debugMode == DebugMode.None)
                     {

@@ -11,6 +11,8 @@ using GameServerLib.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using System;
 using AIScripts;
+using PacketDefinitions420;
+using GameServerCore;
 
 namespace Buffs
 {
@@ -34,7 +36,8 @@ namespace Buffs
             spell = ownerSpell;
             Unit.Stats.ManaRegeneration.PercentBonus = -1;
             Unit.Stats.CurrentMana = 60f;
-
+            unit.SetVisibleByTeam(CustomConvert.GetEnemyTeam(unit.Team), false);
+            unit.SetStatus(StatusFlags.Stealthed, true);
             ApiEventManager.OnPreTakeDamage.AddListener(this, unit, OnPreTakeDamage, false);
         }
 

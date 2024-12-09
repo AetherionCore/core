@@ -21,8 +21,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             var split = arguments.ToLower().Split(' ');
             if (split.Length < 2 || split.Length > 3)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
 
             try
@@ -39,8 +39,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             }
             catch
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
         }
     }

@@ -30,16 +30,16 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             if (split.Length < 2)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else if (split[1].StartsWith("minions"))
             {
                 split[1] = split[1].Replace("minions", "team_").ToUpper();
                 if (!Enum.TryParse(split[1], out TeamId team) || team == TeamId.TEAM_NEUTRAL)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                    ShowSyntax(userId);
                     return;
                 }
 
@@ -52,8 +52,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 split[1] = split[1].Replace("champ", "team_").ToUpper();
                 if (!Enum.TryParse(split[1], out TeamId team) || team == TeamId.TEAM_NEUTRAL)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                    ShowSyntax(userId);
                     return;
                 }
 
@@ -67,8 +67,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                     }
                     catch (ContentNotFoundException)
                     {
-                        ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, "Character Name: " + championModel + " invalid.");
-                        ShowSyntax();
+                        ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, "Character Name: " + championModel + " invalid.", userId);
+                        ShowSyntax(userId);
                         return;
                     }
 
@@ -87,8 +87,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 split[1] = split[1].Replace("region", "team_").ToUpper();
                 if (!Enum.TryParse(split[1], out TeamId team) || team == TeamId.TEAM_NEUTRAL)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                    ShowSyntax(userId);
                     return;
                 }
 
@@ -103,8 +103,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 }
                 else if (split.Length > 4)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                    ShowSyntax(userId);
                     return;
                 }
 
@@ -161,6 +161,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             );
 
             clientInfoTemp.Champion = c;
+            c.Stats.HealthPoints.FlatBonus += 10000;
+            c.Stats.CurrentHealth += 10000;
 
             c.SetPosition(championPos, false);
             c.StopMovement();
@@ -169,7 +171,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
             Game.ObjectManager.AddObject(c);
 
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, $"Spawned Bot {c.Name} as {c.Model} with NetID: {c.NetId}.");
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, $"Spawned Bot {c.Name} as {c.Model} with NetID: {c.NetId}.", userId);
         }
 
         public void SpawnRegionForTeam(TeamId team, int userId, float radius = 250.0f, float lifetime = -1.0f)

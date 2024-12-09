@@ -17,8 +17,8 @@
 
             if (split.Length < 2 || !byte.TryParse(split[1], out var input) || input > 1)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
             else
             {

@@ -6,6 +6,7 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using GameServerCore.Enums;
+using LeagueSandbox.GameServer.GameObjects;
 
 namespace Spells
 {
@@ -29,6 +30,11 @@ namespace Spells
             var p102 = AddParticleTarget(Owner, Owner, "teleport.troy", Owner);
             var p103 = AddParticleTarget(Owner, Target, "Teleport_target.troy", Target);
             var p104 = AddParticleTarget(Owner, Target, "Scroll_Teleport.troy", Target);
+            if (Target is LaneMinion or Minion or Monster)
+            {
+                LogInfo($"Teleporting to Minion {Target.CharData.Name}");
+                AddBuff("TeleportBuff", 4f, 1, spell, Target, null);
+            }
         }
 
         public void OnSpellChannelCancel(Spell spell, ChannelingStopSource reason)
@@ -44,6 +50,7 @@ namespace Spells
             var p201 = AddParticleTarget(Owner, Owner, "Summoner_TeleportArrive_purple.troy", Owner);
             var p202 = AddParticleTarget(Owner, Owner, "teleportarrive.troy", Owner);
             var p203 = AddParticleTarget(Owner, Owner, "scroll_teleportarrive.troy", Owner);
+            RemoveBuff(Target, "TeleportBuff");
         }
     }
 }

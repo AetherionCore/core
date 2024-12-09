@@ -20,8 +20,8 @@ namespace Spells
         {
             owner.StopMovement();
             float ap = owner.Stats.AbilityPower.Total;
-            float newHealth = target.Stats.CurrentHealth + 80 + ap;
-            target.Stats.CurrentHealth = Math.Min(newHealth, target.Stats.HealthPoints.Total);
+            float newHealth = 80 + ap;
+            target.TakeHeal(owner, newHealth);
             owner.SetStatus(StatusFlags.CanAttack, true);
             owner.SetStatus(StatusFlags.CanCast, true);
             owner.SetStatus(StatusFlags.CanMove, true);

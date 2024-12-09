@@ -24,12 +24,12 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 string packageName = split[1];
 
                 _contentManager.LoadPackage(packageName);
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, $"Loading content from package: {packageName}");
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, $"Loading content from package: {packageName}", userId);
             }
             else
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
         }
     }

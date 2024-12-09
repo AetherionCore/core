@@ -323,6 +323,14 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         {
             base.Sync(userId, team, visible, forceSpawn);
             IconInfo.Sync(userId, visible, forceSpawn);
+            if (Status.HasFlag(StatusFlags.Stealthed) && !IsVisibleByTeam(team))
+            {
+                _game.PacketNotifier.NotifyS2C_SetFadeOut(this, 0f, 1.5f, userId);
+            }
+            if(Status.HasFlag(StatusFlags.Stealthed) && IsVisibleByTeam(team))
+            {
+                _game.PacketNotifier.NotifyS2C_SetFadeOut(this, 0.3f, 1.5f, userId);
+            }
         }
 
         protected override void OnSync(int userId, TeamId team)
@@ -1365,6 +1373,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         {
             return BuffList.FindAll(b => b.IsBuffSame(buffName));
         }
+
 
         /// <summary>
         /// Gets a list of all buff names.

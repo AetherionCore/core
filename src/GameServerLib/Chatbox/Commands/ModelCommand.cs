@@ -24,8 +24,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             }
             else
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
             }
         }
     }
