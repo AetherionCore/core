@@ -22,6 +22,7 @@ using GameServerCore.Packets.PacketDefinitions;
 using GameServerCore.Packets.PacketDefinitions.Requests;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using GameServerLib.Handlers;
+using GameServerLib.Scripting;
 
 namespace LeagueSandbox.GameServer
 {
@@ -37,7 +38,7 @@ namespace LeagueSandbox.GameServer
         // Function Vars
         private static ILog _logger = LoggerProvider.GetLogger();
         private float _nextSyncTime = 10 * 1000;
-        protected const double REFRESH_RATE = 1000.0 / 60.0; // GameLoop called 60 times a second.
+        protected const double REFRESH_RATE = 1000.0 / /*60.0*/ 30.0f; // GameLoop called 60 times a second.
         private HandleStartGame _gameStartHandler;
 
         // Server
@@ -65,6 +66,12 @@ namespace LeagueSandbox.GameServer
         /// Time since the game has started. Mostly used for networking to sync up players with the server.
         /// </summary>
         public float GameTime { get; private set; }
+
+        /// <summary>
+        /// Last Frame DeltaTime
+        /// </summary>
+        public float FrameDelta { get; private set; }
+
         /// <summary>
         /// Handler for request packets sent by game clients.
         /// </summary>
@@ -116,7 +123,7 @@ namespace LeagueSandbox.GameServer
         /// <summary>
         /// Class that compiles and loads all scripts which will be used for the game (ex: spells, items, AI, maps, etc).
         /// </summary>
-        internal CSharpScriptEngine ScriptEngine { get; private set; }
+        internal static CSharpScriptEngine ScriptEngine { get; private set; }
 
         internal FileSystemWatcher ScriptsHotReloadWatcher { get; private set; }
 
@@ -144,6 +151,7 @@ namespace LeagueSandbox.GameServer
             _logger.Info("Loading Config.");
             Config = config;
             Config.LoadContent(this);
+            AssemblyService.TryLoadAssemblies(Config.AssemblyNames);
             _gameScriptTimers = new List<GameScriptTimer>();
 
             ChatCommandManager.LoadCommands();
@@ -327,6 +335,8 @@ namespace LeagueSandbox.GameServer
                 lastMapDurationWatch.Restart();
 
                 float deltaTime = (float)lastSleepDuration;
+                FrameDelta = deltaTime;
+
                 if (firstCycle)
                 {
                     firstCycle = false;
@@ -381,7 +391,6 @@ namespace LeagueSandbox.GameServer
                         Update(deltaTime);
                     }
                 }
-
                 double lastUpdateDuration = lastMapDurationWatch.Elapsed.TotalMilliseconds;
                 double oversleep = lastSleepDuration - timeout;
                 timeout = Math.Max(0, refreshRate - lastUpdateDuration - oversleep);
@@ -401,7 +410,11 @@ namespace LeagueSandbox.GameServer
             // Collision
             Map.Update(diff);
             // Objects
+            var watch = Stopwatch.StartNew();
             ObjectManager.Update(diff);
+            watch.Stop();
+            //if (watch.Elapsed.TotalMilliseconds > 5)
+            //    _logger.Info($"Object Manager Update took {watch.Elapsed.TotalMilliseconds}ms");
             // Protection (TODO: Move this into ObjectManager).
             ProtectionManager.Update(diff);
             ChatCommandManager.GetCommands().ForEach(command => command.Update(diff));

@@ -41,6 +41,8 @@ namespace Spells
         public void OnSpellPostCast(Spell spell)
         {
             Missile = spell.CreateSpellMissile(new MissileParameters { Type = MissileType.Circle, });
+            if (!Leblanc.HasBuff("LeblancSlideM"))
+                Leblanc.SetSpell("LeblancSoulShackleM", 3, true);
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {

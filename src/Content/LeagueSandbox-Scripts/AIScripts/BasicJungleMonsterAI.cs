@@ -17,6 +17,7 @@ namespace AIScripts
         Vector2 initialPosition;
         Vector3 initialFacingDirection;
         bool isInCombat = false;
+        const float MAXIMUM_CHASE_RANGE = 1200f * 1200f;
         public void OnActivate(ObjAIBase owner)
         {
             monster = owner as Monster;
@@ -42,7 +43,7 @@ namespace AIScripts
                 if (isInCombat)
                 {
                     //Find a better way to do this
-                    if (Vector2.DistanceSquared(new Vector2(monster.Camp.Position.X, monster.Camp.Position.Z), monster.Position) > 800f * 800f)
+                    if (Vector2.DistanceSquared(new Vector2(monster.Camp.Position.X, monster.Camp.Position.Z), monster.Position) > MAXIMUM_CHASE_RANGE)
                     {
                         ResetCamp();
                     }

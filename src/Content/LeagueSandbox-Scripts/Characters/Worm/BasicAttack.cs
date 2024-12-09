@@ -1,4 +1,4 @@
-﻿using GameServerCore.Scripting.CSharp;
+using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects;
@@ -7,7 +7,7 @@ using GameServerCore.Enums;
 
 namespace Spells
 {
-    public class DragonBasicAttack : ISpellScript
+    public class WormBasicAttack : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {

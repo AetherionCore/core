@@ -35,6 +35,10 @@ namespace LeagueSandbox.GameServer.GameObjects.SpellNS
         public bool IsClickCasted { get; set; } = false;
 
         public byte SpellSlot { get; set; }
+        /// <summary>
+        /// Hack for Leblanc's Mimic (R)
+        /// </summary>
+        public byte OgSpellSlot { get; set; } = 255;
         public float ManaCost { get; set; }
         public Vector3 SpellCastLaunchPosition { get; set; }
         public int AmmoUsed { get; set; }

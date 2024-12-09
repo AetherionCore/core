@@ -17,6 +17,7 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
 {
@@ -585,6 +586,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
             Stats.CurrentHealth = Math.Max(0.0f, Stats.CurrentHealth - damageData.PostMitigationDamage);
 
             ApiEventManager.OnTakeDamage.Publish(damageData.Target, damageData);
+            ApiEventManager.OnDealDamage.Publish(damageData.Attacker, damageData);
 
             if (!IsDead && Stats.CurrentHealth <= 0)
             {
@@ -1362,6 +1364,16 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         public List<Buff> GetBuffsWithName(string buffName)
         {
             return BuffList.FindAll(b => b.IsBuffSame(buffName));
+        }
+
+        /// <summary>
+        /// Gets a list of all buff names.
+        /// </summary>
+        /// <param name="buffName">Internal buff name to check.</param>
+        /// <returns>List of buff instances.</returns>
+        public string GetBuffNames()
+        {
+            return string.Join(",", BuffList.Select(b => b.Name));
         }
 
         /// <summary>

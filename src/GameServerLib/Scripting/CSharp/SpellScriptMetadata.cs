@@ -136,7 +136,7 @@ namespace LeagueSandbox.GameServer.Scripting.CSharp
         /// <summary>
         /// How many times a second the spell sector should check for hitbox collisions.
         /// </summary>
-        public int Tickrate { get; set; } = 0;
+        public float Tickrate { get; set; } = 0f;
         /// <summary>
         /// Whether or not the spell sector should be able to hit something multiple times.
         /// Will only hit again if the unit hit re-enters the hitbox (constant per-collision hitbox).

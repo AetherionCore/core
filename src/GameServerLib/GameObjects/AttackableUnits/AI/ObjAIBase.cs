@@ -14,6 +14,7 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using log4net;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.AnimatedBuildings;
 using LeagueSandbox.GameServer.GameObjects.StatsNS;
+using LeagueSandbox.GameServer.Handlers;
 
 namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 {
@@ -227,7 +228,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                 IsMelee = true;
             }
 
-            AIScript = game.ScriptEngine.CreateObject<IAIScript>($"AIScripts", aiScript) ?? new EmptyAIScript();
+            AIScript = Game.ScriptEngine.CreateObject<IAIScript>($"AIScripts", aiScript) ?? new EmptyAIScript();
             try
             {
                 AIScript.OnActivate(this);
@@ -260,7 +261,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
         /// </summary>
         public void LoadCharScript(Spell spell = null)
         {
-            CharScript = CSharpScriptEngine.CreateObjectStatic<ICharScript>("CharScripts", $"CharScript{Model}") ?? new CharScriptEmpty();
+            CharScript = Game.ScriptEngine.CreateObject<ICharScript>("CharScripts", $"CharScript{Model}") ?? new CharScriptEmpty();
         }
 
         /// <summary>
@@ -366,7 +367,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 
         public bool CanLevelUpSpell(Spell s)
         {
-            return CharData.SpellsUpLevels[s.CastInfo.SpellSlot][s.CastInfo.SpellLevel] <= Stats.Level;
+            return CharData.SpellsUpLevels[s.CastInfo.OgSpellSlot != 255 ? s.CastInfo.OgSpellSlot : s.CastInfo.SpellSlot][s.CastInfo.SpellLevel] <= Stats.Level;
         }
 
         public virtual bool LevelUp(bool force = true)
@@ -556,7 +557,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
         public bool RecalculateAttackPosition()
         {
             // If we are already where we should be, which means we are in attack range, then keep our current position.
-            if (TargetUnit == null || TargetUnit.IsDead || Vector2.DistanceSquared(Position, TargetUnit.Position) <= Stats.Range.Total * Stats.Range.Total)
+            if (TargetUnit == null || TargetUnit.IsDead || CollisionHandler.DistanceSquared(Position, TargetUnit.Position) <= Stats.Range.Total * Stats.Range.Total)
             {
                 return false;
             }
@@ -569,7 +570,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                 if (unit == null ||
                     unit.NetId == NetId ||
                     unit.IsDead ||
-                    Vector2.DistanceSquared(Position, TargetUnit.Position) > DETECT_RANGE * DETECT_RANGE
+                    CollisionHandler.DistanceSquared(Position, TargetUnit.Position) > DETECT_RANGE * DETECT_RANGE
                 )
                 {
                     continue;
@@ -637,7 +638,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             if (MoveOrder == OrderType.AttackMove
                 && targetPos != Vector2.Zero
                 && MovementParameters == null
-                && Vector2.DistanceSquared(Position, targetPos) <= idealRange * idealRange
+                && CollisionHandler.DistanceSquared(Position, targetPos) <= idealRange * idealRange
                 && _autoAttackCurrentCooldown <= 0)
             {
                 UpdateMoveOrder(OrderType.Stop, true);
@@ -650,7 +651,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 
             if (MoveOrder == OrderType.AttackTo && targetPos != Vector2.Zero)
             {
-                if (Vector2.DistanceSquared(Position, targetPos) <= idealRange * idealRange)
+                if (CollisionHandler.DistanceSquared(Position, targetPos) <= idealRange * idealRange)
                 {
                     UpdateMoveOrder(OrderType.Hold, true);
                 }
@@ -860,6 +861,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                     toReturn.Script.OnActivate(this, toReturn);
                 }
 
+                toReturn.CastInfo.OgSpellSlot = slot;
                 Spells[slot] = toReturn;
                 Stats.SetSpellEnabled(slot, enabled);
             }
@@ -1141,8 +1143,8 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                         && !u.IsDead
                         && u.Team == Team
                         && u.AIScript.AIScriptMetaData.HandlesCallsForHelp
-                        && Vector2.DistanceSquared(u.Position, Position) <= acquisitionRangeSquared
-                        && Vector2.DistanceSquared(u.Position, attacker.Position) <= acquisitionRangeSquared
+                        && CollisionHandler.DistanceSquared(u.Position, Position) <= acquisitionRangeSquared
+                        && CollisionHandler.DistanceSquared(u.Position, attacker.Position) <= acquisitionRangeSquared
                     )
                     {
                         try
@@ -1213,12 +1215,12 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 
                 if (MoveOrder == OrderType.AttackTo
                     && TargetUnit != null
-                    && Vector2.DistanceSquared(TargetUnit.Position, SpellToCast.CastInfo.Owner.Position) <= idealRange * idealRange)
+                    && CollisionHandler.DistanceSquared(TargetUnit.Position, SpellToCast.CastInfo.Owner.Position) <= idealRange * idealRange)
                 {
                     SpellToCast.Cast(new Vector2(SpellToCast.CastInfo.TargetPosition.X, SpellToCast.CastInfo.TargetPosition.Z), new Vector2(SpellToCast.CastInfo.TargetPositionEnd.X, SpellToCast.CastInfo.TargetPositionEnd.Z), TargetUnit);
                 }
                 else if (MoveOrder == OrderType.MoveTo
-                        && Vector2.DistanceSquared(new Vector2(SpellToCast.CastInfo.TargetPosition.X, SpellToCast.CastInfo.TargetPosition.Z), SpellToCast.CastInfo.Owner.Position) <= idealRange * idealRange)
+                        && CollisionHandler.DistanceSquared(new Vector2(SpellToCast.CastInfo.TargetPosition.X, SpellToCast.CastInfo.TargetPosition.Z), SpellToCast.CastInfo.Owner.Position) <= idealRange * idealRange)
                 {
                     SpellToCast.Cast(new Vector2(SpellToCast.CastInfo.TargetPosition.X, SpellToCast.CastInfo.TargetPosition.Z), new Vector2(SpellToCast.CastInfo.TargetPositionEnd.X, SpellToCast.CastInfo.TargetPositionEnd.Z));
                 }
@@ -1234,7 +1236,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                 {
                     idealRange = Stats.Range.Total + TargetUnit.CollisionRadius;
 
-                    if (Vector2.DistanceSquared(Position, TargetUnit.Position) <= idealRange * idealRange && MovementParameters == null)
+                    if (CollisionHandler.DistanceSquared(Position, TargetUnit.Position) <= idealRange * idealRange && MovementParameters == null)
                     {
                         if (AutoAttackSpell.State == SpellState.STATE_READY)
                         {
@@ -1243,6 +1245,10 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
 
                             if (CanAttack())
                             {
+                                if (this.CharData.Name.Contains("Wizard"))
+                                {
+                                    //_logger.Info($"Minion {CharData.Name}: AA {AutoAttackSpell.SpellName} - {AutoAttackSpell.Script?.GetType()?.Name}");
+                                }
                                 IsNextAutoCrit = _random.Next(0, 100) < Stats.CriticalChance.Total * 100;
                                 if (_autoAttackCurrentCooldown <= 0)
                                 {
@@ -1303,18 +1309,18 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
                             if (!(it.Value is AttackableUnit u) ||
                                 u.IsDead ||
                                 u.Team == Team ||
-                                Vector2.DistanceSquared(Position, u.Position) > range * range ||
+                                CollisionHandler.DistanceSquared(Position, u.Position) > range * range ||
                                 !u.Status.HasFlag(StatusFlags.Targetable))
                             {
                                 continue;
                             }
 
-                            if (!(Vector2.DistanceSquared(Position, u.Position) < distanceSqrToTarget))
+                            if (!(CollisionHandler.DistanceSquared(Position, u.Position) < distanceSqrToTarget))
                             {
                                 continue;
                             }
 
-                            distanceSqrToTarget = Vector2.DistanceSquared(Position, u.Position);
+                            distanceSqrToTarget = CollisionHandler.DistanceSquared(Position, u.Position);
                             nextTarget = u;
                         }
 
