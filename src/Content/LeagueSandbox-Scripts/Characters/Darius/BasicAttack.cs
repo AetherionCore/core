@@ -28,6 +28,7 @@ namespace Spells
             else
             {
                 OverrideAnimation(owner, "Attack1", "Spell2");
+                spell.CastInfo.Owner.SetAutoAttackSpell("DariusBasicAttack", false);
             }
         }
         public void OnLaunchAttack(Spell spell)
@@ -53,6 +54,7 @@ namespace Spells
             else
             {
                 OverrideAnimation(owner, "Attack2", "Spell2");
+                spell.CastInfo.Owner.SetAutoAttackSpell("DariusBasicAttack2", false);
             }
         }
         public void OnLaunchAttack(Spell spell)
@@ -78,6 +80,7 @@ namespace Spells
             else
             {
                 OverrideAnimation(owner, "Crit", "Spell2");
+                spell.CastInfo.Owner.SetAutoAttackSpell("DariusCritAttack", false);
             }
         }
         public void OnLaunchAttack(Spell spell)
