@@ -11,7 +11,6 @@ using GameServerLib.GameObjects.AttackableUnits;
 using GameServerCore;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
-using LeagueSandbox.GameServer.GameObjects;
 
 namespace Spells
 {
@@ -45,8 +44,7 @@ namespace Spells
             AddParticleTarget(Katarina, null, "katarina_shadowStep_cas.troy", Katarina);
 
             ForceMovement(Katarina, "Spell3", Vector2.Zero, 20, 20, 0.3f, 20);
-            Vector2 behindPos = GetPositionBehind(Target, Katarina, -100f);
-            TeleportTo(Katarina, behindPos.X, behindPos.Y);
+            TeleportTo(Katarina, Target.Position.X, Target.Position.Y);
             AddBuff("KatarinaEReduction", 1.5f, 1, spell, Katarina, Katarina);
             PlayAnimation(Katarina, "Spell3", 0.5f);
         }
