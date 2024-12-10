@@ -31,6 +31,7 @@ namespace Buffs
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
+            unit.RemoveStatModifier(StatsModifier);
             RemoveParticle(p1);
             RemoveParticle(p2);
         }
