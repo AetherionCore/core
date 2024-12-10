@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.API;
 using LeagueSandbox.GameServer.GameObjects;
@@ -26,7 +26,11 @@ namespace AIScripts
             ApiEventManager.OnTakeDamage.AddListener(this, monster, OnTakeDamage, false);
 
             if (monster.Model == "Worm") // disable movement for baron
+            {
+                monster.SetStatus(GameServerCore.Enums.StatusFlags.CanMoveEver, false);
+                monster.SetStatus(GameServerCore.Enums.StatusFlags.Immovable, true);
                 monster.SetStatus(GameServerCore.Enums.StatusFlags.CanMove, false);
+            }
         }
         public void OnTakeDamage(DamageData damageData)
         {
