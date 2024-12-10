@@ -24,7 +24,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             var lastCommandString = "";
             var isNewMessage = false;
 
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "List of available commands: ");
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "List of available commands: ", userId);
 
             foreach (var command in commands)
             {
