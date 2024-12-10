@@ -24,7 +24,7 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
-namespace NasusQ
+namespace Buffs
 {
     internal class NasusQStacks : IBuffGameScript
     {
@@ -37,17 +37,12 @@ namespace NasusQ
 
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
-        Buff thisBuff;
-        ObjAIBase Unit;
-        Particle p;
-        Particle p2;
-        ObjAIBase Owner;
-        AttackableUnit AtOwner;
-        public static float Qstacks = 0f;
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             //ApiEventManager.OnKillUnit.AddListener(this, AtOwner, NasusMoreStacks, true);
+            int StackDamage = buff.StackCount;
+            SetSpellToolTipVar(unit, 0, StackDamage, SpellbookType.SPELLBOOK_CHAMPION, 0, SpellSlotType.SpellSlots);
         }
 
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)

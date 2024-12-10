@@ -24,9 +24,9 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 
-namespace NasusQ
+namespace Buffs
 {
-    internal class NasusE : IBuffGameScript
+    internal class NasusQ : IBuffGameScript
     {
         public BuffScriptMetaData BuffMetaData { get; set; } = new BuffScriptMetaData
         {
@@ -51,6 +51,8 @@ namespace NasusQ
                 //pbuff2 = AddParticleTarget(ownerSpell.CastInfo.Owner, ownerSpell.CastInfo.Owner, "Nasus_Base_Q_Wpn_trail.troy", unit, buff.Duration, 1, "BUFFBONE_CSTM_WEAPON_1");
                 StatsModifier.Range.FlatBonus = 50.0f;
                 unit.AddStatModifier(StatsModifier);
+                OverrideAnimation(owner, "Spell1", "Attack1");
+                OverrideAnimation(owner, "Spell1", "Attack2");
                 //SetAnimStates(owner, new Dictionary<string, string> { { "Attack1", "Spell1" } });
                 SealSpellSlot(owner, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, true);
                 ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
@@ -64,10 +66,8 @@ namespace NasusQ
             RemoveParticle(pbuff);
             RemoveParticle(pbuff2);
             RemoveBuff(thisBuff);
-            CreateTimer(0.5f, () =>
-            {
-                //SetAnimStates(owner, new Dictionary<string, string> { { "Spell1", "Attack1" } });
-            });
+            OverrideAnimation(owner, "Attack1", "Spell1");
+            OverrideAnimation(owner, "Attack2", "Spell1");
             if (buff.TimeElapsed >= buff.Duration)
             {
                 ApiEventManager.OnLaunchAttack.RemoveListener(this);
@@ -80,16 +80,15 @@ namespace NasusQ
 
         public void OnLaunchAttack(Spell spell)
         {
-
+            var owner = spell.CastInfo.Owner as Champion;
             if (thisBuff != null && thisBuff.StackCount != 0 && !thisBuff.Elapsed())
             {
                 spell.CastInfo.Owner.RemoveBuff(thisBuff);
-                var owner = spell.CastInfo.Owner as Champion;
                 spell.CastInfo.Owner.SkipNextAutoAttack();
                 SpellCast(spell.CastInfo.Owner, 0, SpellSlotType.ExtraSlots, false, spell.CastInfo.Owner.TargetUnit, Vector2.Zero);
-                SealSpellSlot(owner, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, false);
                 thisBuff.DeactivateBuff();
             }
+            SealSpellSlot(owner, SpellSlotType.SpellSlots, 0, SpellbookType.SPELLBOOK_CHAMPION, false);
         }
         public void OnUpdate(float diff)
         {
