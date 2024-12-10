@@ -17,6 +17,8 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.Animate
             uint netId = 0
         ) : base(game, model, collisionRadius, position, visionRadius, netId, team, stats)
         {
+            SetStatus(StatusFlags.CanMove, false);
+            SetStatus(StatusFlags.CanMoveEver, false);
         }
 
         public override void SetToRemove()

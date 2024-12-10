@@ -54,6 +54,9 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             ParentObject = mapObject;
             SetTeam(team);
             Replication = new ReplicationAITurret(this);
+
+            SetStatus(StatusFlags.CanMove, false);
+            SetStatus(StatusFlags.CanMoveEver, false);
         }
 
 

@@ -143,6 +143,8 @@ namespace LeagueSandbox.GameServer.API
                 = new Dispatcher<AttackableUnit>();
         public static Dispatcher<Spell> OnLevelUpSpell
                 = new Dispatcher<Spell>();
+        public static Dispatcher<Spell> OnPreLevelUpSpell
+                = new Dispatcher<Spell>();
         public static Dispatcher<AttackableUnit> OnMoveEnd
                 = new Dispatcher<AttackableUnit>();
         public static Dispatcher<AttackableUnit> OnMoveFailure

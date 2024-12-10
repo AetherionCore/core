@@ -312,6 +312,11 @@ namespace LeagueSandbox.GameServer.API
             return buff;
         }
 
+        public static void NotifyBuffStacks(Buff buff)
+        {
+            _game.PacketNotifier.NotifyNPC_BuffUpdateCount(buff, buff.Duration, buff.TimeElapsed);
+        }
+
         /// <summary>
         /// Whether or not the specified unit has the specified buff instance.
         /// </summary>
@@ -1306,6 +1311,11 @@ namespace LeagueSandbox.GameServer.API
                 if ((spell?.SpellName?.Contains(itemSpellName) ?? false))
                     spell.SetCooldown(spell.GetCooldown(), true);
             }
+        }
+
+        public static void RemoveParticleByName(uint netId, string particleName)
+        {
+            _game.ObjectManager.RemoveParticleByName(netId, particleName);
         }
     }
 }

@@ -327,7 +327,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
             {
                 _game.PacketNotifier.NotifyS2C_SetFadeOut(this, 0f, 1.5f, userId);
             }
-            if(Status.HasFlag(StatusFlags.Stealthed) && IsVisibleByTeam(team))
+            if (Status.HasFlag(StatusFlags.Stealthed) && IsVisibleByTeam(team))
             {
                 _game.PacketNotifier.NotifyS2C_SetFadeOut(this, 0.3f, 1.5f, userId);
             }
@@ -487,6 +487,11 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits
         public virtual void TakeHeal(AttackableUnit caster, float amount, IEventSource sourceScript = null)
         {
             Stats.CurrentHealth = Math.Clamp(Stats.CurrentHealth + amount, 0, Stats.HealthPoints.Total);
+        }
+
+        public virtual void TakeMana(AttackableUnit caster, float amount, IEventSource sourceScript = null)
+        {
+            Stats.CurrentMana = Math.Clamp(Stats.CurrentMana + amount, 0, Stats.ManaPoints.Total);
         }
 
         /// <summary>
