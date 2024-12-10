@@ -12,7 +12,6 @@ using System.Linq;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.API;
-using System;
 
 namespace Spells
 {
@@ -30,8 +29,10 @@ namespace Spells
         }
         public SpellSector DamageSector;
 
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        public void OnSpellPostCast(Spell spell)
         {
+            var owner = spell.CastInfo.Owner;
+
             var spellPos = new Vector2(spell.CastInfo.TargetPosition.X, spell.CastInfo.TargetPosition.Z);
             FaceDirection(spellPos, owner, false);
             DamageSector = spell.CreateSpellSector(new SectorParameters
@@ -41,10 +42,9 @@ namespace Spells
                 CanHitSameTargetConsecutively = true,
                 OverrideFlags = SpellDataFlags.AffectEnemies | SpellDataFlags.AffectNeutral | SpellDataFlags.AffectMinions | SpellDataFlags.AffectHeroes,
                 Type = SectorType.Cone,
-                Lifetime = 3.0f,
+                Lifetime = 5.0f,
                 ConeAngle = 24.76f,
-            });
-            DamageSector.ExecuteTick();
+            }); 
         }
         public void TargetExecute(Spell spell, AttackableUnit target, SpellMissile missile, SpellSector sector)
         {
