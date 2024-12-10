@@ -300,6 +300,21 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             IsDead = false;
             RespawnTimer = -1;
             SetDashingState(false, MoveStopReason.HeroReincarnate);
+            SetStatus(StatusFlags.CanAttack, true);
+            SetStatus(StatusFlags.CanCast, true);
+            SetStatus(StatusFlags.CanMove, true);
+            SetStatus(StatusFlags.Stunned, false);
+            SetStatus(StatusFlags.Rooted, false);
+            SetStatus(StatusFlags.Disarmed, false);
+            SetStatus(StatusFlags.Rooted, false);
+            SetStatus(StatusFlags.Suppressed, false);
+
+            Stats.SetActionState(ActionState.CAN_ATTACK, true);
+            Stats.SetActionState(ActionState.CAN_CAST, true);
+            Stats.SetActionState(ActionState.CAN_MOVE, true);
+
+            SetStatus(StatusFlags.CanMove, true);
+            SetStatus(StatusFlags.Rooted, false);
             ApiEventManager.OnResurrect.Publish(this);
         }
 

@@ -56,9 +56,9 @@ namespace Spells
             if (owner.HasBuff("ExaltedWithBaronNashor"))
             {
                 AddBuff("BaronNasahorSpeed", 8f, 1, spell, owner, owner);
-                owner.TakeHeal(owner, owner.Stats.HealthPoints.Total*0.5f, spell);
+                owner.TakeHeal(owner, owner.Stats.HealthPoints.Total * 0.5f, spell);
             }
-            
+
             owner.IconInfo.ResetBorder();
         }
     }

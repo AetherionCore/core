@@ -41,7 +41,7 @@ namespace Spells
         public void OnSpellCast(Spell spell)
         {
             PlayAnimation(Darius, "Spell1", 0.5f);
-            AOE.CreateSpellSector(new SectorParameters { Length = 400f, SingleTick = true, Type = SectorType.Area });
+            AOE.CreateSpellSector(new SectorParameters { Length = 450f, SingleTick = true, Type = SectorType.Area });
             AddParticleTarget(Darius, Darius, "darius_Base_Q_aoe_cast.troy", Darius, bone: "C_BuffBone_Glb_Center_Loc");
             AddParticleTarget(Darius, Darius, "darius_Base_Q_aoe_cast_mist.troy", Darius, bone: "C_BuffBone_Glb_Center_Loc");
         }
@@ -56,7 +56,6 @@ namespace Spells
                 if (Math.Abs(Vector2.Distance(target.Position, Darius.Position)) > 200)
                 {
                     target.TakeDamage(Darius, Damage * 1.5f, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
-                    AddBuff("DariusHemo", 5.0f, 1, spell, target, Darius);
                     AddBuff("DariusHemo", 5.0f, 1, spell, target, Darius);
                 }
                 else

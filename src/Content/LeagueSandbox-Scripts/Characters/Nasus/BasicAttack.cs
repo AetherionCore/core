@@ -12,36 +12,36 @@ namespace Spells
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true
         };
 
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
-        }
+        //public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        //{
+        //    ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
+        //}
 
-        public void OnLaunchAttack(Spell spell)
-        {
-            spell.CastInfo.Owner.SetAutoAttackSpell("NasusBasicAttack2", false);
-        }
+        //public void OnLaunchAttack(Spell spell)
+        //{
+        //    spell.CastInfo.Owner.SetAutoAttackSpell("NasusBasicAttack2", false);
+        //}
     }
 
     public class NasusBasicAttack2 : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true
         };
 
-        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
-        {
-            ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
-        }
+        //public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        //{
+        //    ApiEventManager.OnLaunchAttack.AddListener(this, owner, OnLaunchAttack, false);
+        //}
 
-        public void OnLaunchAttack(Spell spell)
-        {
-            spell.CastInfo.Owner.SetAutoAttackSpell("NasusBasicAttack", false);
-        }
+        //public void OnLaunchAttack(Spell spell)
+        //{
+        //    spell.CastInfo.Owner.SetAutoAttackSpell("NasusBasicAttack", false);
+        //}
     }
 }
 

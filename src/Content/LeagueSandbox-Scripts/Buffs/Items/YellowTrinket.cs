@@ -35,7 +35,7 @@ namespace Buffs
             spell = ownerSpell;
             Unit.Stats.ManaRegeneration.PercentBonus = -1;
             Unit.Stats.CurrentMana = 60f;
-            unit.SetStatus(StatusFlags.Stealthed, true);
+
             ApiEventManager.OnPreTakeDamage.AddListener(this, unit, OnPreTakeDamage, false);
         }
 

@@ -749,7 +749,6 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             }
 
             s.LevelUp();
-            ApiEventManager.OnLevelUpSpell.Publish(s);
             return s;
         }
 
@@ -1069,7 +1068,7 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI
             base.Update(diff);
             try
             {
-                CharScript.OnUpdate(diff);
+                CharScript?.OnUpdate(diff);
             }
             catch (Exception e)
             {

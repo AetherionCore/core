@@ -53,6 +53,7 @@ namespace Buffs
         {
             var owner = ownerSpell.CastInfo.Owner as Champion;
             OverrideAnimation(unit, "RUN", "spell1_run");
+            OverrideAnimation(unit, "IDLE1", "spell1_idle");
             RemoveParticle(pbuff);
             RemoveParticle(pbuff2);
             RemoveParticle(pbuff3);

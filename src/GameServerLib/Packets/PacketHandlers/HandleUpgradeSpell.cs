@@ -1,6 +1,7 @@
 ﻿using GameServerCore.Packets.PacketDefinitions.Requests;
 using GameServerCore.Packets.Handlers;
 using LeagueSandbox.GameServer.Players;
+using LeagueSandbox.GameServer.API;
 
 namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 {
@@ -29,7 +30,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 
             _game.PacketNotifier.NotifyNPC_UpgradeSpellAns(userId, champion.NetId, req.Slot, s.CastInfo.SpellLevel, champion.SkillPoints);
             champion.Stats.SetSpellEnabled(req.Slot, true);
-
+            ApiEventManager.OnLevelUpSpell.Publish(s);
             return true;
         }
     }

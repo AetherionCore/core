@@ -31,7 +31,7 @@ namespace LeagueSandbox.GameServer
         private Dictionary<uint, BaseTurret> _turrets;
         private Dictionary<uint, Inhibitor> _inhibitors;
         private Dictionary<TeamId, List<GameObject>> _visionProviders;
-
+        private Dictionary<uint, string> _particlesToRemove;
         private bool _currentlyInUpdate = false;
 
         // Locks for each dictionary. Depricated since #1302.
@@ -60,6 +60,7 @@ namespace LeagueSandbox.GameServer
             _inhibitors = new Dictionary<uint, Inhibitor>();
             _champions = new Dictionary<uint, Champion>();
             _visionProviders = new Dictionary<TeamId, List<GameObject>>();
+            _particlesToRemove = new Dictionary<uint, string>();
             foreach (var team in Teams)
             {
                 _visionProviders.Add(team, new List<GameObject>());
@@ -109,8 +110,15 @@ namespace LeagueSandbox.GameServer
             int i = 0;
             foreach (GameObject obj in _objects.Values)
             {
+                if (obj is Particle p && p.BindObject != null && _particlesToRemove.Values.Contains(p.Name) && _particlesToRemove.ContainsKey(p.BindObject.NetId))
+                {
+                    foreach (var kvp in _particlesToRemove)
+                        if (kvp.Key == p.BindObject.NetId && kvp.Value == p.Name)
+                            p.SetToRemove();
+                }
+
                 UpdateTeamsVision(obj);
-                if(i++ < oldObjectsCount)
+                if (i++ < oldObjectsCount)
                 {
                     obj.LateUpdate(diff);
                 }
@@ -122,6 +130,8 @@ namespace LeagueSandbox.GameServer
 
                 obj.OnAfterSync();
             }
+
+            _particlesToRemove.Clear();
 
             _game.PacketNotifier.NotifyOnReplication();
             _game.PacketNotifier.NotifyWaypointGroup();
@@ -202,7 +212,7 @@ namespace LeagueSandbox.GameServer
             {
                 _objectsToRemove.Remove(o);
 
-                if(_currentlyInUpdate)
+                if (_currentlyInUpdate)
                 {
                     _objectsToAdd.Add(o);
                 }
@@ -231,7 +241,7 @@ namespace LeagueSandbox.GameServer
             {
                 _objectsToAdd.Remove(o);
 
-                if(_currentlyInUpdate)
+                if (_currentlyInUpdate)
                 {
                     _objectsToRemove.Add(o);
                 }
@@ -285,7 +295,7 @@ namespace LeagueSandbox.GameServer
         {
             if (o != null)
             {
-                if(!o.IsAffectedByFoW)
+                if (!o.IsAffectedByFoW)
                 {
                     return true;
                 }
@@ -303,49 +313,51 @@ namespace LeagueSandbox.GameServer
 
         bool UnitHasVisionOn(GameObject observer, GameObject tested)
         {
-            if(!tested.IsAffectedByFoW)
+            if (!tested.IsAffectedByFoW)
             {
                 return true;
             }
 
-            if(observer is Region region)
+            if (observer is Region region)
             {
-                if(region.VisionTarget != null && region.VisionTarget != tested)
+                if (region.VisionTarget != null && region.VisionTarget != tested)
                 {
                     return false;
                 }
             }
-            else if(tested is Particle particle)
+            else if (tested is Particle particle)
             {
                 // Default behaviour
-                if(particle.SpecificTeam == TeamId.TEAM_NEUTRAL)
+                if (particle.SpecificTeam == TeamId.TEAM_NEUTRAL)
                 {
-                    if(
+                    if (
                         // Globally visible to all teams
                         particle.Team == TeamId.TEAM_NEUTRAL
                         // Globally visible to team of creator
                         || tested.Team == observer.Team
-                    ){
+                    )
+                    {
                         return true;
                     }
                     // Can become visible for other teams
                 }
                 // Only visible to specific team
-                else if(particle.SpecificTeam != observer.Team)
+                else if (particle.SpecificTeam != observer.Team)
                 {
                     return false;
                 }
             }
-            else if(tested.Team == observer.Team)
+            else if (tested.Team == observer.Team)
             {
                 return true;
             }
 
-            if(
+            if (
                 !(observer is AttackableUnit u && u.IsDead)
                 && Vector2.DistanceSquared(observer.Position, tested.Position) < observer.VisionRadius * observer.VisionRadius
                 && !_game.Map.NavigationGrid.IsAnythingBetween(observer, tested, true)
-            ){
+            )
+            {
                 return true;
             }
 
@@ -643,6 +655,19 @@ namespace LeagueSandbox.GameServer
             }
 
             return champs;
+        }
+
+
+        public void RemoveParticleByName(uint netId, string particleName)
+        {
+            _particlesToRemove.TryAdd(netId, particleName);
+            //for (uint i = (uint)_objects.Count - 1; i >= 0; --i)
+            //{
+            //    if (_objects[i] is Particle p && p.BindObject.NetId == netId && p.Name == particleName)
+            //    {
+            //        p.SetToRemove();
+            //    }
+            //}
         }
     }
 }

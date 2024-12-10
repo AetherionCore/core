@@ -41,6 +41,7 @@ namespace Buffs
         public void OnDeactivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
             RemoveParticle(slow);
+            owner.RemoveStatModifier(StatsModifier);
         }
 
         // TODO: Find a better way to transfer data between scripts.

@@ -27,7 +27,7 @@ namespace Buffs
         Buff thisBuff;
         Particle particle;
 
-        public ExaltedWithBaronNashor() {}
+        public ExaltedWithBaronNashor() { }
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
         {
@@ -65,7 +65,7 @@ namespace Buffs
                 if (_game == null)
                 {
                     LogDebug("_game is not initialized in 'ExaltedWithBaronNashor.cs'.");
-                    return; 
+                    return;
                 }
                 else
                 {

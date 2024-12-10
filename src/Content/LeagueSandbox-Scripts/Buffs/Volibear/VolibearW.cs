@@ -24,7 +24,6 @@ namespace Buffs
             MaxStacks = 3
         };
 
-        int StackCount;
         public StatsModifier StatsModifier { get; private set; } = new StatsModifier();
 
         public void OnActivate(AttackableUnit unit, Buff buff, Spell ownerSpell)
@@ -32,7 +31,6 @@ namespace Buffs
             var owner = ownerSpell.CastInfo.Owner;
             StatsModifier.AttackSpeed.PercentBonus = 0.08f;
             unit.AddStatModifier(StatsModifier);
-            StackCount++;
             if (buff.StackCount >= 3)
             {
                 SealSpellSlot(owner, SpellSlotType.SpellSlots, 1, SpellbookType.SPELLBOOK_CHAMPION, false);

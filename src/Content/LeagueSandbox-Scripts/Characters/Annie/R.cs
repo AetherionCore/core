@@ -9,8 +9,9 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Sector;
 using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
+using Buffs;
 
-﻿namespace Spells
+namespace Spells
 {
     public class InfernalGuardian : ISpellScript
     {
@@ -22,6 +23,20 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
             NotSingleTargetSpell = true,
             SpellDamageRatio = 0.5f,
         };
+
+        bool isGoneStun;
+        float stunDuration;
+        public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
+        {
+            var pyromarker = owner.GetBuffWithName("Pyromania_Particle");
+            if (pyromarker != null && pyromarker.BuffScript is Pyromania_Particle p)
+            {
+                stunDuration = p.StunDuration;
+                RemoveBuff(pyromarker);
+            }
+
+            isGoneStun = pyromarker != null;
+        }
 
         public void OnSpellPostCast(Spell spell)
         {
@@ -66,22 +81,28 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS.Missile;
             var sector = spell.CreateSpellSector(new SectorParameters
             {
                 Length = spell.SpellData.CastRadius[0],
+                Lifetime = 1f,
                 SingleTick = true,
-                Type = SectorType.Area
+                OverrideFlags = SpellDataFlags.AffectEnemies | SpellDataFlags.AffectNeutral | SpellDataFlags.AffectMinions | SpellDataFlags.AffectHeroes,
+                Type = SectorType.Area,
+                Tickrate = 60 // this is required or else the sector will hit immediately and we won't get the notification.
             });
 
-            ApiEventManager.OnSpellSectorHit.AddListener(this, sector, TargetExecute, false);
+            ApiEventManager.OnSpellSectorHit.AddListener(this, sector, TargetExecute, true);
         }
 
         public void TargetExecute(SpellSector sector, AttackableUnit target)
         {
             var spell = sector.SpellOrigin;
+            var owner = spell.CastInfo.Owner;
 
             // Pyromania stun here
-
-            var Ap = spell.CastInfo.Owner.Stats.AbilityPower.Total * 0.8f;
+            var Ap = owner.Stats.AbilityPower.Total * 0.8f;
             var totalDamage = 50 + (125 * spell.CastInfo.SpellLevel) + Ap;
-            target.TakeDamage(spell.CastInfo.Owner, totalDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+            target.TakeDamage(owner, totalDamage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELLAOE, false);
+
+            if (isGoneStun)
+                AddBuff("Stun", stunDuration, 1, spell, target, owner);
         }
     }
 

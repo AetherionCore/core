@@ -24,7 +24,6 @@ namespace Spells
         {
             TriggersSpellCasts = true,
             IsDamagingSpell = true,
-            NotSingleTargetSpell=true,
             MissileParameters = new MissileParameters
             {
                 Type = MissileType.Arc

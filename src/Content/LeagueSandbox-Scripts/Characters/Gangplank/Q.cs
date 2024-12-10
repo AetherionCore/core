@@ -18,6 +18,7 @@ namespace Spells
         float Damage;
         ObjAIBase owner;
         SpellMissile Missile;
+        int goldMade = 0;
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
             CastingBreaksStealth = true,
@@ -56,7 +57,11 @@ namespace Spells
                 if (target.IsDead)
                 {
                     if (owner is Champion champ)
+                    {
+                        goldMade += goldIncome;
                         champ.AddGold(target, goldIncome);
+                        SetSpellToolTipVar(owner, 1, goldMade, SpellbookType.SPELLBOOK_CHAMPION, 0, SpellSlotType.SpellSlots);
+                    }
                     var manaCost = new float[] { 50, 55, 60, 65, 70 }[spell.CastInfo.SpellLevel - 1];
                     var newMana = owner.Stats.CurrentMana + manaCost / 2;
                     var maxMana = owner.Stats.ManaPoints.Total;

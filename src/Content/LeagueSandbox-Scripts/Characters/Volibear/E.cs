@@ -9,6 +9,8 @@ using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
 using static LeaguePackets.Game.Common.CastInfo;
+using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.AnimatedBuildings;
+using Buffs;
 
 namespace Spells
 {
@@ -49,12 +51,13 @@ namespace Spells
 
             foreach (var target in units)
             {
-                if (target is AttackableUnit && spell.CastInfo.Owner != target)
+                if (target is AttackableUnit && (target is not BaseTurret or Inhibitor or Nexus) && spell.CastInfo.Owner != target)
                 {
-                    target.Stats.MoveSpeed.PercentBonus = -slow;
-                    target.TakeDamage(spell.CastInfo.Owner, damage, GameServerCore.Enums.DamageType.DAMAGE_TYPE_MAGICAL, GameServerCore.Enums.DamageSource.DAMAGE_SOURCE_SPELL, false);
+                    var buff = (IBuffGameScript)AddBuff("Slow", 3.0f, 1, spell, target, spell.CastInfo.Owner) as Slow;
+                    buff.SetSlowMod(slow);
+                    target.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_SPELL, false);
 
-                    CreateTimer(3.0f, () => { target.Stats.MoveSpeed.PercentBonus = 0f; });
+                    //CreateTimer(3.0f, () => { target.Stats.MoveSpeed.PercentBonus = 0f; });
                 }
             }
         }

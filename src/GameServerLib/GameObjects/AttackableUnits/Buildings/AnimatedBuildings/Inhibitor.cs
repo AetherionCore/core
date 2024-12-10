@@ -29,6 +29,9 @@ namespace LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.Animate
         {
             InhibitorState = DampenerState.RespawningState;
             Lane = laneId;
+
+            SetStatus(StatusFlags.CanMove, false);
+            SetStatus(StatusFlags.CanMoveEver, false);
         }
 
         public override void OnAdded()
