@@ -7,6 +7,6 @@ namespace LeagueSandbox.GameServer.Chatbox
         string Command { get; }
         string Syntax { get; }
         void Execute(int userId, bool hasReceivedArguments, string arguments = "");
-        void ShowSyntax();
+        void ShowSyntax(int userId);
     }
 }

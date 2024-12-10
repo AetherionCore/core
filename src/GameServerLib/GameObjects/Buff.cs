@@ -120,7 +120,7 @@ namespace LeagueSandbox.GameServer.GameObjects
 
             try
             {
-                BuffScript.OnActivate(TargetUnit, this, OriginSpell);
+                BuffScript?.OnActivate(TargetUnit, this, OriginSpell);
             }
             catch(Exception e)
             {

@@ -26,8 +26,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 var s = arguments.Split(' ');
                 if (s.Length < 2)
                 {
-                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                    ShowSyntax(userId);
                     return;
                 }
                 List<byte> _bytes = new List<byte>();

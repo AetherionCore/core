@@ -29,7 +29,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 printedString += $"- {dataPackage.PackageName}\n";
             }
 
-            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, printedString);
+            ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, printedString, userId);
 
         }
     }

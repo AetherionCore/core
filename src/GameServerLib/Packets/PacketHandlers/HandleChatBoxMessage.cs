@@ -1,4 +1,4 @@
-﻿using GameServerCore.Packets.PacketDefinitions.Requests;
+using GameServerCore.Packets.PacketDefinitions.Requests;
 using GameServerCore;
 using GameServerCore.Enums;
 using GameServerCore.Packets.Enums;
@@ -69,10 +69,10 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 
                 _chatCommandManager.SendDebugMsgFormatted(DebugMsgType.ERROR, "<font color =\"#E175FF\"><b>"
                                                                               + _chatCommandManager.CommandStarterCharacter + split[0] + "</b><font color =\"#AFBF00\"> " +
-                                                                              "is not a valid command.");
+                                                                              "is not a valid command.", userId);
                 _chatCommandManager.SendDebugMsgFormatted(DebugMsgType.INFO, "Type <font color =\"#E175FF\"><b>"
                                                                              + _chatCommandManager.CommandStarterCharacter + "help</b><font color =\"#AFBF00\"> " +
-                                                                             "for a list of available commands");
+                                                                             "for a list of available commands", userId);
                 return true;
             }
 

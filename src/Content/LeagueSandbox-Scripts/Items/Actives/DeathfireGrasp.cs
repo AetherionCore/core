@@ -23,8 +23,12 @@ namespace ItemSpells
         {
             SpellCastItem(owner, "DeathfireGraspSpell", true, target, Vector2.Zero);
         }
-    }
 
+    }
+}
+
+namespace Spells
+{
     public class DeathfireGraspSpell : ISpellScript
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
@@ -32,8 +36,13 @@ namespace ItemSpells
             MissileParameters = new MissileParameters
             {
                 Type = MissileType.Target
-            }
-            // TODO
+            },
+            CastingBreaksStealth = true,
+            DoesntBreakShields = false,
+            TriggersSpellCasts = false,
+            IsDamagingSpell = true,
+            NotSingleTargetSpell = false,
+            SpellDamageRatio = 1f,
         };
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
@@ -47,6 +56,7 @@ namespace ItemSpells
             var damage = target.Stats.HealthPoints.Total * 0.15f;
             target.TakeDamage(spell.CastInfo.Owner, damage, DamageType.DAMAGE_TYPE_MAGICAL, DamageSource.DAMAGE_SOURCE_DEFAULT, false);
             missile.SetToRemove();
+            ResetItemSpellCooldown(spell.CastInfo.Owner, "Death");
         }
     }
 }

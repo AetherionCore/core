@@ -5,6 +5,8 @@ using GameServerCore.Scripting.CSharp;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits.AI;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using LeagueSandbox.GameServer.GameObjects.AttackableUnits;
+using GameServerCore.Enums;
+using LeagueSandbox.GameServer.API;
 
 namespace ItemSpells
 {
@@ -12,12 +14,18 @@ namespace ItemSpells
     {
         public SpellScriptMetadata ScriptMetadata { get; private set; } = new SpellScriptMetadata()
         {
-            // TODO
+            TriggersSpellCasts = true
         };
 
         public void OnSpellPreCast(ObjAIBase owner, Spell spell, AttackableUnit target, Vector2 start, Vector2 end)
         {
-            AddBuff("YoumuusGhostblade", 6.0f, 1, spell, owner, owner);
+            AddBuff("SpectralFury", 6.0f, 1, spell, owner, owner);
+        }
+
+        public void OnSpellPostCast(Spell spell)
+        {
+            //LogInfo($"Yomuu's SpellSlot is {spell.CastInfo.SpellSlot}");
+            ApiFunctionManager.ResetItemSpellCooldown(spell.CastInfo.Owner, "YoumusBlade");
         }
     }
 }

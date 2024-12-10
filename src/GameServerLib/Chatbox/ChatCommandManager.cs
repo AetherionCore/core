@@ -15,7 +15,7 @@ namespace LeagueSandbox.GameServer.Chatbox
         private SortedDictionary<string, IChatCommand> _chatCommandsDictionary;
 
         // TODO: Refactor this method or maybe the packet notifier?
-        public void SendDebugMsgFormatted(DebugMsgType type, string message = "")
+        public void SendDebugMsgFormatted(DebugMsgType type, string message = "", int userId = 0)
         {
             var formattedText = new StringBuilder();
             var fontSize = 20; // Big fonts seem to make the chatbox buggy
@@ -25,25 +25,25 @@ namespace LeagueSandbox.GameServer.Chatbox
                 case DebugMsgType.ERROR: // Tag: [ERROR], Color: Red
                     formattedText.Append("<font size=\"" + fontSize + "\" color =\"#FF0000\"><b>[ERROR]</b><font color =\"#AFBF00\">: ");
                     formattedText.Append(message);
-                    _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
+                    _game.PacketNotifier.NotifyS2C_SystemMessage(userId, formattedText.ToString());
                     break;
                 case DebugMsgType.INFO: // Tag: [INFO], Color: Green
                     formattedText.Append("<font size=\"" + fontSize + "\" color =\"#00D90E\"><b>[SERVER INFO]</b><font color =\"#AFBF00\">: ");
                     formattedText.Append(message);
-                    _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
+                    _game.PacketNotifier.NotifyS2C_SystemMessage(userId, formattedText.ToString());
                     break;
                 case DebugMsgType.SYNTAX: // Tag: [SYNTAX], Color: Blue
                     formattedText.Append("<font size=\"" + fontSize + "\" color =\"#006EFF\"><b>[SYNTAX]</b><font color =\"#AFBF00\">: ");
                     formattedText.Append(message);
-                    _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
+                    _game.PacketNotifier.NotifyS2C_SystemMessage(userId, formattedText.ToString());
                     break;
                 case DebugMsgType.SYNTAXERROR: // Tag: [ERROR], Color: Red
                     formattedText.Append("<font size=\"" + fontSize + "\" color =\"#FF0000\"><b>[ERROR]</b><font color =\"#AFBF00\">: ");
                     formattedText.Append("Incorrect command syntax");
-                    _game.PacketNotifier.NotifyS2C_SystemMessage(formattedText.ToString());
+                    _game.PacketNotifier.NotifyS2C_SystemMessage(userId, formattedText.ToString());
                     break;
                 case DebugMsgType.NORMAL: // No tag, no format
-                    _game.PacketNotifier.NotifyS2C_SystemMessage(message);
+                    _game.PacketNotifier.NotifyS2C_SystemMessage(userId, message);
                     break;
             }
         }
@@ -69,12 +69,12 @@ namespace LeagueSandbox.GameServer.Chatbox
         internal SortedDictionary<string, IChatCommand> GetAllChatCommandHandlers(Assembly[] loadFromArray, Game game)
         {
             var commands = new List<IChatCommand>();
-            var args = new object[] {this, game};
+            var args = new object[] { this, game };
             foreach (var loadFrom in loadFromArray)
             {
                 commands.AddRange(loadFrom.GetTypes()
                     .Where(t => t.BaseType == typeof(ChatCommandBase))
-                    .Select(t => (IChatCommand) Activator.CreateInstance(t, args)));
+                    .Select(t => (IChatCommand)Activator.CreateInstance(t, args)));
             }
             var commandsOutput = new SortedDictionary<string, IChatCommand>();
 

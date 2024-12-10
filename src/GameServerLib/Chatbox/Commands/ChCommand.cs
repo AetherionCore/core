@@ -21,8 +21,8 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             var split = arguments.Split(' ');
             if (split.Length < 2)
             {
-                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, userId: userId);
+                ShowSyntax(userId);
                 return;
             }
             var currentChampion = _playerManager.GetPeerInfo(userId).Champion;
