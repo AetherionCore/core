@@ -15,13 +15,18 @@ using LeagueSandbox.GameServer.GameObjects.SpellNS;
 
         public void OnSpellPostCast(Spell spell)
         {
-            AddBuff("MoltenShield", 5.0f, 1, spell, spell.CastInfo.Owner, spell.CastInfo.Owner);
-            if (spell.CastInfo.Owner is Champion ch)
+            var owner = spell.CastInfo.Owner;
+            AddBuff("Pyromania", 250000f, 1, spell, owner, owner);
+            var buff = owner.GetBuffWithName("Pyromania");
+            NotifyBuffStacks(buff);
+
+            AddBuff("MoltenShield", 5.0f, 1, spell, owner, owner);
+            if (owner is Champion ch)
             {
                 Pet tibbers = ch.GetPet();
                 if (tibbers != null && !tibbers.IsDead)
                 {
-                    AddBuff("MoltenShield", 5.0f, 1, spell, tibbers, spell.CastInfo.Owner);
+                    AddBuff("MoltenShield", 5.0f, 1, spell, tibbers, owner);
                 }
             }
         }
