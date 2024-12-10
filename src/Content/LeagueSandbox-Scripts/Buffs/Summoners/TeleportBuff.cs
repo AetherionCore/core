@@ -30,9 +30,8 @@ namespace Buffs
             var test = buff.SourceUnit;
             if (test is Minion)
             {
-                unit.SetStatus(StatusFlags.Invulnerable, true);
+                test.SetStatus(StatusFlags.CanMove, false);
                 test.StopMovement();
-                test.CancelAutoAttack(true, true);
             }
             unit.StopMovement();
             unit.SetStatus(StatusFlags.CanMove, false);
@@ -46,7 +45,6 @@ namespace Buffs
             if (test is Minion)
             {
                 test.SetStatus(StatusFlags.CanMove, true);
-                unit.SetStatus(StatusFlags.Invulnerable, false);
                 //test.StopMovement();
             }
             unit.SetStatus(StatusFlags.CanMove, true);
