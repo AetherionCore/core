@@ -56,13 +56,13 @@ namespace LeagueSandbox.GameServer
         /// </summary>
         public void Start()
         {
-            var build = $"LeagueServer: {ServerContext.BuildDateString}";
+            var build = $"Core rev. {ServerContext.GitCommitHash} @ {ServerContext.BuildDateString}";
             var packetServer = new PacketServer();
 
             Console.Title = build;
 
             ShowBanner();
-            _logger.Debug(build);
+            _logger.Info(build);
             _logger.Info($"Game started on port: {_serverPort}");
 
             packetServer.InitServer(_serverPort, _blowfishKeys, _game, _game.RequestHandler, _game.ResponseHandler);

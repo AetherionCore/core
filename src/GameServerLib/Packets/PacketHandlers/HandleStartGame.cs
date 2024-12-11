@@ -7,6 +7,7 @@ using LeagueSandbox.GameServer.Players;
 using System.Text;
 using LeagueSandbox.GameServer;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LeagueSandbox.GameServer.Packets.PacketHandlers
 {
@@ -73,6 +74,7 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             }
             _game.Start();
             _game.PacketNotifier.NotifyS2C_SystemMessage(_game.Config.ServerMotd);
+            _game.PacketNotifier.NotifyS2C_SystemMessage("<font size=\"20\" color=\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b>: <font color=\"#00FF7F\"> Core rev. " + ServerContext.GitCommitHash + " @ " + ServerContext.BuildDateString + "</font></font>");
         }
 
         private void StartFor(ClientInfo player)
