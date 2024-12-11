@@ -180,9 +180,9 @@ namespace MapScripts.Map1
                 case 7:
                 case 10:
                     return 300.0f * 1000;
-                case 12:
+                case 12 /* Baron */:
                     return 420.0f * 1000;
-                case 6:
+                case 6 /* Dragon */:
                     return 360.0f * 1000f;
                 default:
                     return 50.0f * 1000;
