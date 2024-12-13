@@ -57,7 +57,7 @@ namespace Spells
             }
         };
 
-        //Vector2 direction;
+        Vector2 direction;
 
         public void OnActivate(ObjAIBase owner, Spell spell)
         {
