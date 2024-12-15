@@ -292,6 +292,8 @@ namespace LeagueSandbox.GameServer.GameObjects
                 SetVisibleForPlayer(userId, visible);
                 SetSpawnedForPlayer(userId);
             }
+
+
         }
 
         public virtual void OnAfterSync()
@@ -449,5 +451,8 @@ namespace LeagueSandbox.GameServer.GameObjects
 
         // Utility function
         public Game GetGame() { return _game; }
+
+        // updates
+        public virtual void UpdateStats(float diff) { }
     }
 }

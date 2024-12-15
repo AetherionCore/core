@@ -5,7 +5,6 @@ using GameServerCore.NetInfo;
 using System.Linq;
 using LeagueSandbox.GameServer.Players;
 using System.Text;
-using LeagueSandbox.GameServer;
 using System.Numerics;
 
 namespace LeagueSandbox.GameServer.Packets.PacketHandlers
@@ -72,7 +71,6 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 }
             }
             _game.Start();
-            _game.PacketNotifier.NotifyS2C_SystemMessage(_game.Config.ServerMotd);
         }
 
         private void StartFor(ClientInfo player)
@@ -99,18 +97,21 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
                 );
             }
 
-            /*_game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
-                "[SERVER INFO] Welcome to AetherionCore", "https://github.com/AetherionCore/core",
-                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
 
+            NotifySystemMessagesServerMOTD(player.ClientId);
+
+            _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
+                "[SERVER INFO] Welcome to MOBA-Core", "This server is for educational purposes only.",
+                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
+            /*
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
                 "[DEBUG INFO] Server Build Date", ServerContext.BuildDateString,
                 "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
             
             _game.PacketNotifier.NotifyS2C_HandleTipUpdate(player.ClientId,
                 "[DEBUG INFO] Your Champion:", player.Champion.Model,
-                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());*/
-            
+                "", 0, player.Champion.NetId, _game.NetworkIdManager.GetNewNetId());
+            */
 
             SyncTime(player.ClientId);
         }
@@ -121,6 +122,17 @@ namespace LeagueSandbox.GameServer.Packets.PacketHandlers
             var gameTime = _game.GameTime;
             _game.PacketNotifier.NotifySynchSimTimeS2C(userId, gameTime);
             _game.PacketNotifier.NotifySyncMissionStartTimeS2C(userId, gameTime);
+        }
+
+        void NotifySystemMessagesServerMOTD(int clientId)
+        {
+            var formattedText = new StringBuilder();
+            var fontSize = 20;
+
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: Welcome to MOBA-Core</font>\n");
+            formattedText.Append("<font size=\"" + fontSize + "\" color =\"#2E2E2E\"><b><font color=\"#FFD700\">[SERVER INFO]</font></b><font color =\"#00FF7F\">: This server is for educational purposes only.</font>\n");
+
+            _game.PacketNotifier.NotifyS2C_SystemMessage(clientId, formattedText.ToString());
         }
     }
 }
