@@ -292,8 +292,6 @@ namespace LeagueSandbox.GameServer.GameObjects
                 SetVisibleForPlayer(userId, visible);
                 SetSpawnedForPlayer(userId);
             }
-
-
         }
 
         public virtual void OnAfterSync()
