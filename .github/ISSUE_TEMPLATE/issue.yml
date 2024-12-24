@@ -21,7 +21,7 @@ body:
       description: |
         Describe what you expected to happen instead.
     validations:
-      required: true
+      required: false
   - type: textarea
     id: reproduce
     attributes:
@@ -31,15 +31,7 @@ body:
         2. Step 2 - list any relevant in-game items, champions, or abilities.
         3. Step 3 - provide any links to LoL-specific resources, if applicable.
     validations:
-      required: true
-  - type: dropdown
-    id: server_version
-    attributes:
-      label: Server Version
-      options:
-        - 4.20
-    validations:
-      required: true
+      required: false
   - type: textarea
     id: commit
     attributes:
@@ -61,7 +53,7 @@ body:
     attributes:
       label: Custom Modifications
       description: |
-        List any custom modifications you have applied, e.g., champion skins, item changes, etc.
+        List any custom modifications you have applied, e.g., champion skins, item changes, AI modifications, etc.
         Write "None" if you haven't applied any custom modifications.
     validations:
-      required: true
+      required: false
