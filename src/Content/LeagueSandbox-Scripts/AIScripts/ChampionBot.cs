@@ -10,27 +10,12 @@ using System.Numerics;
 using System;
 using System.Linq;
 using static LeagueSandbox.GameServer.API.ApiFunctionManager;
-using LeagueSandbox.GameServer.Chatbox;
-using LeagueSandbox.GameServer.Players;
-using LeagueSandbox.GameServer.GameObjects.StatsNS;
-using LeagueSandbox.GameServer.GameObjects.AttackableUnits.Buildings.AnimatedBuildings;
-using LeagueSandbox.GameServer.Logging;
-using log4net;
 using LeagueSandbox.GameServer;
-using Timer = System.Timers.Timer;
-using LeagueSandbox.GameServer.Inventory;
 using Spells;
 using LeagueSandbox.GameServer.GameObjects.SpellNS;
 using System.Threading.Tasks;
-using GameServerCore.NetInfo;
 using LeagueSandbox.GameServer.GameObjects;
-using GameMaths;
 using System.Diagnostics;
-using static GameServerLib.GameObjects.AttackableUnits.DamageData;
-
-
-
-
 
 namespace AIScripts
 {
@@ -38,7 +23,7 @@ namespace AIScripts
     {
         public AIScriptMetaData AIScriptMetaData { get; set; } = new AIScriptMetaData();
         public Champion ChampionInstance { get; private set; }
-        public BotState currentBotState { get; private set; } // Public getter, private setter
+        public BotState currentBotState { get; private set; }
 
         private float TimeSinceLastDamage { get; set; }
         private const float combatDuration = 10.0f;
@@ -47,7 +32,7 @@ namespace AIScripts
         private bool isInCombat = false;
         private bool isUnderTower = false;
         private bool isRoaming = false;
-        private const float healthThreshold = 0.3f;  // Adjust to simulate more cautious or aggressive play
+        private const float healthThreshold = 0.3f;
         private const float minionDamageThreshold = 20.0f;
         private readonly Game game;
         private CastInfo CastInfo { get; set; }
@@ -57,18 +42,14 @@ namespace AIScripts
         private readonly Stopwatch _significantDamageStopwatch = new Stopwatch();
         private readonly List<DamageData> damages = new List<DamageData>();
         private bool _hasTakenSignificantDamage = false;
-        private const float SignificantDamageThreshold = 200.0f; // Define the damage threshold as appropriate
-        private const double DamageTimeWindow = 5.0; // Time window in seconds
+        private const float SignificantDamageThreshold = 200.0f;
+        private const double DamageTimeWindow = 5.0;
         private bool IsTakingChampionDamage = false;
         private bool _isTakingMinionDamage = false;
         private const double MinionDamageDuration = 5.0;
+        private float _stateCooldown = 5.0f;
+        private const float decisionCooldown = 5.0f;
 
-
-
-
-
-        private float _stateCooldown = 5.0f;  // Time before the bot can switch states
-        private const float decisionCooldown = 5.0f; // 2 seconds cooldown between decisions
         private static Random random = new Random();
 
         public enum BotState
@@ -110,29 +91,20 @@ namespace AIScripts
         {
             if (ChampionInstance != null && !ChampionInstance.IsDead)
             {
-                // Log the initial state before updating timers
-             
-
                 TimeSinceLastDamage += diff;
                 combatTimer += diff;
                 _stateCooldown = Math.Max(0.0f, _stateCooldown - diff);
-
-                // Log the state after updating timers
  
-
                 if (_stateCooldown <= 0.0f)
                 {
-
-
                     DecideNextState();
 
                     _stateCooldown = decisionCooldown;  // Reset cooldown after decision
                 }
 
                 HandleCurrentState();
-
-                // Optionally log the current state to check if it's being handled correctly
             }
+
             else
             {
                 if (ChampionInstance == null)
@@ -141,7 +113,6 @@ namespace AIScripts
                 else if (ChampionInstance.IsDead)
                 {
                     ChampionInstance.UpdateMoveOrder(OrderType.Stop); // Issue a stop command to halt movement/attacks
-
                 }
             }
         }
@@ -246,7 +217,7 @@ namespace AIScripts
             }
         }
 
-        private BotState _currentBotState; // Backing field for the state
+        private BotState _currentBotState;
         private Recall recallSpell;
         private Spell spell;
 
@@ -255,7 +226,7 @@ namespace AIScripts
             get => _currentBotState;
             private set
             {
-                if (_currentBotState != value) // Only log if the state is actually changing
+                if (_currentBotState != value)
                 {
                     _currentBotState = value;
                 }
@@ -266,7 +237,7 @@ namespace AIScripts
         {
             if (_currentBotState != newState)
             {
-                _currentBotState = newState; // This triggers the setter, logging the state change
+                _currentBotState = newState;
             }
         }
 
@@ -445,7 +416,6 @@ namespace AIScripts
             // Cancel the recall if it's in progress
             if (isRecalling)
             {
-
                 // Stop the recall particle and clean up
                 if (recallParticle != null)
                 {
@@ -478,6 +448,7 @@ namespace AIScripts
                     _currentState = BotState.TakingMinionDamage; // Switch to new state
                 }
             }
+
             // If the bot is taking damage from champions
             else if (source is Champion enemyChampion)
             {
@@ -491,6 +462,7 @@ namespace AIScripts
                     // Bot is stronger, switch to retaliate
                     _currentState = BotState.Retaliating; // Switch to new state
                 }
+
                 else
                 {
                     // Bot is weaker, retreat
@@ -538,6 +510,7 @@ namespace AIScripts
             {
                 Attack(enemyChampion);
             }
+
             else
             {
                 // Implement kiting logic or defensive strategy
@@ -561,6 +534,7 @@ namespace AIScripts
 
                 MoveToPosition(safePosition); // Use MoveToPosition to handle the move operation.
             }
+
             else
             {
                 // If not too close, consider attacking or repositioning to maintain range
@@ -569,6 +543,7 @@ namespace AIScripts
 
                     Attack(enemyChampion);
                 }
+
                 else
                 {
 
@@ -596,10 +571,12 @@ namespace AIScripts
         {
             // Find the average position of all nearby minions
             Vector2 minionCenter = new Vector2(0, 0);
+
             foreach (var minion in nearbyMinions)
             {
                 minionCenter += minion.Position;
             }
+
             minionCenter /= nearbyMinions.Count;
 
             // Calculate the direction away from the minions
@@ -710,6 +687,7 @@ namespace AIScripts
                 {
                     return true;
                 }
+
                 else
                 {
                     // If the timer has exceeded the allowed duration, reset the flag
@@ -749,7 +727,6 @@ namespace AIScripts
             float distanceToEnemy = Vector2.Distance(ChampionInstance.Position, unit.Position);
             return distanceToEnemy <= attackRange;
         }
-
 
         private void StopAttack()
         {
@@ -853,6 +830,7 @@ namespace AIScripts
                     Attack(minion); // Method to attack the minion
                     return; // If attacking a minion, exit early (prevents multiple actions)
                 }
+
                 else if (currentTime - _lastMovementTime > MovementCooldown)
                 {
                     // Only move if the cooldown period has passed
@@ -981,8 +959,7 @@ namespace AIScripts
         private List<AttackableUnit> GetUnitsInRange(Vector2 position, float range, bool includeDeadUnits)
         {
             // Retrieves all units within the specified range
-            return ApiFunctionManager.GetUnitsInRange(position, range, includeDeadUnits)
-                .Where(unit => unit.Team != ChampionInstance.Team).ToList();
+            return ApiFunctionManager.GetUnitsInRange(position, range, includeDeadUnits).Where(unit => unit.Team != ChampionInstance.Team).ToList();
         }
     }
 }

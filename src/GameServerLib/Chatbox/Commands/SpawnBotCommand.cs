@@ -14,7 +14,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
         private readonly PlayerManager _playerManager;
 
         Game _game;
-        public override string Command => "spawnai";
+        public override string Command => "spawnbot";
         public override string Syntax => $"{Command} champblue [champion], champpurple [champion]";
 
         public SpawnbotCommand(ChatCommandManager chatCommandManager, Game game)
@@ -31,8 +31,9 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
             if (split.Length < 2)
             {
                 ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                ShowSyntax();
+                ShowSyntax(userId);
             }
+            
             else if (split[1].StartsWith("champ"))
             {
                 string championModel = "";
@@ -41,7 +42,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                 if (!Enum.TryParse(split[1], out TeamId team) || team == TeamId.TEAM_NEUTRAL)
                 {
                     ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR);
-                    ShowSyntax();
+                    ShowSyntax(userId);
                     return;
                 }
 
@@ -56,7 +57,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
                     catch (ContentNotFoundException)
                     {
                         ChatCommandManager.SendDebugMsgFormatted(DebugMsgType.SYNTAXERROR, "Character Name: " + championModel + " invalid.");
-                        ShowSyntax();
+                        ShowSyntax(userId);
                         return;
                     }
 
@@ -67,11 +68,7 @@ namespace LeagueSandbox.GameServer.Chatbox.Commands
 
                 SpawnChampForTeam(team, userId, "Katarina");
             }
-
-
-            
         }
-
 
         public void SpawnChampForTeam(TeamId team, int userId, string model)
         {
